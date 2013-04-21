@@ -1,0 +1,8 @@
+View (join) command examples:
+
+SELECT * FROM playliste FULL JOIN datei ON playliste.liedid = datei.liedid;
+
+
+
+SELECT titel,interpret,album,genre,laenge,pfad FROM lied JOIN datei ON lied.id = datei.id;
+

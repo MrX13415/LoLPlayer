@@ -1,0 +1,10 @@
+
+1.:	select *                     
+	from preisliste 
+	order by "Versandpreis" desc;
+
+2.:	select "Bezeichnung" AS "Artikelname","Filialpreis"
+	from preisliste
+	order by "Filialpreis" asc;
+
+3.:	

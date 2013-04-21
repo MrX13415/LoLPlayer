@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="jl1.0.1.jar"/>
+	<classpathentry kind="lib" path="postgresql-9.2-1000.jdbc4.jar"/>
+	<classpathentry kind="lib" path="brownies-collections-0.9.3.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/AudioPlayer/brownies-collections-0.9.3-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="Filters.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
