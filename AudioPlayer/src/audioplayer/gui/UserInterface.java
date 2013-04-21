@@ -24,8 +24,7 @@ import audioplayer.gui.components.playlist.PlaylistToggleArea;
 
 
 
-public abstract class UserInterface extends JFrame implements ActionListener,
-		SearchCricleListener, MouseListener {
+public abstract class UserInterface extends JFrame implements ActionListener, SearchCricleListener, MouseListener {
 
 	/**
 	 * 
