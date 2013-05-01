@@ -42,7 +42,7 @@ public class JGraph extends JPanel implements Graph{
 	 */
 	private volatile boolean gaussianFilter = false;
 	
-	private GaussianFilter gf = new GaussianFilter(1.5f);
+	private GaussianFilter gf = new GaussianFilter(1.8f);
 	private PremultiplyFilter pf = new PremultiplyFilter();
 	private UnpremultiplyFilter upf = new UnpremultiplyFilter();
     

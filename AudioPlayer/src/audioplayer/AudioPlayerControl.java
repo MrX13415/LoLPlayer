@@ -9,9 +9,9 @@ import javax.swing.filechooser.FileFilter;
 
 import audioplayer.gui.UserInterface;
 import audioplayer.gui.components.PlayerControler.Display;
-import audioplayer.player.AudioFile;
 import audioplayer.player.AudioPlaylist;
 import audioplayer.player.analyzer.Analyzer;
+import audioplayer.player.codec.AudioFile;
 import audioplayer.player.codec.AudioProcessingLayer;
 import audioplayer.player.codec.WAVEAudioProcessingLayer;
 import audioplayer.player.listener.PlayerEvent;
@@ -30,7 +30,7 @@ public class AudioPlayerControl extends UserInterface implements PlayerListener 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private AudioProcessingLayer ppl = new WAVEAudioProcessingLayer();
+	private AudioProcessingLayer ppl = new AudioProcessingLayer();
     private AudioPlaylist apl = new AudioPlaylist();
         
 	private Thread uiUpdaterThread;
@@ -55,7 +55,6 @@ public class AudioPlayerControl extends UserInterface implements PlayerListener 
 
 		initUIupdaterThread();
 
-		initAudioProcessingLayer();
 		// initAudioFile(new File("Scratching Harmony (Re-Orchestrated).mp3"));
 	}
 
@@ -83,18 +82,17 @@ public class AudioPlayerControl extends UserInterface implements PlayerListener 
 	public void initAudioFile() {
         AudioFile af = apl.get();
         
-        ppl.initialzePlayer(af);
-        ppl.setPostion(0);
-
-        //this.getPlayerControlInterface().getSearchBar().setMaximum(ppl.getStreamLength());
+        initAudioProcessingLayer(af);
+        
+        this.getPlayerControlInterface().getSearchBar().setMaximum(ppl.getStreamLength());
 
         analyzer.init(ppl.getAudioDevice());
 		
         System.out.println("FILE: " + ppl.getAudioFile().getFile().getAbsolutePath());
 	}
 
-	public void initAudioProcessingLayer() {
-		AudioProcessingLayer newppl = new AudioProcessingLayer();
+	public void initAudioProcessingLayer(AudioFile af) {
+		AudioProcessingLayer newppl = af.getAudioProcessingLayer();
 
 		if (ppl != null) {
 			if (!ppl.isNew())
@@ -104,6 +102,8 @@ public class AudioPlayerControl extends UserInterface implements PlayerListener 
 
 		ppl = newppl;
 		ppl.addPlayerListener(this);
+        ppl.initialzePlayer(af);
+        ppl.setPostion(0);
 	}
 
 	private Runnable getUIupdater() {
@@ -127,9 +127,9 @@ public class AudioPlayerControl extends UserInterface implements PlayerListener 
 					ppl.getAudioDevice().setAnalyzer(analyzer);
 					
 					analyzer.setDetailLevel(ms.getValue());
-					getPlayerControlInterface().getPlayerInterfaceGraph().setHeightLevel((ms.getValue() * 10f / (2f + 1) / 1000f + 1));//bf.getValue() / 1000f);
+					getPlayerControlInterface().getPlayerInterfaceGraph().setHeightLevel((ms.getValue() * 10f / (1f + 1) / 1000f + 1));//bf.getValue() / 1000f);
 					
-					if ((ms.getValue() % 2) == 0)((WAVEAudioProcessingLayer) ppl).bps = ms.getValue();
+					//if ((ms.getValue() % 2) == 0)((WAVEAudioProcessingLayer) ppl).bps = ms.getValue();
 					
 					SwingUtilities.invokeLater(new Runnable() {
 

@@ -78,7 +78,7 @@ public class Display extends JPanel {
 		this.setLayout(new BorderLayout());
 		this.add(timepane, BorderLayout.CENTER);
 		this.add(bottomline, BorderLayout.PAGE_END);
-		this.setOpaque(true);
+		this.setOpaque(false);
 		
 	}
 
@@ -95,7 +95,7 @@ public class Display extends JPanel {
 //		System.out.println(fm.getHeight() + " " + size);
 //		
 //		
-		this.time.setText(String.format("<html><font size=6>%1$tH:%1$tM:%1$tS</font><font size=4>  %1$tL</font></html>", time - 3600000));
+		this.time.setText(String.format("<html><font size=6 color=\"#ffffff\">%1$tH:%1$tM:%1$tS</font><font size=4 color=\"#ffffff\">  %1$tL</font></html>", time - 3600000));
 	}
 
 	public void setInfo1Text(String info1) {

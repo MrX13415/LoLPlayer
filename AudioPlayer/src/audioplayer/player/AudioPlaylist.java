@@ -4,6 +4,7 @@
  */
 package audioplayer.player;
 
+import audioplayer.player.codec.AudioFile;
 import audioplayer.player.listener.PlayerListener;
 import audioplayer.player.listener.PlaylistEvent;
 import audioplayer.player.listener.PlaylistIndexChangeEvent;
@@ -70,11 +71,11 @@ public class AudioPlaylist {
     }
     
     public AudioFile get(){
-        return content.get(index);
+    	return content.get(index);
     }
     
     public AudioFile get(int index){
-        return content.get(index);
+    	return content.get(index);
     }
     
     public int size(){

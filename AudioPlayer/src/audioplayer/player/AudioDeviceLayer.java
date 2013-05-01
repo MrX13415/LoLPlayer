@@ -185,7 +185,7 @@ public class AudioDeviceLayer extends AudioDeviceBase {
 
 	public void writeImpl(short[] samples, final int offs, final int len) throws JavaLayerException {
 		this.currentSamples = samples;
-		writeImpl(toByteArray(samples, offs, len), offs, len);
+		writeImpl(toByteArray(samples, offs, len), offs, len * 2);
 	}
 	
 	public void writeImpl(byte[] samples, final int offs, final int len) throws JavaLayerException {
@@ -196,7 +196,7 @@ public class AudioDeviceLayer extends AudioDeviceBase {
 		this.currentLen = len; 
 		this.currentSamplesBytes = samples;
 		
-		source.write(this.currentSamplesBytes, 0, len * 2);
+		source.write(this.currentSamplesBytes, 0, len);
 		
 		if (analyzer != null){
 			analyzer.addToAnalyze(currentSamplesBytes, offs, len);
@@ -205,7 +205,7 @@ public class AudioDeviceLayer extends AudioDeviceBase {
 
 	protected byte[] getByteArray(int length) {
 		if (byteBuf.length < length) {
-			byteBuf = new byte[length + 1024];
+			byteBuf = new byte[length];
 		}
 		return byteBuf;
 	}

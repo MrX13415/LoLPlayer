@@ -1,5 +1,6 @@
 package audioplayer.gui.components.playlist;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -54,7 +55,9 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 		toggleButton = new JButton("TOGGLE");
 		toggleButton.addActionListener(this);
 		toggleButton.setSize(new Dimension(400, 25));
-
+		
+		this.setBackground(new Color(255,50,50));
+		
 		pli.setSize(new Dimension(400, 200));
 
 		initComponentResize(frame, pli);

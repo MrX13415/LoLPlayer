@@ -10,7 +10,6 @@ import javazoom.jl.decoder.Header;
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.decoder.SampleBuffer;
 import audioplayer.player.AudioDeviceLayer;
-import audioplayer.player.AudioFile;
 import audioplayer.player.listener.PlayerEvent;
 import audioplayer.player.listener.PlayerListener;
 
@@ -133,7 +132,7 @@ public class MP3AudioProcessingLayer extends AudioProcessingLayer implements Run
 				}else{
 					if (timePerFrame <= 0) determineTimePerFrame();
 					if (notPaused) internaltimePosition += timePerFrame;
-                                            timePosition = internaltimePosition;
+                                            timePosition = (long) internaltimePosition;
 				}
 								
 				timePerLoop = System.currentTimeMillis() - tplStart;

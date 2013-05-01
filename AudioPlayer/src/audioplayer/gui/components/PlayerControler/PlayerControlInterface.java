@@ -1,6 +1,7 @@
 package audioplayer.gui.components.PlayerControler;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -13,12 +14,14 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.SearchCircle;
 import javax.swing.SearchCircle.SearchCricleListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import audioplayer.font.FontLoader;
 import audioplayer.player.analyzer.components.JGraph;
 
 
-public class PlayerControlInterface extends JPanel {
+public class PlayerControlInterface extends JPanel{
 
 	/**
 	 * 
@@ -50,6 +53,10 @@ public class PlayerControlInterface extends JPanel {
 		play = new JButton("\u25BA\u2759\u2759");
 		play.setFont(FontLoader.fontGUIPlayerButtons);
 		play.addActionListener(actionListener);
+		play.setBackground(new Color(50,50,50));
+		play.setContentAreaFilled(false);
+		play.setForeground(new Color(255,0,0));
+		
 		//play.setIcon(new ImageIcon(
 		//		"C:/Users/Oliver/Pictures/drawing skills/Play_0.png", "PLAY"));
 		//play.setBorderPainted(false);
@@ -59,15 +66,24 @@ public class PlayerControlInterface extends JPanel {
 		stop = new JButton("\u25FC");
 		stop.setFont(FontLoader.fontGUIPlayerButtons);
 		stop.addActionListener(actionListener);
-
+		stop.setBackground(new Color(50,50,50));
+		stop.setContentAreaFilled(false);
+		stop.setForeground(new Color(255,0,0));
+		
 		frw = new JButton("\u23ed");
 		frw.setFont(FontLoader.fontGUIPlayerButtons);
 		frw.addActionListener(actionListener);
-
+		frw.setBackground(new Color(50,50,50));
+		frw.setContentAreaFilled(false);
+		frw.setForeground(new Color(255,0,0));
+		
 		rev = new JButton("\u23ee");
 		rev.setFont(FontLoader.fontGUIPlayerButtons);
 		rev.addActionListener(actionListener);
-
+		rev.setBackground(new Color(50,50,50));
+		rev.setContentAreaFilled(false);
+		rev.setForeground(new Color(255,0,0));
+		
 		searchBar = new SearchCircle();
 		searchBar.setName("searchBar");
 		searchBar.setKeyScrollamount(1000);
@@ -120,7 +136,8 @@ public class PlayerControlInterface extends JPanel {
 		searchBar.add(volume);
 
 		playerButtons = new JPanel();
-		playerButtons.setOpaque(false);
+		playerButtons.setBackground(new Color(50,50,50));
+		playerButtons.setOpaque(true);
 		playerButtons.setLayout(new GridLayout(1, 4));
 		playerButtons.setBorder(BorderFactory.createLoweredBevelBorder());
 		playerButtons.add(rev);
@@ -129,12 +146,14 @@ public class PlayerControlInterface extends JPanel {
 		playerButtons.add(frw);
 
 		playerControls = new JPanel();
-		playerControls.setOpaque(false);
+		playerControls.setOpaque(true);
 		playerControls.setBorder(BorderFactory.createRaisedBevelBorder());
 		playerControls.setLayout(new GridLayout(2, 1));
 		playerControls.add(display);
 		playerControls.add(playerButtons);
+		playerControls.setBackground(new Color(50,50,50));
 
+		
 		volume.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
@@ -210,4 +229,5 @@ public class PlayerControlInterface extends JPanel {
 	public Display getDisplay() {
 		return display;
 	}
+
 }

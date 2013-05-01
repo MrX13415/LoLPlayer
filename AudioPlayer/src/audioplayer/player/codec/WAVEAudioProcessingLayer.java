@@ -1,9 +1,11 @@
 package audioplayer.player.codec;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.ObjectInputStream.GetField;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -14,7 +16,6 @@ import javazoom.jl.decoder.BitstreamException;
 import javazoom.jl.decoder.Header;
 import javazoom.jl.decoder.JavaLayerException;
 import audioplayer.player.AudioDeviceLayer;
-import audioplayer.player.AudioFile;
 import audioplayer.player.listener.PlayerEvent;
 import audioplayer.player.listener.PlayerListener;
 
@@ -101,37 +102,38 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 			for (PlayerListener pl : listener) pl.onPlayerStart(new PlayerEvent(this));
 
 			boolean hasMoreFrames = true;
-			
+
 			while (hasMoreFrames && !decoderThread.isInterrupted()) {
 				long tplStart = System.currentTimeMillis();
 				
 				boolean notPaused = !isPaused();
 								
-//				if (!audioDevice.isOpen()) hasMoreFrames = false;
+				if (!audioDevice.isOpen()) hasMoreFrames = false;
 
-//				Header h = null; 
-				//if (notPaused || skipFrames) h.
-								
-//				if (1 == 1){
-//					timePerFrame = h.ms_per_frame();
-
-					if (skipFrames){
-						
-
-						byte[] b = new byte[10000];
-						bitstream.read(b, 0, 1024);
-						
-						if (audioDevice.isOpen()) {
-							audioDevice.setVolume(volume);
-							audioDevice.writeImpl(b, 0, 1024);
+				if (notPaused || skipFrames){
+					
+					int btr = 4096;
+					byte[] b = new byte[btr];
+					int r = bitstream.read(b, 0, btr);
+					
+					if (r == -1) hasMoreFrames = false;
+					
+					if (r > -1 && !skipFrames){
+						try {	
+							if (audioDevice.isOpen()) {
+								audioDevice.setVolume(volume);
+								audioDevice.writeImpl(b, 0, r);
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
 						}
 					}
 
-//				}else if (notPaused) hasMoreFrames = false;
+				}else if (notPaused) hasMoreFrames = false;
 				
-				//if (notPaused || skipFrames) bitstream.closeFrame();
+//				if (notPaused || skipFrames) bitstream.closeFrame();
 
-				if (!skipFrames){
+				if (skipFrames){
 					if (newTimePosition < internaltimePosition){
 						resetPlayer();
 						skipFrames = true;
@@ -146,7 +148,7 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 				}else{
 					if (timePerFrame <= 0) determineTimePerFrame();
 					if (notPaused) internaltimePosition += timePerFrame;
-                                            timePosition = internaltimePosition;
+                                            timePosition = (long) internaltimePosition;
 				}
 								
 				timePerLoop = System.currentTimeMillis() - tplStart;
@@ -200,20 +202,41 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 		}
 	}
 	
-	protected void determineTimePerFrame() throws BitstreamException, FileNotFoundException{
-//		Bitstream bitstream = null;
-//		try {
-//			bitstream = new Bitstream(new FileInputStream(file.getFile()));
-//	        Header header = bitstream.readFrame();
-//		    timePerFrame = header.ms_per_frame();
-//		}catch(BitstreamException bex){
-//	        throw bex;
-//        }catch(FileNotFoundException fex){
-//        	throw fex;
-//		}finally{
-//			bitstream.close();
-//		}
-//		
+	protected void determineTimePerFrame() throws BitstreamException, FileNotFoundException{		
+		try {
+			long length = (long) ((bitstream.getFrameLength() / bitstream.getFormat().getFrameRate()) * 1000); 
+
+			timePerFrame = (double)length / (double)bitstream.getFrameLength() * 1000d;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/** Return the length of a given file in milliseconds
+	 * <br>
+	 * <br>
+	 * <code> lenght = file_size * 8 / bitrate </code>
+	 * <br>
+	 * <br>
+	 * @param f The file
+	 * @return The length of the given file 'f' in milliseconds
+	 * @throws BitstreamException
+	 * @throws FileNotFoundException
+	 */
+	public long calculateStreamLength(File f){
+		AudioInputStream bitstream = null;
+		long length = 0; //in ms
+
+		try {
+			bitstream = AudioSystem.getAudioInputStream(new BufferedInputStream(new FileInputStream(f)));
+			length = (long) ((bitstream.getFrameLength() / bitstream.getFormat().getFrameRate()) * 1000); 
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return length;
 	}
 
 }

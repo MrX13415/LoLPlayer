@@ -1,6 +1,7 @@
 package audioplayer.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -42,7 +43,8 @@ public abstract class UserInterface extends JFrame implements ActionListener, Se
         
 	public UserInterface() {
             
-        ms = new JSlider(0, 100000); 
+        ms = new JSlider(0, 1000); 
+        ms.setOpaque(false);
         ms.setOrientation(JSlider.VERTICAL);
         ms.setValue(3);
         ms.addChangeListener(new ChangeListener() {
@@ -69,6 +71,7 @@ public abstract class UserInterface extends JFrame implements ActionListener, Se
         mainPane.setLayout(new BorderLayout());
         mainPane.add(pci, BorderLayout.CENTER);                                      
         mainPane.add(ms, BorderLayout.WEST);
+        mainPane.setBackground(new Color(20, 20, 20));
         
 		menu = new MenuBar(this);
             
@@ -81,7 +84,7 @@ public abstract class UserInterface extends JFrame implements ActionListener, Se
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		
-		this.setTitle("LolPlayer II (version 0.1.2.1 alpha)");
+		this.setTitle("LolPlayer II (version 0.1.2.2 alpha)");
 		this.pack();
 		this.setVisible(true);
 

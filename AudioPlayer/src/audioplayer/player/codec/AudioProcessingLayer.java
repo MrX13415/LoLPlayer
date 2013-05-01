@@ -1,10 +1,12 @@
 package audioplayer.player.codec;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 import javax.activity.InvalidActivityException;
+import javax.sound.sampled.AudioSystem;
 
 import javazoom.jl.decoder.Bitstream;
 import javazoom.jl.decoder.BitstreamException;
@@ -12,7 +14,6 @@ import javazoom.jl.decoder.Decoder;
 import javazoom.jl.decoder.Header;
 import javazoom.jl.decoder.SampleBuffer;
 import audioplayer.player.AudioDeviceLayer;
-import audioplayer.player.AudioFile;
 import audioplayer.player.listener.PlayerEvent;
 import audioplayer.player.listener.PlayerListener;
 
@@ -44,7 +45,7 @@ public class AudioProcessingLayer implements Runnable{
 	
 	protected boolean closed;							
 
-	protected long internaltimePosition;						//in milliseconds
+	protected double internaltimePosition;						//in milliseconds
     protected long timePosition;
 	protected long newTimePosition;					//in milliseconds
 	protected boolean skipFrames;					
@@ -309,7 +310,7 @@ public class AudioProcessingLayer implements Runnable{
 
 						if (audioDevice.isOpen()) {
 							audioDevice.setVolume(volume);
-							audioDevice.write(output.getBuffer(), 0, output.getBufferLength() * 2);
+							audioDevice.write(output.getBuffer(), 0, output.getBufferLength());
 						}
 					}
 
@@ -332,7 +333,7 @@ public class AudioProcessingLayer implements Runnable{
 				}else{
 					if (timePerFrame <= 0) determineTimePerFrame();
 					if (notPaused) internaltimePosition += timePerFrame;
-                                            timePosition = internaltimePosition;
+                                            timePosition = (long) internaltimePosition;
 				}
 								
 				timePerLoop = System.currentTimeMillis() - tplStart;
@@ -419,8 +420,49 @@ public class AudioProcessingLayer implements Runnable{
 	 */
 	public long getStreamLength(){
 		try{
-			if (file != null) return AudioFile.calculateStreamLength(this.file.getFile());
+			if (file != null)
+				return calculateStreamLength(this.file.getFile());
+			else if (state == PlayerState.NEW) 
+				throw new InvalidActivityException("player not initalized");
         }catch(Exception ex){}
 		return 0;
 	}
+		
+	/** Return the length of a given file in milliseconds
+	 * <br>
+	 * <br>
+	 * <code> lenght = file_size * 8 / bitrate </code>
+	 * <br>
+	 * <br>
+	 * @param f The file
+	 * @return The length of the given file 'f' in milliseconds
+	 * @throws BitstreamException
+	 * @throws FileNotFoundException
+	 */
+	public long calculateStreamLength(File f){
+		Bitstream bitstream = null;
+		long length = 0; //in ms
+		 
+		try{
+	        bitstream = new Bitstream(new FileInputStream(f));
+	        Header header = bitstream.readFrame();
+	        
+	        long filesize = f.length();
+	        if (filesize != AudioSystem.NOT_SPECIFIED) {
+	        	length = (long) (((double)filesize * 8d / (double)header.bitrate()) * 1000d);
+	        }	
+        }catch(BitstreamException bex){
+        	System.err.println("[WARNING] Can't determine file length in milliseconds: " + bex);
+        }catch(FileNotFoundException fex){
+        	System.err.println("[WARNING] Can't determine file length in milliseconds: " + fex);
+        }finally{
+           if (bitstream != null)
+			try {
+				bitstream.close();
+			} catch (BitstreamException e) {}
+        }
+		
+		return length;
+	}
+	
 }
