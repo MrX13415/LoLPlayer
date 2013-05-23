@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -72,6 +73,7 @@ public abstract class UserInterface extends JFrame implements ActionListener, Se
         mainPane.add(pci, BorderLayout.CENTER);                                      
         mainPane.add(ms, BorderLayout.WEST);
         mainPane.setBackground(new Color(20, 20, 20));
+        mainPane.setBorder(BorderFactory.createRaisedBevelBorder());
         
 		menu = new MenuBar(this);
             
@@ -80,6 +82,7 @@ public abstract class UserInterface extends JFrame implements ActionListener, Se
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(mainPane);
 		this.getContentPane().add(pta, BorderLayout.SOUTH);
+		this.getContentPane().setBackground(new Color(255,50,50));
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		

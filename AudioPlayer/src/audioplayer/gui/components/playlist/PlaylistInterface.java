@@ -34,15 +34,15 @@ public class PlaylistInterface extends JPanel{
         playlistTable.addMouseListener(ml);
         playlistTable.getColumnModel().getColumn(0).setMaxWidth(50);
         playlistTable.getColumnModel().getColumn(2).setMaxWidth(80);
+        playlistTable.setBackground(new Color(255,50,50));
         playlistTable.setOpaque(false);
-
+        
         playlistScrollPane = new JScrollPane(playlistTable);
-        playlistScrollPane.setOpaque(false);
+        playlistScrollPane.setBackground(new Color(255,50,50));
         
         this.setLayout(new BorderLayout());
         this.add(playlistScrollPane, BorderLayout.CENTER);
         this.setOpaque(false);
-        this.setBackground(new Color(255,50,50));
         this.setPreferredSize(new Dimension(this.getWidth(), 200));
     }  
     
