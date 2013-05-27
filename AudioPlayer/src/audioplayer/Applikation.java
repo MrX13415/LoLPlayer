@@ -10,8 +10,12 @@ import audioplayer.font.FontLoader;
  * @author dausol
  * @version 0.1.1
  */
-public class AudioPlayer {
+public class Applikation {
 
+	public static String App_Name = "LoLPlayer II";
+	public static String App_Version = "0.1.2.3 alpha";
+	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
+	
 	private DataBase database;
 
 	/**
@@ -19,13 +23,13 @@ public class AudioPlayer {
 	 *            the command line arguments
 	 */
 	public static void main(String[] args) {
-		new AudioPlayer();
+		new Applikation();
 	}
 
 	/**
 	 * Start a new Instance of the AudioPlayer ...
 	 */
-	public AudioPlayer() {
+	public Applikation() {
 
 		System.out.println(UIManager.getSystemLookAndFeelClassName());
 		try {
@@ -44,7 +48,7 @@ public class AudioPlayer {
 		dbcl.connectDB(); dbcl.select(); dbcl.closeDB();
 		 */
 
-		new AudioPlayerControl();
+		new Control();
 	}
 
 	/**

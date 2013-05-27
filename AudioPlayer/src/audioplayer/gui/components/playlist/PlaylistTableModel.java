@@ -17,7 +17,7 @@ public class PlaylistTableModel extends AbstractTableModel{
 	 * 
 	 */
 	private static final long serialVersionUID = 5029454889039282590L;
-	private String[] columnNames = {"No.", "Title", "Length"};
+	private String[] columnNames = {" No.", " Title", " Length"};
     private Object[][] data = {{0, "Test", "2:30"}};
 
     public void setContent(AudioPlaylist apl){

@@ -12,15 +12,15 @@ public interface PlayerListener {
 
 	public void onPlayerPositionChange(PlayerEvent event);
         
-        public void onPlaylistFileAdd(PlaylistEvent event);
-        
-        public void onPlaylistFileRemove(PlaylistEvent event);
-        
-        public void onPlaylistIncrement(PlaylistIndexChangeEvent event);
-	
-        public void onPlaylistDecrement(PlaylistIndexChangeEvent event);
-        
-        public void onPlaylistClear(PlaylistEvent event);
-        
-        public void onPlaylistIndexSet(PlaylistIndexChangeEvent event);
+    public void onPlaylistFileAdd(PlaylistEvent event);
+    
+    public void onPlaylistFileRemove(PlaylistEvent event);
+    
+    public void onPlaylistIncrement(PlaylistIndexChangeEvent event);
+
+    public void onPlaylistDecrement(PlaylistIndexChangeEvent event);
+    
+    public void onPlaylistClear(PlaylistEvent event);
+    
+    public void onPlaylistIndexSet(PlaylistIndexChangeEvent event);
 }

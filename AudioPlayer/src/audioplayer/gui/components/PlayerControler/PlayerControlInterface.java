@@ -12,6 +12,7 @@ import java.awt.event.ComponentEvent;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.SearchCircle;
 import javax.swing.SearchCircle.SearchCricleListener;
 import javax.swing.border.BevelBorder;
@@ -44,9 +45,10 @@ public class PlayerControlInterface extends JPanel{
 	private SearchCircle searchBar;
 	private SearchCircle volume;
 
+	private JSlider graphdetail;
         
 	public PlayerControlInterface(ActionListener actionListener,
-			SearchCricleListener searchCricleListener) {
+			SearchCricleListener searchCricleListener, ChangeListener changeListener) {
 
 		
 		display = new Display();
@@ -187,11 +189,17 @@ public class PlayerControlInterface extends JPanel{
 		playerInterfaceGraph.setOpaque(false);
 		playerInterfaceGraph.setLayout(new GridLayout(0, 1, 5, 5));
 		playerInterfaceGraph.add(searchBar);
-
+       
+		graphdetail = new JSlider(0, 1000); 
+		graphdetail.setOpaque(false);
+		graphdetail.setOrientation(JSlider.VERTICAL);
+		graphdetail.setValue(3);
+		graphdetail.addChangeListener(changeListener);
+		        
 		this.setOpaque(false);
         this.setLayout(new BorderLayout());
 		this.add(playerInterfaceGraph, BorderLayout.CENTER);
-                
+		this.add(graphdetail, BorderLayout.WEST);        
         this.setPreferredSize(new Dimension(400, 400));
 	}
 
@@ -229,6 +237,10 @@ public class PlayerControlInterface extends JPanel{
 
 	public Display getDisplay() {
 		return display;
+	}
+
+	public JSlider getGraphdetail() {
+		return graphdetail;
 	}
 
 }

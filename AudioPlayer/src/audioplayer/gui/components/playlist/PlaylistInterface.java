@@ -6,12 +6,15 @@ package audioplayer.gui.components.playlist;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.MouseListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 
 /**
  *
@@ -34,11 +37,30 @@ public class PlaylistInterface extends JPanel{
         playlistTable.addMouseListener(ml);
         playlistTable.getColumnModel().getColumn(0).setMaxWidth(50);
         playlistTable.getColumnModel().getColumn(2).setMaxWidth(80);
-        playlistTable.setBackground(new Color(255,50,50));
-        playlistTable.setOpaque(false);
+        playlistTable.setBackground(new Color(150,0,0));
+        playlistTable.setForeground(new Color(255,255,255));
+        playlistTable.setSelectionBackground(new Color(255, 128 ,0));
+        playlistTable.setSelectionForeground(new Color(0,0,0));
+        playlistTable.setGridColor(new Color(255, 128 ,0));
+        playlistTable.getTableHeader().setBackground(new Color(50,50,50));
+        playlistTable.getTableHeader().setBorder(BorderFactory.createRaisedBevelBorder());
+   
+    	DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer();
+    	headerRenderer.setBackground(new Color(50,50,50));
+
+    	for (int i = 0; i < playlistTable.getModel().getColumnCount(); i++) {
+            playlistTable.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
+    	}
+
+
         
+        playlistTable.setOpaque(false);
+        	
         playlistScrollPane = new JScrollPane(playlistTable);
-        playlistScrollPane.setBackground(new Color(255,50,50));
+        playlistScrollPane.getViewport().setBackground(new Color(150,00,00));
+        playlistScrollPane.setBackground(new Color(150,00,00));
+        playlistScrollPane.setBorder(BorderFactory.createLoweredBevelBorder());
+        
         
         this.setLayout(new BorderLayout());
         this.add(playlistScrollPane, BorderLayout.CENTER);

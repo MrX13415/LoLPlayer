@@ -52,13 +52,11 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 
 		// ** init componentes **
 
-		toggleButton = new JButton("TOGGLE");
+		toggleButton = new JButton("Playlist");
 		toggleButton.addActionListener(this);
 		toggleButton.setSize(new Dimension(400, 25));
 		toggleButton.setContentAreaFilled(false);
-		
-		this.setBackground(new Color(255,50,50));
-		
+				
 		pli.setSize(new Dimension(400, 200));
 
 		initComponentResize(frame, pli);

@@ -1,5 +1,7 @@
 package audioplayer;
 
+import java.awt.event.FocusEvent;
+import java.awt.event.WindowEvent;
 import java.io.File;
 
 import javax.swing.JFileChooser;
@@ -23,7 +25,7 @@ import audioplayer.player.listener.PlaylistIndexChangeEvent;
  * 
  * @author dausol
  */
-public class AudioPlayerControl extends UserInterface implements PlayerListener {
+public class Control extends UserInterface implements PlayerListener {
 
 	/**
 	 * 
@@ -42,7 +44,7 @@ public class AudioPlayerControl extends UserInterface implements PlayerListener 
 	/**
 	 * Start a new Instance of the AudioPlayer ...
 	 */
-	public AudioPlayerControl() {
+	public Control() {
 		apl.addPlayerListener(this);
 		
 		analyzer = new Analyzer(getPlayerControlInterface().getPlayerInterfaceGraph());
@@ -59,7 +61,7 @@ public class AudioPlayerControl extends UserInterface implements PlayerListener 
 	}
 
         
-        public void openFile(File[] file) {
+        public void openFiles(File[] file) {
 			ppl.stop();
 			apl.clear();           
 			for (File f : file) {
@@ -67,6 +69,12 @@ public class AudioPlayerControl extends UserInterface implements PlayerListener 
 			}
         }
          
+        public void addFiles(File[] file) {       
+			for (File f : file) {
+				addFile(f);
+			}
+        }
+        
         public void addFile(File file) {
             boolean aplwasEmpty = apl.isEmpty();
             
@@ -126,8 +134,8 @@ public class AudioPlayerControl extends UserInterface implements PlayerListener 
 					//Synchronize the audio device and the analyzer ...
 					ppl.getAudioDevice().setAnalyzer(analyzer);
 					
-					analyzer.setDetailLevel(ms.getValue());
-					getPlayerControlInterface().getPlayerInterfaceGraph().setHeightLevel((ms.getValue() * 10f / (1f + 1) / 1000f + 1));//bf.getValue() / 1000f);
+//					analyzer.setDetailLevel(ms.getValue());
+//					getPlayerControlInterface().getPlayerInterfaceGraph().setHeightLevel((ms.getValue() * 10f / (1f + 1) / 1000f + 1));//bf.getValue() / 1000f);
 					
 					//if ((ms.getValue() % 2) == 0)((WAVEAudioProcessingLayer) ppl).bps = ms.getValue();
 					
@@ -279,31 +287,84 @@ public class AudioPlayerControl extends UserInterface implements PlayerListener 
 
 	@Override
 	public void onMenu_file_open() {
-		JFileChooser fc = new JFileChooser(new File(System.getProperty("user.home")));
-		fc.setFileFilter(new FileFilter() {
-			
-			@Override
-			public String getDescription() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public boolean accept(File f) {
-				return f.getName().endsWith(".mp3") || f.isDirectory();
-			}
-		});
-		
-		fc.setMultiSelectionEnabled(true);
-		fc.setAcceptAllFileFilterUsed(true);
-		
+		JFileChooser fc = initOpenDialog();
 		int retopt = fc.showOpenDialog(this);
 
 		if (retopt == JFileChooser.APPROVE_OPTION) {
 			//initAudioProcessingLayer();
             File[] file = fc.getSelectedFiles();
-            openFile(file);
+            openFiles(file);
 		}
+	}
+	
+	@Override
+	public void onMenu_file_add() {
+		JFileChooser fc = initOpenDialog();
+		int retopt = fc.showOpenDialog(this);
+
+		if (retopt == JFileChooser.APPROVE_OPTION) {
+			//initAudioProcessingLayer();
+            File[] file = fc.getSelectedFiles();
+            addFiles(file);
+		}
+	}
+	
+	private JFileChooser initOpenDialog() {
+		JFileChooser fc = new JFileChooser(new File(System.getProperty("user.home")));
+		
+		FileFilter alls = new FileFilter() {
+			
+			@Override
+			public String getDescription() {
+				return "Alle Unterstützen Formate";
+			}
+			
+			@Override
+			public boolean accept(File f) {
+				return f.getName().endsWith(".mp1") ||
+					   f.getName().endsWith(".mp2") || 
+					   f.getName().endsWith(".mp3") ||
+					   f.getName().endsWith(".wav") || f.isDirectory();
+			}
+		};
+		
+		FileFilter mp3 = new FileFilter() {
+			
+			@Override
+			public String getDescription() {
+				return "MPEG 1-2.5 Layer I-III (*.mp1|*.mp2|*.mp3)";
+			}
+			
+			@Override
+			public boolean accept(File f) {
+				return f.getName().endsWith(".mp1") ||
+					   f.getName().endsWith(".mp2") || 
+					   f.getName().endsWith(".mp3") ||f.isDirectory();
+			}
+		};
+		
+		FileFilter wav = new FileFilter() {
+			
+			@Override
+			public String getDescription() {
+				return "Waveform Audio File Format (*.wav)";
+			}
+			
+			@Override
+			public boolean accept(File f) {
+				return f.getName().endsWith(".wav") || f.isDirectory();
+			}
+		};
+		
+		fc.setFileFilter(alls);
+		fc.setFileFilter(mp3);
+		fc.setFileFilter(wav);
+		fc.setFileFilter(alls);
+				
+		fc.setMultiSelectionEnabled(true);
+		fc.setAcceptAllFileFilterUsed(true);
+		
+		return fc;
 	}
 
 	@Override
@@ -374,5 +435,14 @@ public class AudioPlayerControl extends UserInterface implements PlayerListener 
     public void onPlaylistIndexSet(PlaylistIndexChangeEvent event) {
         
     }
+
+	@Override
+	public void onGraphDetailBarChange(int value) {
+		float hval = (value * 13f / (2f + 1) / 1000f) + 0.1f;
+		System.out.println("DetailLevel: " + value + " HeightModifier: " + hval);
+		
+		analyzer.setDetailLevel(value);
+		getPlayerControlInterface().getPlayerInterfaceGraph().setHeightLevel(hval);
+	}
 
 }

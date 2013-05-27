@@ -2,10 +2,16 @@ package audioplayer.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -16,17 +22,24 @@ import javax.swing.SearchCircle.SearchCircleChangeEvent;
 import javax.swing.SearchCircle.SearchCircleKeyEvent;
 import javax.swing.SearchCircle.SearchCircleMouseEvent;
 import javax.swing.SearchCircle.SearchCricleListener;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import audioplayer.Applikation;
 import audioplayer.gui.components.MenuBar;
 import audioplayer.gui.components.PlayerControler.PlayerControlInterface;
 import audioplayer.gui.components.playlist.PlaylistInterface;
 import audioplayer.gui.components.playlist.PlaylistToggleArea;
+import audioplayer.player.codec.AudioFile;
 
 
 
-public abstract class UserInterface extends JFrame implements ActionListener, SearchCricleListener, MouseListener {
+public abstract class UserInterface extends JFrame implements ActionListener,
+															  SearchCricleListener,
+															  MouseListener,
+															  WindowFocusListener,
+															  ChangeListener {
 
 	/**
 	 * 
@@ -34,29 +47,16 @@ public abstract class UserInterface extends JFrame implements ActionListener, Se
 	private static final long serialVersionUID = 6407423888068079527L;
 
 	private PlayerControlInterface pci;
-        private PlaylistToggleArea pta;
-        private PlaylistInterface pli;
+    private PlaylistToggleArea pta;
+    private PlaylistInterface pli;
         
 	private MenuBar menu;
     private JPanel mainPane;
+
     
-    public JSlider ms;
-        
 	public UserInterface() {
-            
-        ms = new JSlider(0, 1000); 
-        ms.setOpaque(false);
-        ms.setOrientation(JSlider.VERTICAL);
-        ms.setValue(3);
-        ms.addChangeListener(new ChangeListener() {
-        
-                @Override
-                public void stateChanged(ChangeEvent e) {
-                    System.out.println("DetailLevel: " + ms.getValue() + " HeightModifier: " + (ms.getValue() * 10f / (2f + 1) / 1000f + 1));
-                }
-            });
-                
-        pci = new PlayerControlInterface(this, this);
+                            
+        pci = new PlayerControlInterface(this, this, this);
 				
         pli = new PlaylistInterface(this);
         
@@ -71,23 +71,40 @@ public abstract class UserInterface extends JFrame implements ActionListener, Se
         mainPane = new JPanel();
         mainPane.setLayout(new BorderLayout());
         mainPane.add(pci, BorderLayout.CENTER);                                      
-        mainPane.add(ms, BorderLayout.WEST);
         mainPane.setBackground(new Color(20, 20, 20));
         mainPane.setBorder(BorderFactory.createRaisedBevelBorder());
         
-		menu = new MenuBar(this);
-            
+		menu = new MenuBar(this){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -4792554976830903762L;
+
+			@Override
+		    protected void paintComponent(Graphics g)
+		    {
+		        super.paintComponent(g);
+		        Graphics2D g2d = (Graphics2D) g;
+		        g2d.setColor(menu.getBackground());
+		        g2d.fillRect(0, 0, getWidth(), getHeight());
+		    }
+		};
+        menu.setBackground(new Color(50,50,50));
+        menu.setForeground(new Color(255,255,255));
+        menu.setBorder(BorderFactory.createRaisedBevelBorder());
+        
 		this.setJMenuBar(menu);
+		
+		this.addWindowFocusListener(this);
 		
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(mainPane);
 		this.getContentPane().add(pta, BorderLayout.SOUTH);
-		this.getContentPane().setBackground(new Color(255,50,50));
+		this.getContentPane().setBackground(new Color(255,10,10));
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		
-		this.setTitle("LolPlayer II (version 0.1.2.2 alpha)");
+		this.setTitle(Applikation.App_Name_Version);
 		this.pack();
 		this.setVisible(true);
 
@@ -111,8 +128,19 @@ public abstract class UserInterface extends JFrame implements ActionListener, Se
 
 		if (s.equals(menu.getMenu_file_open()))
 			onMenu_file_open();
+		
+		if (s.equals(menu.getMenu_file_add()))
+			onMenu_file_add();
 	}
 
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+    	if (e.getSource().equals(pci.getGraphdetail())){
+    		onGraphDetailBarChange(pci.getGraphdetail().getValue());
+    	}
+    }
+	
 	@Override
 	public void onMouseDragged(SearchCircleMouseEvent event) {
 		if (event.getSearchCircle().equals(pci.getSearchBar()))
@@ -225,6 +253,8 @@ public abstract class UserInterface extends JFrame implements ActionListener, Se
 
 	public abstract void onMenu_file_open();
 
+	public abstract void onMenu_file_add();
+	
 	public abstract void onButtonPlay();
 
 	public abstract void onButtonStop();
@@ -242,25 +272,37 @@ public abstract class UserInterface extends JFrame implements ActionListener, Se
 	public abstract void onSearchBarMouseReleased(SearchCircle s);
 
 	public abstract void onVolumeButtonMove(SearchCircle v);
+	
+	public abstract void onGraphDetailBarChange(int value);
 
-    	public PlayerControlInterface getPlayerControlInterface() {
+    public PlayerControlInterface getPlayerControlInterface() {
             return pci;
 	}
 
-        public PlaylistToggleArea getPlayerToggleArea() {
-            return pta;
-        }
+    public PlaylistToggleArea getPlayerToggleArea() {
+        return pta;
+    }
 
-        public PlaylistInterface getPlaylistInterface() {
-            return pli;
-        }
+    public PlaylistInterface getPlaylistInterface() {
+        return pli;
+    }
 
-        public MenuBar getMenu() {
-            return menu;
-        }
+    public MenuBar getMenu() {
+        return menu;
+    }
 
-        public JPanel getMainPane() {
-            return mainPane;
-        }
-        
+    public JPanel getMainPane() {
+        return mainPane;
+    }
+    
+	@Override
+	public void windowGainedFocus(WindowEvent arg0) {
+
+	}
+
+	@Override
+	public void windowLostFocus(WindowEvent arg0) {
+		pta.doComponenteAnimation(false);
+	}
+
 }
