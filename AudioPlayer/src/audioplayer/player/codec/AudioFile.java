@@ -5,21 +5,14 @@
 package audioplayer.player.codec;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 
-import javax.sound.sampled.AudioSystem;
-
-import javazoom.jl.decoder.Bitstream;
-import javazoom.jl.decoder.BitstreamException;
-import javazoom.jl.decoder.Header;
 
 /**
  *
  * @author dausol
  */
 public class AudioFile {
-    
+    	
 	enum AudioType{
 		UNKNOW, MPEG, WAVE;
 	}
@@ -31,29 +24,38 @@ public class AudioFile {
     
     private long length = 0;
     
-//    private int rating;
-//    private int frequency;
-    
-    
+//  private int rating;
+//  private int frequency;
+        
     public AudioFile(File file){
         this.file = file;
         determineAudioType(); 
 		length = ppl.calculateStreamLength(file);
     }
     
-    private void determineAudioType(){
-    	type = AudioType.UNKNOW;
+    /** Determines the Audio file type
+     *  
+     * @return if the file is supported
+     */
+    private boolean determineAudioType(){
+    	AudioProcessingLayer[] ppls = new AudioProcessingLayer[]{new MPEGAudioProcessingLayer(), new WAVEAudioProcessingLayer()};
     	
-    	String fileExt = file.getName().substring(file.getName().lastIndexOf(".")).toLowerCase(); 
+    	for (AudioProcessingLayer audioProcessingLayer : ppls) {
+    		ppl = audioProcessingLayer;
+    		if (ppl.isSupportedAudioFile(file)){
+    			type = ppl.getSupportedAudioType();
+    			return true;
+    		}
+		}
+
+    	ppl = AudioProcessingLayer.getEmptyInstance();
+    	type = ppl.getSupportedAudioType();
     	
-    	if (fileExt.equals(".mp3")){
-    		type = AudioType.MPEG;
-    		ppl = new AudioProcessingLayer();
-    	}
-    	if (fileExt.equals(".wav")){
-    		type = AudioType.WAVE;
-    		ppl = new WAVEAudioProcessingLayer();
-    	}
+    	return false;
+    }
+        
+    public boolean isSupported(){
+    	return ppl.isSupportedAudioFile(file);
     }
     
     public File getFile(){

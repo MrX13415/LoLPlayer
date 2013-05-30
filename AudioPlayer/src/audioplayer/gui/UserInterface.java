@@ -6,8 +6,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
@@ -22,7 +20,6 @@ import javax.swing.SearchCircle.SearchCircleChangeEvent;
 import javax.swing.SearchCircle.SearchCircleKeyEvent;
 import javax.swing.SearchCircle.SearchCircleMouseEvent;
 import javax.swing.SearchCircle.SearchCricleListener;
-import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -31,7 +28,7 @@ import audioplayer.gui.components.MenuBar;
 import audioplayer.gui.components.PlayerControler.PlayerControlInterface;
 import audioplayer.gui.components.playlist.PlaylistInterface;
 import audioplayer.gui.components.playlist.PlaylistToggleArea;
-import audioplayer.player.codec.AudioFile;
+
 
 
 
@@ -57,7 +54,7 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 	public UserInterface() {
                             
         pci = new PlayerControlInterface(this, this, this);
-				
+
         pli = new PlaylistInterface(this);
         
         pta = new PlaylistToggleArea(pli, this);      
@@ -137,7 +134,10 @@ public abstract class UserInterface extends JFrame implements ActionListener,
     @Override
     public void stateChanged(ChangeEvent e) {
     	if (e.getSource().equals(pci.getGraphdetail())){
-    		onGraphDetailBarChange(pci.getGraphdetail().getValue());
+    		onGraphDetailBarChange(pci.getGraphdetail());
+    	}
+    	if (e.getSource().equals(pci.getHeightlevel())){
+    		onHeightLevelBarChange(pci.getHeightlevel());
     	}
     }
 	
@@ -273,8 +273,10 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 
 	public abstract void onVolumeButtonMove(SearchCircle v);
 	
-	public abstract void onGraphDetailBarChange(int value);
+	public abstract void onGraphDetailBarChange(JSlider detailBar);
 
+	public abstract void onHeightLevelBarChange(JSlider heightLevelBar);
+	
     public PlayerControlInterface getPlayerControlInterface() {
             return pci;
 	}

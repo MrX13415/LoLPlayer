@@ -822,14 +822,14 @@ public class SearchCircle extends JButton implements MouseListener,
 	}
 
 	@Override
-	public void paint(Graphics g) {
+	public void paintComponent(Graphics g) {
 
 		// make sure that the circle is always in the JLabel
 		if (getSize().height > getSize().width) {
 			setSize(new Dimension(getSize().width, getSize().width));
 		}
 
-		super.paint(g);
+		super.paintComponent(g);
 		repaintImages();
 	}
 

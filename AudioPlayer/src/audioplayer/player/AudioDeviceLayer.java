@@ -138,10 +138,10 @@ public class AudioDeviceLayer extends AudioDeviceBase {
 		return info;
 	}
 
-	public void open(AudioFormat fmt) throws JavaLayerException {
+	public void open(AudioFormat fmt){
 		if (!isOpen()) {
 			setAudioFormat(fmt);
-			openImpl();
+//			openImpl();
 			setOpen(true);
 		}
 	}
@@ -237,8 +237,9 @@ public class AudioDeviceLayer extends AudioDeviceBase {
 		
 	/**
 	 * Runs a short test by playing a short silent sound.
+	 * @throws JavaLayerException 
 	 */
-	public void test() throws JavaLayerException {
+	public void test() throws JavaLayerException{
 		try {
 			open(new AudioFormat(22050, 16, 1, true, false));
 			short[] data = new short[22050 / 10];

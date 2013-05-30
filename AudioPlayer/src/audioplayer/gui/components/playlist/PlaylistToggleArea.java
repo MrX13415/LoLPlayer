@@ -1,6 +1,5 @@
 package audioplayer.gui.components.playlist;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,7 +25,8 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 
 	private boolean toggleState = false;
 	private boolean lastState = toggleState;
-
+	private boolean runAnimation = false;
+	
 	private PlaylistInterface pli;
 	private JFrame frame;
 	private int frameHeight;
@@ -150,7 +150,8 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 		}
 
 		lastState = show;
-
+		runAnimation = true;
+		
 		final int hideY = pli.getSize().height * -1;
 		final int showY = 0;
 
@@ -162,7 +163,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 		animationThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-
+			
 				for (int yIndex = (show ? hideY : showY); (show ? yIndex <= showY
 						: yIndex >= hideY); yIndex = (show ? yIndex
 						+ showAnimationSpeed : yIndex - hideAnimationSpeed)) {
@@ -187,23 +188,21 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 									fNewY + pli.getSize().height);
 							
 							if (show) {
-								frame.setSize(frame.getWidth(), frameHeight
-										+ sizeToadd);
 								pta.setPreferredSize(new Dimension(thisW,
 										thisHeight + sizeToadd));
-								
+								frame.setSize(frame.getWidth(), frameHeight
+										+ sizeToadd);
 							} else {
 								frame.setSize(frame.getWidth(), frameHeight
 										- sizeToremove);
 								pta.setPreferredSize(new Dimension(thisW,
 										thisHeight - sizeToremove));
-								
 							}
 						}
 					});
-
+					
 					try {
-						Thread.sleep(10);
+						Thread.sleep(20);
 					} catch (InterruptedException ex) {
 					}
 				}
@@ -212,12 +211,14 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 					showComponente();
 				else
 					hideComponente();
-
+				
+				frame.repaint();
 				
 				try {
 					Thread.sleep(20);
 				} catch (InterruptedException ex) {
 				}
+				runAnimation = false;
 				animationThread = null;
 			}
 
@@ -248,6 +249,10 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 
 	public boolean isCancleAnimation() {
 		return cancleAnimation;
+	}
+	
+	public boolean isRunAnimation() {
+		return runAnimation;
 	}
 
 	public int getShowAnimationSpeed() {

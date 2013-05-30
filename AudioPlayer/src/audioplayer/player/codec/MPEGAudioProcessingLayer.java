@@ -1,35 +1,51 @@
 package audioplayer.player.codec;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+
+import javax.sound.sampled.AudioSystem;
 
 import javazoom.jl.decoder.Bitstream;
 import javazoom.jl.decoder.BitstreamException;
 import javazoom.jl.decoder.Decoder;
 import javazoom.jl.decoder.Header;
-import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.decoder.SampleBuffer;
 import audioplayer.player.AudioDeviceLayer;
+import audioplayer.player.codec.AudioFile.AudioType;
 import audioplayer.player.listener.PlayerEvent;
 import audioplayer.player.listener.PlayerListener;
 
 /**
+ * Audio processing layer for the MPEG 1-2.5 Layer I-III audio file format 
  * 
  * @author Oliver
  * @version 1.1
  * 
- * version: 1.1
- *  - Changed File to AudioFile
  */
-public class MP3AudioProcessingLayer extends AudioProcessingLayer implements Runnable{
-			
+public class MPEGAudioProcessingLayer extends AudioProcessingLayer  implements Runnable{
+		
 	protected Bitstream bitstream;					//The MPEG audio bitstream
 	protected Decoder decoder;						//The MPEG audio decoder
 	
-	public MP3AudioProcessingLayer() {
-            audioDevice = new AudioDeviceLayer();
+	protected SampleBuffer output;
+	
+	public MPEGAudioProcessingLayer() {
+		audioDevice = new AudioDeviceLayer();
 	}
 		
+	public Bitstream getBitstream() {
+		return bitstream;
+	}
+
+	public Decoder getDecoder() {
+		return decoder;
+	}
+	
+	public SampleBuffer getOutput() {
+		return output;
+	}
+
 	/** Initialize the play with the given file<br>
 	 * Always call this first, to play a song or to change the current playing song
 	 *   
@@ -56,7 +72,7 @@ public class MP3AudioProcessingLayer extends AudioProcessingLayer implements Run
 			skipedFrames = 0;
 
 			if (!isPlaying())
-				state = PlayerState.INIT;
+				setState(PlayerState.INIT);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -65,7 +81,7 @@ public class MP3AudioProcessingLayer extends AudioProcessingLayer implements Run
 	
 	/** Resets the file bit stream and the audio device
 	 */
-	public void resetPlayer() throws JavaLayerException, FileNotFoundException{	
+	public void resetPlayer() throws Exception{	
 		bitstream = new Bitstream(new FileInputStream(file.getFile()));
 		audioDevice = new AudioDeviceLayer();
 		audioDevice.open(decoder = new Decoder());
@@ -73,6 +89,7 @@ public class MP3AudioProcessingLayer extends AudioProcessingLayer implements Run
 		closed = false;
 		internaltimePosition = 0;
 	}
+	
 	
 	/** Frame decoding and audio playing routine
 	 *  <br>
@@ -148,20 +165,16 @@ public class MP3AudioProcessingLayer extends AudioProcessingLayer implements Run
 			
 			if (nextSong && reachedEnd()){
 				//Listener
-				for (PlayerListener pl : listener) pl.onPlayerNextSong(new PlayerEvent(this));
+				synchronized (listener) {
+					for (int i = 0; i < listener.size(); i++) {
+						PlayerListener pl = listener.get(i);
+						pl.onPlayerNextSong(new PlayerEvent(this));
+					}	
+				}				
 			}
 		}
 	}
-		
-	/** Set the position of the current file to play from
-	 * 
-	 * @param ms time to play from in milliseconds
-	 */
-	public void setPostion(long ms){
-		newTimePosition = ms;
-		skipFrames = true;
-	}
-	
+
 	/** Stops the current playing file and closes the file stream
 	 */
 	public void stop() {
@@ -170,8 +183,13 @@ public class MP3AudioProcessingLayer extends AudioProcessingLayer implements Run
 			if (decoderThread != null) decoderThread.interrupt();
 			
 			//Listener
-			for (PlayerListener pl : listener) pl.onPlayerStop(new PlayerEvent(this));
-			
+			synchronized (listener) {
+				for (int i = 0; i < listener.size(); i++) {
+					PlayerListener pl = listener.get(i);
+					pl.onPlayerStop(new PlayerEvent(this));
+				}
+			}
+						
 			try {
 				if (audioDevice != null) bitstream.close();
 			} catch (BitstreamException ex) {}
@@ -201,5 +219,58 @@ public class MP3AudioProcessingLayer extends AudioProcessingLayer implements Run
 		}
 		
 	}
+			
+	/** Return the length of a given file in milliseconds
+	 * <br>
+	 * <br>
+	 * <code> lenght = file_size * 8 / bitrate </code>
+	 * <br>
+	 * <br>
+	 * @param f The file
+	 * @return The length of the given file 'f' in milliseconds
+	 * @throws BitstreamException
+	 * @throws FileNotFoundException
+	 */
+	public long calculateStreamLength(File f){
+		Bitstream bitstream = null;
+		long length = 0; //in ms
+		 
+		try{
+	        bitstream = new Bitstream(new FileInputStream(f));
+	        Header header = bitstream.readFrame();
+	        
+	        long filesize = f.length();
+	        if (filesize != AudioSystem.NOT_SPECIFIED) {
+	        	length = (long) (((double)filesize * 8d / (double)header.bitrate()) * 1000d);
+	        }	
+        }catch(BitstreamException bex){
+        	System.err.println("[WARNING] Can't determine file length in milliseconds: " + bex);
+        }catch(FileNotFoundException fex){
+        	System.err.println("[WARNING] Can't determine file length in milliseconds: " + fex);
+        }finally{
+           if (bitstream != null)
+			try {
+				bitstream.close();
+			} catch (BitstreamException e) {}
+        }
+		
+		return length;
+	}
 
+	/** Determines if the given file is supported by this class
+	 * 
+	 * @param f
+	 * @return if the given file is an MPEG file (e.g. MP3)
+	 */
+	public boolean isSupportedAudioFile(File f) {
+		return f.getName().endsWith(".mp1") ||
+			   f.getName().endsWith(".mp2") || 
+			   f.getName().endsWith(".mp3");
+	}
+
+	@Override
+	public AudioType getSupportedAudioType() {
+		return AudioType.MPEG;
+	}
+	
 }

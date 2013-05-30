@@ -15,8 +15,6 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.SearchCircle;
 import javax.swing.SearchCircle.SearchCricleListener;
-import javax.swing.border.BevelBorder;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import audioplayer.font.FontLoader;
@@ -46,7 +44,9 @@ public class PlayerControlInterface extends JPanel{
 	private SearchCircle volume;
 
 	private JSlider graphdetail;
-        
+	private JSlider heightlevel;
+	
+	
 	public PlayerControlInterface(ActionListener actionListener,
 			SearchCricleListener searchCricleListener, ChangeListener changeListener) {
 
@@ -60,12 +60,6 @@ public class PlayerControlInterface extends JPanel{
 		play.setContentAreaFilled(false);
 		play.setForeground(new Color(255,0,0));
 		
-		//play.setIcon(new ImageIcon(
-		//		"C:/Users/Oliver/Pictures/drawing skills/Play_0.png", "PLAY"));
-		//play.setBorderPainted(false);
-		//play.setPressedIcon(new ImageIcon(
-		//		"C:/Users/Oliver/Pictures/drawing skills/Play_1.png", "PLAY"));
-
 		stop = new JButton("\u25FC");
 		stop.setFont(FontLoader.fontGUIPlayerButtons);
 		stop.addActionListener(actionListener);
@@ -122,11 +116,15 @@ public class PlayerControlInterface extends JPanel{
 		searchBar.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
+				
 				Component c = volume;
-				int h = searchBar.getHeight() - 80;
-				int w = h;// searchBar.getWidth();
-				int x = (searchBar.getWidth() - w) / 2;
-				int y = (searchBar.getHeight() - h) / 2;
+				int oH = searchBar.getSize().height;
+				int oW = searchBar.getSize().width;
+				
+				int h = oH - 80;
+				int w = h; //searchBar.getWidth();
+				int x = (oW - w) / 2;
+				int y = (oH - h) / 2;
 
 				Dimension d = new Dimension(w, h);
 
@@ -161,11 +159,14 @@ public class PlayerControlInterface extends JPanel{
 			@Override
 			public void componentResized(ComponentEvent e) {
 				Component c = playerControls;
-				int h = volume.getHeight();
+				int oH = volume.getSize().height;
+				int oW = volume.getSize().width;
+				
+				int h = oH;
 				int w = (int) Math.round((h / 100d) * 80);// searchBar.getWidth();
 				h = (int) Math.round((w / 100d) * 50); // (h/100d) * 50);
-				int x = (volume.getWidth() - w) / 2;
-				int y = (int) Math.round((volume.getHeight() / 100d) * 25);
+				int x = (oW - w) / 2;
+				int y = (int) Math.round((oH / 100d) * 25);
 
 				/*
 				 * int h = volume.getHeight(); int w = (int) Math.round((h/100d)
@@ -192,14 +193,21 @@ public class PlayerControlInterface extends JPanel{
        
 		graphdetail = new JSlider(0, 1000); 
 		graphdetail.setOpaque(false);
-		graphdetail.setOrientation(JSlider.VERTICAL);
-		graphdetail.setValue(3);
+		graphdetail.setOrientation(JSlider.HORIZONTAL);
+		graphdetail.setValue(0);
 		graphdetail.addChangeListener(changeListener);
+		
+		heightlevel = new JSlider(0, 5000); 
+		heightlevel.setOpaque(false);
+		heightlevel.setOrientation(JSlider.VERTICAL);
+		heightlevel.setValue(1000);
+		heightlevel.addChangeListener(changeListener);
 		        
 		this.setOpaque(false);
         this.setLayout(new BorderLayout());
 		this.add(playerInterfaceGraph, BorderLayout.CENTER);
-		this.add(graphdetail, BorderLayout.WEST);        
+		this.add(heightlevel, BorderLayout.WEST);
+		this.add(graphdetail, BorderLayout.SOUTH);   
         this.setPreferredSize(new Dimension(400, 400));
 	}
 
@@ -243,4 +251,8 @@ public class PlayerControlInterface extends JPanel{
 		return graphdetail;
 	}
 
+	public JSlider getHeightlevel() {
+		return heightlevel;
+	}
+	
 }

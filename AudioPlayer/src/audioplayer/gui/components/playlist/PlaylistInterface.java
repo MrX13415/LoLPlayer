@@ -6,7 +6,6 @@ package audioplayer.gui.components.playlist;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.MouseListener;
 
@@ -52,16 +51,14 @@ public class PlaylistInterface extends JPanel{
             playlistTable.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
     	}
 
-
-        
         playlistTable.setOpaque(false);
         	
         playlistScrollPane = new JScrollPane(playlistTable);
         playlistScrollPane.getViewport().setBackground(new Color(150,00,00));
         playlistScrollPane.setBackground(new Color(150,00,00));
         playlistScrollPane.setBorder(BorderFactory.createLoweredBevelBorder());
-        
-        
+        playlistScrollPane.getVerticalScrollBar().setBackground(new Color(150,00,00));
+
         this.setLayout(new BorderLayout());
         this.add(playlistScrollPane, BorderLayout.CENTER);
         this.setOpaque(false);

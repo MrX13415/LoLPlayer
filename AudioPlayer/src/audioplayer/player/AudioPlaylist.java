@@ -37,8 +37,12 @@ public class AudioPlaylist {
         return index;
     }
     
-    public void resetIndex(){
+    public void resetToFirstIndex(){
         index = 0;
+    }
+    
+    public void resetToLastIndex(){
+        index = content.size() - 1;
     }
     
     public void setIndex(int index){
@@ -51,11 +55,14 @@ public class AudioPlaylist {
     }
     
     public void incrementIndex(){
-        int preIndex = index;
-        
-    	if (index < content.size() - 1)
-    		this.index++;
-        
+    	int preIndex = index;
+	
+    	if (isLastElement()){
+    		resetToFirstIndex();
+    	}else{
+        	if (index < content.size() - 1) this.index++;   
+    	}
+     	
         for (PlayerListener l : listener)
             l.onPlaylistIncrement(new PlaylistIndexChangeEvent(this, preIndex, index));
     }
@@ -63,9 +70,12 @@ public class AudioPlaylist {
     public void decrementIndex(){
         int preIndex = index;
         
-        if (index >= 1)
-        	this.index--;
-        
+        if (isFistElement()){
+    		resetToLastIndex();
+    	}else{
+    		 if (index >= 1) this.index--;   
+    	}
+                
         for (PlayerListener l : listener)
             l.onPlaylistDecrement(new PlaylistIndexChangeEvent(this, preIndex, index));
     }
@@ -90,6 +100,8 @@ public class AudioPlaylist {
     
     public void remove(AudioFile af){
         content.remove(af);
+        if(index >= content.size()) resetToFirstIndex();
+        
         for (PlayerListener l : listener)
             l.onPlaylistFileRemove(new PlaylistEvent(this));
     }

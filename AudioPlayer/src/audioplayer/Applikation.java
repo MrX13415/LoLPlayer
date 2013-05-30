@@ -6,14 +6,15 @@ import audioplayer.database.DataBase;
 import audioplayer.font.FontLoader;
 
 /**
+ *  LoLPlayer II
  * 
  * @author dausol
- * @version 0.1.1
+ * @version 0.1.2.3
  */
 public class Applikation {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.2.3 alpha";
+	public static String App_Version = "0.1.2.4 alpha";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
 	
 	private DataBase database;

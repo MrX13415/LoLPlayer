@@ -5,30 +5,25 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.ObjectInputStream.GetField;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import javazoom.jl.decoder.Bitstream;
-import javazoom.jl.decoder.BitstreamException;
-import javazoom.jl.decoder.Header;
-import javazoom.jl.decoder.JavaLayerException;
 import audioplayer.player.AudioDeviceLayer;
+import audioplayer.player.codec.AudioFile.AudioType;
 import audioplayer.player.listener.PlayerEvent;
 import audioplayer.player.listener.PlayerListener;
 
 /**
+ *  Audio processing layer for the WAVE audio file format
  * 
  * @author Oliver
- * @version 1.1
+ * @version 1.0
  * 
- * version: 1.1
- *  - Changed File to AudioFile
  */
 public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Runnable{
-			
+				
 	protected AudioInputStream bitstream;					//The MPEG audio bitstream
 	//protected Decoder decoder;						//The MPEG audio decoder
 	
@@ -48,11 +43,7 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 			this.file = f;
 			
 			if (decoderThread != null) decoderThread.interrupt();
-//			try {
-//				if (bitstream != null) bitstream.close();
-//			} catch (BitstreamException ex) {}
-//			if (audioDevice != null) audioDevice.close();
-			
+
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {}
@@ -77,10 +68,8 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 	 * @throws UnsupportedAudioFileException 
 	 * @throws JavaLayerException 
 	 */
-	public void resetPlayer() throws FileNotFoundException, UnsupportedAudioFileException, IOException, JavaLayerException{
-
+	public void resetPlayer() throws FileNotFoundException, UnsupportedAudioFileException, IOException{
 		bitstream = AudioSystem.getAudioInputStream(new BufferedInputStream(new FileInputStream(file.getFile())));
-		
 		audioDevice = new AudioDeviceLayer();
 		audioDevice.open(bitstream.getFormat());
 
@@ -99,8 +88,13 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 			if (!isPaused()) state = PlayerState.PLAYING;
 			
 			//Listener
-			for (PlayerListener pl : listener) pl.onPlayerStart(new PlayerEvent(this));
-
+			synchronized (listener) {
+				for (int i = 0; i < listener.size(); i++) {
+					PlayerListener pl = listener.get(i);
+					pl.onPlayerStart(new PlayerEvent(this));	
+				}
+			}
+			
 			boolean hasMoreFrames = true;
 
 			while (hasMoreFrames && !decoderThread.isInterrupted()) {
@@ -131,8 +125,6 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 
 				}else if (notPaused) hasMoreFrames = false;
 				
-//				if (notPaused || skipFrames) bitstream.closeFrame();
-
 				if (skipFrames){
 					if (newTimePosition < internaltimePosition){
 						resetPlayer();
@@ -164,20 +156,16 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 			
 			if (nextSong && reachedEnd()){
 				//Listener
-				for (PlayerListener pl : listener) pl.onPlayerNextSong(new PlayerEvent(this));
+				synchronized (listener) {
+					for (int i = 0; i < listener.size(); i++) {
+						PlayerListener pl = listener.get(i);
+						pl.onPlayerNextSong(new PlayerEvent(this));
+					}
+				}				
 			}
 		}
 	}
-		
-	/** Set the position of the current file to play from
-	 * 
-	 * @param ms time to play from in milliseconds
-	 */
-	public void setPostion(long ms){
-		newTimePosition = ms;
-		skipFrames = true;
-	}
-	
+			
 	/** Stops the current playing file and closes the file stream
 	 */
 	public void stop() {
@@ -186,13 +174,12 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 			if (decoderThread != null) decoderThread.interrupt();
 			
 			//Listener
-			for (PlayerListener pl : listener) pl.onPlayerStop(new PlayerEvent(this));
 			
-//			try {
-//			//	if (audioDevice != null) bitstream.close();
-//			} catch (BitstreamException ex) {}
-//
-//			if (audioDevice != null) audioDevice.close();
+			synchronized(listener){
+				for (PlayerListener pl : listener) pl.onPlayerStop(new PlayerEvent(this));
+			}
+			
+			if (audioDevice != null) audioDevice.close();
             
 			closed = true;
 			internaltimePosition = 0;
@@ -202,15 +189,9 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 		}
 	}
 	
-	protected void determineTimePerFrame() throws BitstreamException, FileNotFoundException{		
-		try {
-			long length = (long) ((bitstream.getFrameLength() / bitstream.getFormat().getFrameRate()) * 1000); 
-
-			timePerFrame = (double)length / (double)bitstream.getFrameLength() * 1000d;
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	protected void determineTimePerFrame(){		
+		long length = (long) ((bitstream.getFrameLength() / bitstream.getFormat().getFrameRate()) * 1000); 
+		timePerFrame = (double)length / (double)bitstream.getFrameLength() * 1000d;
 	}
 	
 	/** Return the length of a given file in milliseconds
@@ -239,4 +220,18 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 		return length;
 	}
 
+	/** Determines if the given file is supported by this class
+	 * 
+	 * @param f
+	 * @return if the given file is an WAVE file (e.g. WAVE)
+	 */
+	public boolean isSupportedAudioFile(File f) {
+		return f.getName().endsWith(".wave") ||
+			   f.getName().endsWith(".aiff");
+	}
+
+	@Override
+	public AudioType getSupportedAudioType() {
+		return AudioType.WAVE;
+	}
 }

@@ -1,10 +1,11 @@
 package audioplayer;
 
-import java.awt.event.FocusEvent;
-import java.awt.event.WindowEvent;
 import java.io.File;
 
+import javax.activity.InvalidActivityException;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JSlider;
 import javax.swing.SearchCircle;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
@@ -15,7 +16,6 @@ import audioplayer.player.AudioPlaylist;
 import audioplayer.player.analyzer.Analyzer;
 import audioplayer.player.codec.AudioFile;
 import audioplayer.player.codec.AudioProcessingLayer;
-import audioplayer.player.codec.WAVEAudioProcessingLayer;
 import audioplayer.player.listener.PlayerEvent;
 import audioplayer.player.listener.PlayerListener;
 import audioplayer.player.listener.PlaylistEvent;
@@ -32,7 +32,7 @@ public class Control extends UserInterface implements PlayerListener {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private AudioProcessingLayer ppl = new AudioProcessingLayer();
+	private AudioProcessingLayer ppl = AudioProcessingLayer.getEmptyInstance();
     private AudioPlaylist apl = new AudioPlaylist();
         
 	private Thread uiUpdaterThread;
@@ -60,51 +60,67 @@ public class Control extends UserInterface implements PlayerListener {
 		// initAudioFile(new File("Scratching Harmony (Re-Orchestrated).mp3"));
 	}
 
+    public void openFiles(File[] file) {
+		ppl.stop();
+		apl.clear();           
+		for (File f : file) {
+			addFile(f);
+		}
+    }
+     
+    public void addFiles(File[] file) {       
+		for (File f : file) {
+			addFile(f);
+		}
+    }
+    
+    public void addFile(File file) {
+        boolean aplwasEmpty = apl.isEmpty();
         
-        public void openFiles(File[] file) {
-			ppl.stop();
-			apl.clear();           
-			for (File f : file) {
-				addFile(f);
-			}
-        }
-         
-        public void addFiles(File[] file) {       
-			for (File f : file) {
-				addFile(f);
-			}
-        }
+        AudioFile naf = new AudioFile(file);
+        apl.add(naf);
         
-        public void addFile(File file) {
-            boolean aplwasEmpty = apl.isEmpty();
-            
-            AudioFile naf = new AudioFile(file);
-            apl.add(naf);
-            
-            if (aplwasEmpty){
-                apl.resetIndex();
-                initAudioFile();
-            }
+        if (aplwasEmpty){
+            apl.resetToFirstIndex();
+            initAudioFile();
         }
+    }
          
-	public void initAudioFile() {
+	public synchronized void initAudioFile() {
         AudioFile af = apl.get();
+        
+        System.out.println("FILE: " + af.getFile().getAbsolutePath());
         
         initAudioProcessingLayer(af);
         
         this.getPlayerControlInterface().getSearchBar().setMaximum(ppl.getStreamLength());
 
         analyzer.init(ppl.getAudioDevice());
+        
+        if (!af.isSupported()){
+        	raiseNotSupportedFileFormatError(af);
+        	apl.remove(af);
+        	if (!apl.isEmpty()) initAudioFile();
+        }
+        
+        try {
+			ppl.play();
+		} catch (InvalidActivityException e) {}
+	}
+
+	private void raiseNotSupportedFileFormatError(AudioFile af) {
+		System.err.println("Error: File format not supported!");
+		String msg = String.format("The file \"%s\" is not supported!\nLocation: %s", af.getFile().getName(), af.getFile().getPath());
 		
-        System.out.println("FILE: " + ppl.getAudioFile().getFile().getAbsolutePath());
+		JOptionPane.showMessageDialog(this, msg, Applikation.App_Name_Version, JOptionPane.ERROR_MESSAGE);
 	}
 
 	public void initAudioProcessingLayer(AudioFile af) {
 		AudioProcessingLayer newppl = af.getAudioProcessingLayer();
-
+		AudioProcessingLayer oldppl = ppl;
+		
 		if (ppl != null) {
-			if (!ppl.isNew())
-				ppl.stop();
+			if (!ppl.isNew()) ppl.stop();
 			newppl.setVolume(ppl.getVolume());
 		}
 
@@ -112,6 +128,9 @@ public class Control extends UserInterface implements PlayerListener {
 		ppl.addPlayerListener(this);
         ppl.initialzePlayer(af);
         ppl.setPostion(0);
+        
+		oldppl.cleanInstance();
+		oldppl = null;
 	}
 
 	private Runnable getUIupdater() {
@@ -138,6 +157,8 @@ public class Control extends UserInterface implements PlayerListener {
 //					getPlayerControlInterface().getPlayerInterfaceGraph().setHeightLevel((ms.getValue() * 10f / (1f + 1) / 1000f + 1));//bf.getValue() / 1000f);
 					
 					//if ((ms.getValue() % 2) == 0)((WAVEAudioProcessingLayer) ppl).bps = ms.getValue();
+					
+					
 					
 					SwingUtilities.invokeLater(new Runnable() {
 
@@ -208,7 +229,6 @@ public class Control extends UserInterface implements PlayerListener {
 	public void onButtonPlay() {
 		getPlaylistInterface().getPlaylistTable().changeSelection(apl.getIndex(), 0, false, false);
 		ppl.togglePlayPause();
-		
 	}
 
 	@Override
@@ -219,26 +239,17 @@ public class Control extends UserInterface implements PlayerListener {
 	@Override
 	public void onButtonFrw() {
 		apl.incrementIndex();
-		initAudioFile();
-		ppl.togglePlayPause();
-		getPlaylistInterface().getPlaylistTable().changeSelection(apl.getIndex(), 0, false, false);
-		System.out.println("no. " + apl.getIndex());
 	}
 
 	@Override
 	public void onButtonRev() {
-		apl.decrementIndex();
-		initAudioFile();
-		ppl.togglePlayPause();
-        getPlaylistInterface().getPlaylistTable().changeSelection(apl.getIndex(), 0, false, false);
-		System.out.println("no. " + apl.getIndex());		
+		apl.decrementIndex();		
 	}
 
 	@Override
 	public void onPlaylistDoubleClick(int index) {
 		apl.setIndex(index);
 		initAudioFile();
-		ppl.togglePlayPause();
 		System.out.println("no. " + apl.getIndex());
 	}
 	
@@ -381,18 +392,7 @@ public class Control extends UserInterface implements PlayerListener {
 	
 	@Override
 	public void onPlayerNextSong(PlayerEvent event) { 
-		if (apl.isLastElement()){
-			ppl.stop();
-			apl.resetIndex();
-			initAudioFile();
-		}else{
-			apl.incrementIndex();
-			initAudioFile();
-			ppl.togglePlayPause();
-		}
-		
-		getPlaylistInterface().getPlaylistTable().changeSelection(apl.getIndex(), 0, false, false);
-		System.out.println("auto inc no. " + apl.getIndex());
+		apl.incrementIndex();
 	}
 	
 	@Override
@@ -418,12 +418,14 @@ public class Control extends UserInterface implements PlayerListener {
 
     @Override
     public void onPlaylistIncrement(PlaylistIndexChangeEvent event) {
-        
+		initAudioFile();
+        getPlaylistInterface().getPlaylistTable().changeSelection(event.getNewIndex(), 0, false, false);
+		System.out.println("Changed playlist index from no. " + event.getPreviousIndex() + " to no. " + event.getNewIndex());
     }
 
     @Override
     public void onPlaylistDecrement(PlaylistIndexChangeEvent event) {
-        
+    	onPlaylistIncrement(event);
     }
 
     @Override
@@ -437,11 +439,21 @@ public class Control extends UserInterface implements PlayerListener {
     }
 
 	@Override
-	public void onGraphDetailBarChange(int value) {
-		float hval = (value * 13f / (2f + 1) / 1000f) + 0.1f;
+	public void onGraphDetailBarChange(JSlider detailBar) {
+		int value = detailBar.getValue();
+		float hval = (value * 13f / (2f + 1) / 1000f) + 0.3f;
 		System.out.println("DetailLevel: " + value + " HeightModifier: " + hval);
 		
 		analyzer.setDetailLevel(value);
+		getPlayerControlInterface().getPlayerInterfaceGraph().setHeightLevel(hval);
+		this.getPlayerControlInterface().getHeightlevel().setValue((int) (hval * 1000));
+	}
+	
+	@Override
+	public void onHeightLevelBarChange(JSlider heightLevelBar) {
+		int value = heightLevelBar.getValue();
+		float hval = (value / 1000f);
+		System.out.println("HeightModifier: " + hval);
 		getPlayerControlInterface().getPlayerInterfaceGraph().setHeightLevel(hval);
 	}
 
