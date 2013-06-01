@@ -25,6 +25,7 @@ public class DBConnectionLayer {
     
     public boolean connectDB(){
         try {
+        	System.out.print("Connect to DataBase ...\t\t\t");
             //Load driver class ...
             Class.forName("org.postgresql.Driver").newInstance();
             
@@ -34,9 +35,11 @@ public class DBConnectionLayer {
             //Init. command channel ...
             statement = database.createStatement();
             
+            System.out.println("OK");
             return true;
         } catch (Exception ex) {
-            System.out.println("Keine Datenbankverbindung möglich: " + ex);
+            System.out.println("ERROR");
+            System.err.println("\tError: " + ex);
         }
         return false;
     }

@@ -36,7 +36,7 @@ public class Analyzer {
 	private volatile boolean initNormalizerActive;
 	
 	private boolean mergedChannels;
-	private int detailLevel = 1;
+	private int detailLevel = 40;
 
 	private volatile float[] channelsValueSum;
 	private volatile int[] chennalsDetailIndex;
@@ -165,7 +165,7 @@ public class Analyzer {
 		return DEBUG;
 	}
 
-	public void setDEBUG(boolean dEBUG) {
+	public void setDebug(boolean dEBUG) {
 		DEBUG = dEBUG;
 	}
 

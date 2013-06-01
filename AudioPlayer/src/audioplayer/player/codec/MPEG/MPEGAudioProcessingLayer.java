@@ -1,4 +1,4 @@
-package audioplayer.player.codec;
+package audioplayer.player.codec.MPEG;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,7 +12,9 @@ import javazoom.jl.decoder.Decoder;
 import javazoom.jl.decoder.Header;
 import javazoom.jl.decoder.SampleBuffer;
 import audioplayer.player.AudioDeviceLayer;
-import audioplayer.player.codec.AudioFile.AudioType;
+import audioplayer.player.codec.AudioFile;
+import audioplayer.player.codec.AudioProcessingLayer;
+import audioplayer.player.codec.AudioType;
 import audioplayer.player.listener.PlayerEvent;
 import audioplayer.player.listener.PlayerListener;
 
@@ -161,8 +163,6 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer  implements R
 			
 			stop();
 			
-			System.out.println(timePosition + " " + internaltimePosition + " " + getStreamLength());
-			
 			if (nextSong && reachedEnd()){
 				//Listener
 				synchronized (listener) {
@@ -177,7 +177,7 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer  implements R
 
 	/** Stops the current playing file and closes the file stream
 	 */
-	public void stop() {
+	public synchronized void stop() {
 		if (closed != true && !isNew()) {
 			state = PlayerState.STOPPED;
 			if (decoderThread != null) decoderThread.interrupt();
@@ -228,10 +228,9 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer  implements R
 	 * <br>
 	 * @param f The file
 	 * @return The length of the given file 'f' in milliseconds
-	 * @throws BitstreamException
-	 * @throws FileNotFoundException
+	 * @throws StreamLengthException 
 	 */
-	public long calculateStreamLength(File f){
+	public long calculateStreamLength(File f) throws StreamLengthException{
 		Bitstream bitstream = null;
 		long length = 0; //in ms
 		 
@@ -243,10 +242,8 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer  implements R
 	        if (filesize != AudioSystem.NOT_SPECIFIED) {
 	        	length = (long) (((double)filesize * 8d / (double)header.bitrate()) * 1000d);
 	        }	
-        }catch(BitstreamException bex){
-        	System.err.println("[WARNING] Can't determine file length in milliseconds: " + bex);
-        }catch(FileNotFoundException fex){
-        	System.err.println("[WARNING] Can't determine file length in milliseconds: " + fex);
+        }catch(Exception bex){
+        	throw new StreamLengthException(f);
         }finally{
            if (bitstream != null)
 			try {
@@ -263,14 +260,17 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer  implements R
 	 * @return if the given file is an MPEG file (e.g. MP3)
 	 */
 	public boolean isSupportedAudioFile(File f) {
-		return f.getName().endsWith(".mp1") ||
-			   f.getName().endsWith(".mp2") || 
-			   f.getName().endsWith(".mp3");
+		try {
+			calculateStreamLength(f);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	@Override
 	public AudioType getSupportedAudioType() {
-		return AudioType.MPEG;
+		return new MPEGAudioType();
 	}
 	
 }

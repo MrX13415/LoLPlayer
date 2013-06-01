@@ -46,7 +46,7 @@ public class JGraph extends JPanel implements Graph{
 	private PremultiplyFilter pf = new PremultiplyFilter();
 	private UnpremultiplyFilter upf = new UnpremultiplyFilter();
     
-	private float heightLevel = 1f;
+	private float heightLevel = 0.4f;
 	
     UserInterface ui;
 

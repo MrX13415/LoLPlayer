@@ -15,7 +15,9 @@ import audioplayer.gui.components.PlayerControler.Display;
 import audioplayer.player.AudioPlaylist;
 import audioplayer.player.analyzer.Analyzer;
 import audioplayer.player.codec.AudioFile;
+import audioplayer.player.codec.AudioFile.UnsupportedFileFormatException;
 import audioplayer.player.codec.AudioProcessingLayer;
+import audioplayer.player.codec.AudioType;
 import audioplayer.player.listener.PlayerEvent;
 import audioplayer.player.listener.PlayerListener;
 import audioplayer.player.listener.PlaylistEvent;
@@ -63,23 +65,45 @@ public class Control extends UserInterface implements PlayerListener {
     public void openFiles(File[] file) {
 		ppl.stop();
 		apl.clear();           
-		for (File f : file) {
-			addFile(f);
-		}
+		addFiles(file);
     }
      
-    public void addFiles(File[] file) {       
-		for (File f : file) {
-			addFile(f);
-		}
+    public void addFiles(final File[] file) {       
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				
+				getPlayerControlInterface().getStatusbar().getBar().setMinimum(0);
+				getPlayerControlInterface().getStatusbar().getBar().setMaximum(file.length);
+				getPlayerControlInterface().getStatusbar().setMessageText(
+						String.format("Loading file ... (%s/%s)", 0, file.length));
+				getPlayerControlInterface().getStatusbar().setVisible(true);
+				
+				for (int i = 0; i < file.length; i++) {
+					getPlayerControlInterface().getStatusbar().setMessageText(
+							String.format("Loading file ... (%s/%s)", i, file.length));
+					
+					getPlayerControlInterface().getStatusbar().getBar().setValue(i);
+					
+					addFile(file[i]);
+				}
+				
+				getPlayerControlInterface().getStatusbar().setVisible(false);
+			}
+		}).start();
     }
     
     public void addFile(File file) {
         boolean aplwasEmpty = apl.isEmpty();
         
         AudioFile naf = new AudioFile(file);
-        apl.add(naf);
-        
+		try {
+			naf.initAudioFile();
+			apl.add(naf);
+		} catch (UnsupportedFileFormatException e) {
+			raiseNotSupportedFileFormatError(naf);
+		}
+                
         if (aplwasEmpty){
             apl.resetToFirstIndex();
             initAudioFile();
@@ -87,30 +111,34 @@ public class Control extends UserInterface implements PlayerListener {
     }
          
 	public synchronized void initAudioFile() {
-        AudioFile af = apl.get();
-        
-        System.out.println("FILE: " + af.getFile().getAbsolutePath());
-        
-        initAudioProcessingLayer(af);
-        
-        this.getPlayerControlInterface().getSearchBar().setMaximum(ppl.getStreamLength());
-
-        analyzer.init(ppl.getAudioDevice());
-        
-        if (!af.isSupported()){
-        	raiseNotSupportedFileFormatError(af);
-        	apl.remove(af);
-        	if (!apl.isEmpty()) initAudioFile();
-        }
-        
-        try {
-			ppl.play();
-		} catch (InvalidActivityException e) {}
+		if (!apl.isEmpty()){
+	        AudioFile af = apl.get();
+	        
+	        initAudioProcessingLayer(af);
+	        
+	        System.out.println("Playing type: " + af.getType().getName() + " file: " + af.getFile().getAbsolutePath());
+	             
+	        this.getPlayerControlInterface().getSearchBar().setMaximum(ppl.getStreamLength());
+	
+	        analyzer.init(ppl.getAudioDevice());
+	       
+	        if (!af.isSupported()){
+	        	raiseNotSupportedFileFormatError(af);
+	        	apl.remove(af);
+	        	if (!apl.isEmpty()) initAudioFile();
+	        }
+	        
+	        try {
+				ppl.play();
+			} catch (InvalidActivityException e) {}
+		}
 	}
 
 	private void raiseNotSupportedFileFormatError(AudioFile af) {
 		System.err.println("Error: File format not supported!");
-		String msg = String.format("The file \"%s\" is not supported!\nLocation: %s", af.getFile().getName(), af.getFile().getPath());
+		System.err.printf("Type: %s File: %s\n", af.getType().getName(), af.getFile().getAbsolutePath());
+		
+		String msg = String.format("File format not supported!\nType: %s\nFile: %s", af.getType().getName(), af.getFile().getAbsolutePath());
 		
 		JOptionPane.showMessageDialog(this, msg, Applikation.App_Name_Version, JOptionPane.ERROR_MESSAGE);
 	}
@@ -120,7 +148,7 @@ public class Control extends UserInterface implements PlayerListener {
 		AudioProcessingLayer oldppl = ppl;
 		
 		if (ppl != null) {
-			if (!ppl.isNew()) ppl.stop();
+			ppl.stop();
 			newppl.setVolume(ppl.getVolume());
 		}
 
@@ -142,47 +170,37 @@ public class Control extends UserInterface implements PlayerListener {
 								
 				while (true) {
 
+					 if (analyzer != null) analyzer.setDebug(Applikation.isDebug());
+				     getPlayerControlInterface().getSearchBar().setDebug(Applikation.isDebug());
+				     getPlayerControlInterface().getVolume().setDebug(Applikation.isDebug());
+					
 					try {
-						Thread.sleep(100);
+						Thread.sleep(10);
 					} catch (InterruptedException e) {
 					}
 
-					if (ppl == null)
-						continue;
+					if (ppl == null) continue;
 			
 					//Synchronize the audio device and the analyzer ...
 					ppl.getAudioDevice().setAnalyzer(analyzer);
-					
-//					analyzer.setDetailLevel(ms.getValue());
-//					getPlayerControlInterface().getPlayerInterfaceGraph().setHeightLevel((ms.getValue() * 10f / (1f + 1) / 1000f + 1));//bf.getValue() / 1000f);
-					
-					//if ((ms.getValue() % 2) == 0)((WAVEAudioProcessingLayer) ppl).bps = ms.getValue();
-					
-					
-					
+										
 					SwingUtilities.invokeLater(new Runnable() {
 
 						@Override
 						public void run() {
                                                                                     
 							if (ppl.isNew())
-								getPlayerControlInterface().getSearchBar()
-										.setEnabled(false);
+								getPlayerControlInterface().getSearchBar().setEnabled(false);
 							else
-								getPlayerControlInterface().getSearchBar()
-										.setEnabled(true);
+								getPlayerControlInterface().getSearchBar().setEnabled(true);
 
 							getPlayerControlInterface().getSearchBar().setBarValue(ppl.getTimePosition());
 							setDisplay(ppl);
 							setPlayPause(ppl);
-                                                                        
-                            //getPlaylistInterface().getPlaylistTableModel().setContent(apl);
 
 							// synchronize button and bar
 							if (!ppl.isSkipFrames())
-								getPlayerControlInterface().getSearchBar()
-										.setButtonValueButEvent(
-												ppl.getTimePosition());
+								getPlayerControlInterface().getSearchBar().setButtonValueButEvent(ppl.getTimePosition());
 						}
 					});
 				}
@@ -314,7 +332,6 @@ public class Control extends UserInterface implements PlayerListener {
 		int retopt = fc.showOpenDialog(this);
 
 		if (retopt == JFileChooser.APPROVE_OPTION) {
-			//initAudioProcessingLayer();
             File[] file = fc.getSelectedFiles();
             addFiles(file);
 		}
@@ -323,55 +340,14 @@ public class Control extends UserInterface implements PlayerListener {
 	private JFileChooser initOpenDialog() {
 		JFileChooser fc = new JFileChooser(new File(System.getProperty("user.home")));
 		
-		FileFilter alls = new FileFilter() {
-			
-			@Override
-			public String getDescription() {
-				return "Alle Unterstützen Formate";
-			}
-			
-			@Override
-			public boolean accept(File f) {
-				return f.getName().endsWith(".mp1") ||
-					   f.getName().endsWith(".mp2") || 
-					   f.getName().endsWith(".mp3") ||
-					   f.getName().endsWith(".wav") || f.isDirectory();
-			}
-		};
+		//define file filters ...
+		FileFilter ff = AudioType.getAllSupportedFilesFilter();
+		fc.setFileFilter(ff);
+		for (AudioType at : AudioType.getTypes()){
+			fc.setFileFilter(at);
+		}
 		
-		FileFilter mp3 = new FileFilter() {
-			
-			@Override
-			public String getDescription() {
-				return "MPEG 1-2.5 Layer I-III (*.mp1|*.mp2|*.mp3)";
-			}
-			
-			@Override
-			public boolean accept(File f) {
-				return f.getName().endsWith(".mp1") ||
-					   f.getName().endsWith(".mp2") || 
-					   f.getName().endsWith(".mp3") ||f.isDirectory();
-			}
-		};
-		
-		FileFilter wav = new FileFilter() {
-			
-			@Override
-			public String getDescription() {
-				return "Waveform Audio File Format (*.wav)";
-			}
-			
-			@Override
-			public boolean accept(File f) {
-				return f.getName().endsWith(".wav") || f.isDirectory();
-			}
-		};
-		
-		fc.setFileFilter(alls);
-		fc.setFileFilter(mp3);
-		fc.setFileFilter(wav);
-		fc.setFileFilter(alls);
-				
+		fc.setFileFilter(ff);
 		fc.setMultiSelectionEnabled(true);
 		fc.setAcceptAllFileFilterUsed(true);
 		

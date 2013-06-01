@@ -89,7 +89,7 @@ public class AudioDeviceLayer extends AudioDeviceBase {
 	        // 0.0% = -80dB ; 100.0% = 6dB
 	        //linear: float newvol = (volControl.getMinimum() + (volControl.getMaximum() - volControl.getMinimum()) / 100f * vol);
 	        //log:
-	        double vmax =volControl.getMaximum();
+	        double vmax = volControl.getMaximum();
 	        double vmin = volControl.getMinimum();
 	        double lvol = (Math.log ((vol)/100f) * ((vmin - vmax) / Math.log(0.01/100f))) + vmax;
 	        if (lvol > vmax) lvol = vmax;

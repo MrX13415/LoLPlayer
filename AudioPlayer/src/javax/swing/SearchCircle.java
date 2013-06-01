@@ -10,10 +10,10 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 /**
- * SearchCircle Daus/Bellmann (c) 2011
+ * SearchCircle Daus/Bellmann (c) 2013
  * 
  * @author Oliver Daus / Jens Bellmann
- * @version 1.9.3 (beta)
+ * @version 1.9.4
  * 
  *          Description: A round search and progress bar
  * 
@@ -54,7 +54,7 @@ public class SearchCircle extends JButton implements MouseListener,
 	private static final double buttonPosAngleCorrectionTolerance = 0.1;
 	private static final double barPartSpaceAngleFixVaule = 200;
 
-	public boolean debugScreen = false;
+	public boolean debug = false;
 
 	public static enum POS {
 		CENTER, LEFT, RIGHT;
@@ -124,7 +124,7 @@ public class SearchCircle extends JButton implements MouseListener,
 	private Alignment alignment = new Alignment(0, 0);
 
 	// current state
-	private Image debug;
+	private Image debugScreen;
 	private Image currentBar;
 	private Image currentButton;
 
@@ -288,7 +288,7 @@ public class SearchCircle extends JButton implements MouseListener,
 
 		angle += startAngle; // startpos ...
 
-		if (debugScreen) {
+		if (debug) {
 			BufferedImage debug = new BufferedImage(this.getSize().width,
 					this.getSize().height, BufferedImage.TYPE_INT_ARGB);
 			Graphics2D g = debug.createGraphics();
@@ -313,7 +313,7 @@ public class SearchCircle extends JButton implements MouseListener,
 					(int) buttonPosAtAngle.getX(),
 					(int) buttonPosAtAngle.getY());
 
-			this.debug = debug;
+			this.debugScreen = debug;
 
 			double a = (getAngle(getValue(angle)) - (startAngle * barDirection))
 					* barDirection;
@@ -617,9 +617,9 @@ public class SearchCircle extends JButton implements MouseListener,
 					this); // draw button
 		}
 
-		if (debugScreen) {
+		if (debug) {
 			// debug
-			g.drawImage(debug, 0, 0, img.getWidth(), img.getHeight(), this); // draw
+			g.drawImage(debugScreen, 0, 0, img.getWidth(), img.getHeight(), this); // draw
 																				// debug
 																				// ...
 		}
@@ -941,6 +941,14 @@ public class SearchCircle extends JButton implements MouseListener,
 
 	public boolean isMousePressed() {
 		return mouseEvent;
+	}
+
+	public boolean isDebug() {
+		return debug;
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
 	}
 
 	/**
@@ -1803,82 +1811,43 @@ public class SearchCircle extends JButton implements MouseListener,
 	public class SearchCricleAdapter implements SearchCricleListener {
 
 		@Override
-		public void onButtonChange(SearchCircleChangeEvent event) {
-			// TODO Auto-generated method stub
-
-		}
+		public void onButtonChange(SearchCircleChangeEvent event) {}
 
 		@Override
-		public void onBarChange(SearchCircleChangeEvent event) {
-			// TODO Auto-generated method stub
-
-		}
+		public void onBarChange(SearchCircleChangeEvent event) {}
 
 		@Override
-		public void onKeyHold(SearchCircleKeyEvent event) {
-			// TODO Auto-generated method stub
-
-		}
+		public void onKeyHold(SearchCircleKeyEvent event) {}
 
 		@Override
-		public void onKeyPressed(SearchCircleKeyEvent event) {
-			// TODO Auto-generated method stub
-
-		}
+		public void onKeyPressed(SearchCircleKeyEvent event) {}
 
 		@Override
-		public void onKeyReleased(SearchCircleKeyEvent event) {
-			// TODO Auto-generated method stub
-
-		}
+		public void onKeyReleased(SearchCircleKeyEvent event) {}
 
 		@Override
-		public void onKeyTyped(SearchCircleKeyEvent event) {
-			// TODO Auto-generated method stub
-
-		}
+		public void onKeyTyped(SearchCircleKeyEvent event) {}
 
 		@Override
-		public void onMouseDragged(SearchCircleMouseEvent event) {
-			// TODO Auto-generated method stub
-
-		}
+		public void onMouseDragged(SearchCircleMouseEvent event) {}
 
 		@Override
-		public void onMouseClicked(SearchCircleMouseEvent event) {
-			// TODO Auto-generated method stub
-
-		}
+		public void onMouseClicked(SearchCircleMouseEvent event) {}
 
 		@Override
-		public void onMouseEntered(SearchCircleMouseEvent event) {
-			// TODO Auto-generated method stub
-
-		}
+		public void onMouseEntered(SearchCircleMouseEvent event) {}
 
 		@Override
-		public void onMouseExited(SearchCircleMouseEvent event) {
-			// TODO Auto-generated method stub
-
-		}
+		public void onMouseExited(SearchCircleMouseEvent event) {}
 
 		@Override
-		public void onMousePressed(SearchCircleMouseEvent event) {
-			// TODO Auto-generated method stub
-
-		}
+		public void onMousePressed(SearchCircleMouseEvent event) {}
 
 		@Override
-		public void onMouseReleased(SearchCircleMouseEvent event) {
-			// TODO Auto-generated method stub
-
-		}
+		public void onMouseReleased(SearchCircleMouseEvent event) {}
 
 		@Override
-		public void onMouseMoved(SearchCircleMouseEvent event) {
-			// TODO Auto-generated method stub
-
-		}
+		public void onMouseMoved(SearchCircleMouseEvent event) {}
 	}
 
 	public class SearchCircleEvent {

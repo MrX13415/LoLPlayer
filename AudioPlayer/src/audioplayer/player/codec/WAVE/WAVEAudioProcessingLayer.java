@@ -1,4 +1,4 @@
-package audioplayer.player.codec;
+package audioplayer.player.codec.WAVE;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -10,8 +10,12 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import javazoom.jl.decoder.BitstreamException;
+
 import audioplayer.player.AudioDeviceLayer;
-import audioplayer.player.codec.AudioFile.AudioType;
+import audioplayer.player.codec.AudioFile;
+import audioplayer.player.codec.AudioProcessingLayer;
+import audioplayer.player.codec.AudioType;
 import audioplayer.player.listener.PlayerEvent;
 import audioplayer.player.listener.PlayerListener;
 
@@ -202,21 +206,20 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 	 * <br>
 	 * @param f The file
 	 * @return The length of the given file 'f' in milliseconds
+	 * @throws StreamLengthException 
+	 * @throws Exception 
 	 * @throws BitstreamException
 	 * @throws FileNotFoundException
 	 */
-	public long calculateStreamLength(File f){
+	public long calculateStreamLength(File f) throws StreamLengthException{
 		AudioInputStream bitstream = null;
 		long length = 0; //in ms
-
 		try {
 			bitstream = AudioSystem.getAudioInputStream(new BufferedInputStream(new FileInputStream(f)));
 			length = (long) ((bitstream.getFrameLength() / bitstream.getFormat().getFrameRate()) * 1000); 
-
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new StreamLengthException(f);
 		}
-		
 		return length;
 	}
 
@@ -226,12 +229,16 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 	 * @return if the given file is an WAVE file (e.g. WAVE)
 	 */
 	public boolean isSupportedAudioFile(File f) {
-		return f.getName().endsWith(".wave") ||
-			   f.getName().endsWith(".aiff");
+		try {
+			calculateStreamLength(f);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	@Override
 	public AudioType getSupportedAudioType() {
-		return AudioType.WAVE;
+		return new WAVEAudioType();
 	}
 }

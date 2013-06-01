@@ -6,20 +6,14 @@ package audioplayer.player.codec;
 
 import java.io.File;
 
-
 /**
  *
  * @author dausol
  */
 public class AudioFile {
-    	
-	enum AudioType{
-		UNKNOW, MPEG, WAVE;
-	}
 	
 	private AudioType type; 
-	private AudioProcessingLayer ppl;
-	
+
     private File file;
     
     private long length = 0;
@@ -29,33 +23,21 @@ public class AudioFile {
         
     public AudioFile(File file){
         this.file = file;
-        determineAudioType(); 
-		length = ppl.calculateStreamLength(file);
+
+        type = AudioType.getAudioType(file);
     }
     
-    /** Determines the Audio file type
-     *  
-     * @return if the file is supported
-     */
-    private boolean determineAudioType(){
-    	AudioProcessingLayer[] ppls = new AudioProcessingLayer[]{new MPEGAudioProcessingLayer(), new WAVEAudioProcessingLayer()};
-    	
-    	for (AudioProcessingLayer audioProcessingLayer : ppls) {
-    		ppl = audioProcessingLayer;
-    		if (ppl.isSupportedAudioFile(file)){
-    			type = ppl.getSupportedAudioType();
-    			return true;
-    		}
-		}
-
-    	ppl = AudioProcessingLayer.getEmptyInstance();
-    	type = ppl.getSupportedAudioType();
-    	
-    	return false;
+    public void initAudioFile() throws UnsupportedFileFormatException{
+    	 try{
+         	length = type.getAudioProcessingLayerInstance().calculateStreamLength(file);	
+         }catch(Exception e){
+         	throw new UnsupportedFileFormatException();
+         }
+    	 if (!isSupported()) throw new UnsupportedFileFormatException();
     }
-        
+            
     public boolean isSupported(){
-    	return ppl.isSupportedAudioFile(file);
+    	return type.isSupported(file);
     }
     
     public File getFile(){
@@ -77,7 +59,25 @@ public class AudioFile {
 	}
 
 	public AudioProcessingLayer getAudioProcessingLayer() {
-		return ppl;
+		return type.getAudioProcessingLayerInstance();
 	}
 	
+	public class UnsupportedFileFormatException extends Exception{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -4674198784666823006L;
+
+		public UnsupportedFileFormatException() {
+			super("file format not supported");
+		}
+		
+		private AudioFile file;
+
+		public AudioFile getAudioFile() {
+			return file;
+		}
+			
+	}
 }

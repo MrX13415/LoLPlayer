@@ -2,8 +2,10 @@ package audioplayer;
 
 import javax.swing.UIManager;
 
+import audioplayer.database.DBConnectionLayer;
 import audioplayer.database.DataBase;
 import audioplayer.font.FontLoader;
+
 
 /**
  *  LoLPlayer II
@@ -14,8 +16,10 @@ import audioplayer.font.FontLoader;
 public class Applikation {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.2.4 alpha";
+	public static String App_Version = "0.1.3 alpha";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
+
+	private static boolean debug = false;
 	
 	private DataBase database;
 
@@ -24,6 +28,8 @@ public class Applikation {
 	 *            the command line arguments
 	 */
 	public static void main(String[] args) {
+		System.out.println(App_Name_Version);
+		
 		new Applikation();
 	}
 
@@ -32,7 +38,6 @@ public class Applikation {
 	 */
 	public Applikation() {
 
-		System.out.println(UIManager.getSystemLookAndFeelClassName());
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception ex) {
@@ -42,14 +47,17 @@ public class Applikation {
 
 		FontLoader.loadFonts();
 		
-                /*
-		
+
 		DBConnectionLayer dbcl = new DBConnectionLayer(database);
-		  
-		dbcl.connectDB(); dbcl.select(); dbcl.closeDB();
-		 */
+		dbcl.connectDB();
+
 
 		new Control();
+	}
+
+	
+	public static boolean isDebug() {
+		return debug;
 	}
 
 	/**

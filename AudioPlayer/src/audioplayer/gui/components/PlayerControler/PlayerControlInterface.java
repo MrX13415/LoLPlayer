@@ -18,6 +18,7 @@ import javax.swing.SearchCircle.SearchCricleListener;
 import javax.swing.event.ChangeListener;
 
 import audioplayer.font.FontLoader;
+import audioplayer.gui.components.StatusBar;
 import audioplayer.player.analyzer.components.JGraph;
 
 
@@ -45,6 +46,8 @@ public class PlayerControlInterface extends JPanel{
 
 	private JSlider graphdetail;
 	private JSlider heightlevel;
+	
+	private StatusBar statusbar;
 	
 	
 	public PlayerControlInterface(ActionListener actionListener,
@@ -154,7 +157,6 @@ public class PlayerControlInterface extends JPanel{
 		playerControls.add(playerButtons);
 		playerControls.setBackground(new Color(50,50,50));
 
-		
 		volume.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
@@ -193,22 +195,33 @@ public class PlayerControlInterface extends JPanel{
        
 		graphdetail = new JSlider(0, 1000); 
 		graphdetail.setOpaque(false);
-		graphdetail.setOrientation(JSlider.HORIZONTAL);
-		graphdetail.setValue(0);
+		graphdetail.setOrientation(JSlider.VERTICAL);
+		graphdetail.setValue(40);
 		graphdetail.addChangeListener(changeListener);
 		
 		heightlevel = new JSlider(0, 5000); 
 		heightlevel.setOpaque(false);
 		heightlevel.setOrientation(JSlider.VERTICAL);
-		heightlevel.setValue(1000);
+		heightlevel.setValue(400);
 		heightlevel.addChangeListener(changeListener);
-		        
+		   
+		JPanel sliderPanel = new JPanel(new BorderLayout());
+		sliderPanel.add(heightlevel, BorderLayout.WEST);
+		sliderPanel.add(graphdetail, BorderLayout.EAST);
+		sliderPanel.setOpaque(false);
+		
+		statusbar = new StatusBar();
+		
 		this.setOpaque(false);
         this.setLayout(new BorderLayout());
 		this.add(playerInterfaceGraph, BorderLayout.CENTER);
-		this.add(heightlevel, BorderLayout.WEST);
-		this.add(graphdetail, BorderLayout.SOUTH);   
+		this.add(sliderPanel, BorderLayout.WEST);
+		this.add(statusbar, BorderLayout.SOUTH);   
         this.setPreferredSize(new Dimension(400, 400));
+	}
+
+	public StatusBar getStatusbar() {
+		return statusbar;
 	}
 
 	public JGraph getPlayerInterfaceGraph() {

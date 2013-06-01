@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import javax.activity.InvalidActivityException;
 
 import audioplayer.player.AudioDeviceLayer;
-import audioplayer.player.codec.AudioFile.AudioType;
 import audioplayer.player.listener.PlayerListener;
 
 /**
@@ -84,9 +83,16 @@ public abstract class AudioProcessingLayer implements Runnable{
 
 			@Override
 			public AudioType getSupportedAudioType() {
-				return AudioType.UNKNOW;
+				return new UNKNOWAudioType();
 			}
 		};
+	}
+	
+	public static AudioProcessingLayer getInstance(AudioType type){
+		for (AudioType at : AudioType.getTypes()) {
+			if (at.equals(type)) return at.getAudioProcessingLayerInstance();
+		}
+		return getEmptyInstance();
 	}
 	
 	public void cleanInstance(){
@@ -333,10 +339,9 @@ public abstract class AudioProcessingLayer implements Runnable{
 	 * <br>
 	 * @param f The file
 	 * @return The length of the given file 'f' in milliseconds
-	 * @throws BitstreamException
-	 * @throws FileNotFoundException
+	 * @throws StreamLengthException 
 	 */
-	public abstract long calculateStreamLength(File f);
+	public abstract long calculateStreamLength(File f) throws StreamLengthException;
 	
 	/** Determines if the given file is supported by this class
 	 * 
@@ -346,5 +351,16 @@ public abstract class AudioProcessingLayer implements Runnable{
 	public abstract boolean isSupportedAudioFile(File f);
 	
 	public abstract AudioType getSupportedAudioType();
+	
+	public class StreamLengthException extends Exception{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -6533528881379020534L;
+
+		public StreamLengthException(File f) {
+			super("Can't determine stream length: " + f);
+		}
+	}
 	
 }
