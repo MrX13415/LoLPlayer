@@ -2,6 +2,12 @@ package audioplayer.player.codec.MPEG;
 
 import audioplayer.player.codec.AudioType;
 
+/**
+ *  LoLPlayer II - Audio-Player Project
+ * 
+ * @author Oliver Daus
+ * 
+ */
 public class MPEGAudioType extends AudioType{
 	{
 	name = "MPEG";

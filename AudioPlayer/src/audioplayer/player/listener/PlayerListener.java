@@ -1,5 +1,11 @@
 package audioplayer.player.listener;
 
+/**
+ *  LoLPlayer II - Audio-Player Project
+ * 
+ * @author Oliver Daus
+ * 
+ */
 public interface PlayerListener {
 
 	public void onPlayerStart(PlayerEvent event);
@@ -23,4 +29,8 @@ public interface PlayerListener {
     public void onPlaylistClear(PlaylistEvent event);
     
     public void onPlaylistIndexSet(PlaylistIndexChangeEvent event);
+    
+    public void onPlaylistMoveUp(PlaylistIndexChangeEvent event);
+    
+    public void onPlaylistMoveDown(PlaylistIndexChangeEvent event);
 }

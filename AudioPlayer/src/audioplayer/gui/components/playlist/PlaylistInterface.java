@@ -16,8 +16,10 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
 /**
- *
- * @author dausol
+ *  LoLPlayer II - Audio-Player Project
+ * 
+ * @author Oliver Daus
+ * 
  */
 public class PlaylistInterface extends JPanel{
     

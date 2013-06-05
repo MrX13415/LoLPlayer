@@ -2,10 +2,12 @@ package audioplayer.player.analyzer;
 
 import java.util.ArrayList;
 
-/** Graph Interface. Basic Graph functions
+/**
+ *  LoLPlayer II - Audio-Player Project
  * 
- * @author Oliver
- *
+ * @author Oliver Daus
+ * 
+ * Graph Interface. Basic Graph functions
  */
 public interface Graph {
 

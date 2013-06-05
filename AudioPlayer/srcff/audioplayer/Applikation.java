@@ -18,11 +18,13 @@ public class Applikation {
 	public static String App_Name = "LoLPlayer II";
 	public static String App_Version = "0.1.3 alpha";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
-
+	public static String App_About = "Oliver Daus (c) 2013";	
+	
 	private static boolean debug = false;
 	
 	private DataBase database;
-
+        private Control control;
+                
 	/**
 	 * @param args
 	 *            the command line arguments
@@ -39,7 +41,7 @@ public class Applikation {
 	public Applikation() {
 
 		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
 		} catch (Exception ex) {
 		}
 
@@ -51,8 +53,7 @@ public class Applikation {
 		DBConnectionLayer dbcl = new DBConnectionLayer(database);
 		dbcl.connectDB();
 
-
-		new Control();
+		control = new Control();
 	}
 
 	
@@ -69,6 +70,10 @@ public class Applikation {
 		database.setDBurl("jdbc:postgresql://localhost:5432/apdb");
 		database.setDBusername("dausol");
 		database.setDBpassword("123");
+	}
+
+	public static void exit() {
+		System.exit(0);
 	}
 
 }

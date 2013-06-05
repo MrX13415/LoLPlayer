@@ -9,11 +9,12 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import audioplayer.player.AudioDeviceLayer;
 
-
-/** Class to Analyze audio data to make it ready, displayed on a Graph
- *  
- * @author Oliver
- *
+/**
+ *  LoLPlayer II - Audio-Player Project
+ * 
+ * @author Oliver Daus
+ * 
+ * Analyzer class to analyzer audio data ...
  */
 public class Analyzer {
 
@@ -278,7 +279,6 @@ public class Analyzer {
 		try {
 			toAnalyze.put(abb);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
 		}
 	}
 	

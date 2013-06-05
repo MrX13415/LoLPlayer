@@ -1,8 +1,5 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package audioplayer.gui.components.PlayerControler;
+
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -13,8 +10,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
+ *  LoLPlayer II - Audio-Player Project
  * 
- * @author dausol
+ * @author Oliver Daus
+ * 
  */
 public class Display extends JPanel {
 

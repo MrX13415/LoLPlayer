@@ -1,5 +1,6 @@
 package audioplayer;
 
+import audioplayer.gui.AboutDialog;
 import java.io.File;
 
 import javax.activity.InvalidActivityException;
@@ -12,6 +13,7 @@ import javax.swing.filechooser.FileFilter;
 
 import audioplayer.gui.UserInterface;
 import audioplayer.gui.components.PlayerControler.Display;
+import audioplayer.player.AudioDeviceLayer;
 import audioplayer.player.AudioPlaylist;
 import audioplayer.player.analyzer.Analyzer;
 import audioplayer.player.codec.AudioFile;
@@ -22,10 +24,14 @@ import audioplayer.player.listener.PlayerEvent;
 import audioplayer.player.listener.PlayerListener;
 import audioplayer.player.listener.PlaylistEvent;
 import audioplayer.player.listener.PlaylistIndexChangeEvent;
+import javazoom.jl.decoder.JavaLayerException;
+
 
 /**
+ *  LoLPlayer II - Audio-Player Project
  * 
- * @author dausol
+ * @author Oliver Daus
+ * 
  */
 public class Control extends UserInterface implements PlayerListener {
 
@@ -47,19 +53,31 @@ public class Control extends UserInterface implements PlayerListener {
 	 * Start a new Instance of the AudioPlayer ...
 	 */
 	public Control() {
-		apl.addPlayerListener(this);
-		
-		analyzer = new Analyzer(getPlayerControlInterface().getPlayerInterfaceGraph());
-                //analyzer.setDefaultChannelGraphColor(0, Color.red);
-                //analyzer.setDefaultChannelGraphColor(1, new Color(226, 0, 116));
+        
+            apl.addPlayerListener(this);
+            apl.loadFromDB();
+            
+            analyzer = new Analyzer(getPlayerControlInterface().getPlayerInterfaceGraph());
+            //analyzer.setDefaultChannelGraphColor(1, new Color(226, 0, 116));
+            //analyzer.setDefaultChannelGraphColor(1, new Color(226, 0, 116));
 
-                analyzer.setMergedChannels(false);
-                   
-                getPlayerControlInterface().getPlayerInterfaceGraph().setUi(this);
+            analyzer.setMergedChannels(false);
+               
+            getPlayerControlInterface().getPlayerInterfaceGraph().setUi(this);
 
-		initUIupdaterThread();
-
-		// initAudioFile(new File("Scratching Harmony (Re-Orchestrated).mp3"));
+            initUIupdaterThread();
+            
+            try {
+                System.out.print("Test audio device ...\t\t\t");
+                new AudioDeviceLayer().test();
+                System.out.println("OK");
+            } catch (JavaLayerException ex) {
+                System.out.println("ERROR");
+            }
+            
+            if (!apl.isEmpty()){
+            	initAudioFile(); //autoplay on startup if playlist had content ...
+            }
 	}
 
     public void openFiles(File[] file) {
@@ -73,22 +91,21 @@ public class Control extends UserInterface implements PlayerListener {
 			@Override
 			public void run() {
 				
-				getPlayerControlInterface().getStatusbar().getBar().setMinimum(0);
-				getPlayerControlInterface().getStatusbar().getBar().setMaximum(file.length);
-				getPlayerControlInterface().getStatusbar().setMessageText(
-						String.format("Loading file ... (%s/%s)", 0, file.length));
-				getPlayerControlInterface().getStatusbar().setVisible(true);
+				getStatusbar().getBar().setMinimum(0);
+				getStatusbar().getBar().setMaximum(file.length);
+				getStatusbar().setMessageText(String.format("Loading file ... (%s/%s)", 0, file.length));
+				getStatusbar().setVisible(true);
 				
 				for (int i = 0; i < file.length; i++) {
-					getPlayerControlInterface().getStatusbar().setMessageText(
+					getStatusbar().setMessageText(
 							String.format("Loading file ... (%s/%s)", i, file.length));
 					
-					getPlayerControlInterface().getStatusbar().getBar().setValue(i);
+					getStatusbar().getBar().setValue(i);
 					
 					addFile(file[i]);
 				}
 				
-				getPlayerControlInterface().getStatusbar().setVisible(false);
+				getStatusbar().setVisible(false);
 			}
 		}).start();
     }
@@ -96,21 +113,31 @@ public class Control extends UserInterface implements PlayerListener {
     public void addFile(File file) {
         boolean aplwasEmpty = apl.isEmpty();
         
-        AudioFile naf = new AudioFile(file);
+        AudioFile af = new AudioFile(file);
 		try {
-			naf.initAudioFile();
-			apl.add(naf);
+			af.initAudioFile();
+			apl.add(af);
+			System.out.println("Added to playlist: " + af.getFile().getAbsolutePath());
 		} catch (UnsupportedFileFormatException e) {
-			raiseNotSupportedFileFormatError(naf);
+			raiseNotSupportedFileFormatError(af);
 		}
                 
         if (aplwasEmpty){
             apl.resetToFirstIndex();
-            initAudioFile();
+            initAudioFileAutoPlay();
         }
     }
          
-	public synchronized void initAudioFile() {
+    
+	public synchronized void initAudioFileAutoPlay() {
+		if (initAudioFile()){
+	        try {
+				ppl.play();
+			} catch (InvalidActivityException e) {}
+		}
+	}
+	
+	public synchronized boolean initAudioFile() {
 		if (!apl.isEmpty()){
 	        AudioFile af = apl.get();
 	        
@@ -128,19 +155,27 @@ public class Control extends UserInterface implements PlayerListener {
 	        	if (!apl.isEmpty()) initAudioFile();
 	        }
 	        
-	        try {
-				ppl.play();
-			} catch (InvalidActivityException e) {}
+	        return true;
 		}
+		return false;
 	}
 
-	private void raiseNotSupportedFileFormatError(AudioFile af) {
+	public void raiseNotSupportedFileFormatError(AudioFile af) {
 		System.err.println("Error: File format not supported!");
 		System.err.printf("Type: %s File: %s\n", af.getType().getName(), af.getFile().getAbsolutePath());
 		
 		String msg = String.format("File format not supported!\nType: %s\nFile: %s", af.getType().getName(), af.getFile().getAbsolutePath());
 		
-		JOptionPane.showMessageDialog(this, msg, Applikation.App_Name_Version, JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(this, msg, Application.App_Name_Version, JOptionPane.ERROR_MESSAGE);
+	}
+        
+        public void raiseVolumeControlError(Exception ex) {
+                System.err.println("Error: Volume control not supported");
+                System.err.println(ex);
+                
+		String msg = String.format("Volume control not supported!");
+		
+		JOptionPane.showMessageDialog(this, msg, Application.App_Name_Version, JOptionPane.ERROR_MESSAGE);
 	}
 
 	public void initAudioProcessingLayer(AudioFile af) {
@@ -170,12 +205,12 @@ public class Control extends UserInterface implements PlayerListener {
 								
 				while (true) {
 
-					 if (analyzer != null) analyzer.setDebug(Applikation.isDebug());
-				     getPlayerControlInterface().getSearchBar().setDebug(Applikation.isDebug());
-				     getPlayerControlInterface().getVolume().setDebug(Applikation.isDebug());
+					 if (analyzer != null) analyzer.setDebug(Application.isDebug());
+				     getPlayerControlInterface().getSearchBar().setDebug(Application.isDebug());
+				     getPlayerControlInterface().getVolume().setDebug(Application.isDebug());
 					
 					try {
-						Thread.sleep(10);
+						Thread.sleep(20);
 					} catch (InterruptedException e) {
 					}
 
@@ -183,7 +218,7 @@ public class Control extends UserInterface implements PlayerListener {
 			
 					//Synchronize the audio device and the analyzer ...
 					ppl.getAudioDevice().setAnalyzer(analyzer);
-										
+					
 					SwingUtilities.invokeLater(new Runnable() {
 
 						@Override
@@ -226,7 +261,7 @@ public class Control extends UserInterface implements PlayerListener {
 		d.setInfo1Text(state);
 		d.setInfo2Text(vol);
 		d.setStatusBar1Text(pperc);
-		if (ppl.getAudioFile() != null)d.setStatusBar2Text(ppl.getAudioFile().getFile().getName());
+		if (ppl.getAudioFile() != null)d.setStatusBar2Text(ppl.getAudioFile().getTitle());
 
 	}
 
@@ -267,7 +302,7 @@ public class Control extends UserInterface implements PlayerListener {
 	@Override
 	public void onPlaylistDoubleClick(int index) {
 		apl.setIndex(index);
-		initAudioFile();
+		initAudioFileAutoPlay();
 		System.out.println("no. " + apl.getIndex());
 	}
 	
@@ -293,11 +328,7 @@ public class Control extends UserInterface implements PlayerListener {
 	public void onSearchBarMousePressed(SearchCircle s) {
 		wasPausedOnSearchBarMousePressed = ppl.isPaused();
 		if (ppl.isInitialized() || ppl.isStopped()) {
-			if (ppl.isStopped())
-				try {
-					ppl.resetPlayer();
-				} catch (Exception e) {
-				}
+			if (ppl.isStopped()) ppl.resetPlayer();
 			ppl.setPause(true);
 			ppl.createDecoderThread();
 			wasPausedOnSearchBarMousePressed = true;
@@ -327,7 +358,12 @@ public class Control extends UserInterface implements PlayerListener {
 	}
 	
 	@Override
-	public void onMenu_file_add() {
+	public void onMenu_file_exit(){
+		Application.exit();
+	}
+	
+	@Override
+	public void onMenu_playlist_add() {
 		JFileChooser fc = initOpenDialog();
 		int retopt = fc.showOpenDialog(this);
 
@@ -335,6 +371,67 @@ public class Control extends UserInterface implements PlayerListener {
             File[] file = fc.getSelectedFiles();
             addFiles(file);
 		}
+	}
+	
+	@Override
+	public void onMenu_playlist_remove(){
+		int[] rows = getPlaylistInterface().getPlaylistTable().getSelectedRows();
+		for (int i : rows) {
+			AudioFile af = apl.get(i);
+			if (apl.get().equals(af)){
+				ppl.stop();
+				apl.remove(i);
+				initAudioFileAutoPlay();
+				getPlaylistInterface().getPlaylistTable().changeSelection(apl.getIndex(), 0, false, false);
+			}else{
+				apl.remove(i);
+			}
+			System.out.println("Removed from playlist: " + af.getFile().getAbsolutePath());
+		}
+	}
+	
+	@Override
+	public void onMenu_playlist_clear(){
+		ppl.stop();
+		apl.clear();
+		System.out.println("Playlist cleared ...");
+	}
+	
+	@Override
+	public void onMenu_playlist_up(){
+		int[] rows = getPlaylistInterface().getPlaylistTable().getSelectedRows();
+
+		for (int i = 0; i < rows.length; i++) {
+			AudioFile af = apl.get(rows[i]);
+			if (apl.isFistElement(af)) return; 
+			apl.moveUp(af);
+					
+			System.out.println("Moved up in playlist: " + af.getFile().getAbsolutePath());
+		}
+		getPlaylistInterface().getPlaylistTable().changeSelection(rows[0] - 1, 0, false, false);
+		getPlaylistInterface().getPlaylistTable().setRowSelectionInterval(rows[0] - 1, rows[rows.length - 1] - 1);
+	}
+	
+	@Override
+	public void onMenu_playlist_down(){
+		int[] rows = getPlaylistInterface().getPlaylistTable().getSelectedRows();
+		for (int i = rows.length - 1; i >=0 ; i--) {
+			AudioFile af = apl.get(rows[i]);
+			if (apl.isLastElement(af)) return; 
+			apl.moveDown(af);
+						
+			System.out.println("Moved down in playlist: " + af.getFile().getAbsolutePath());
+		}
+		getPlaylistInterface().getPlaylistTable().changeSelection(rows[0] + 1, 0, false, false);
+		getPlaylistInterface().getPlaylistTable().setRowSelectionInterval(rows[0] + 1, rows[rows.length - 1] + 1);
+	}
+	
+	@Override
+	public void onMenu_help_about(){
+		System.out.println(Application.App_Name_Version);
+		System.out.println(Application.App_Author);
+                System.out.println(Application.App_License);
+                new AboutDialog(this);
 	}
 	
 	private JFileChooser initOpenDialog() {
@@ -391,10 +488,22 @@ public class Control extends UserInterface implements PlayerListener {
     public void onPlaylistFileRemove(PlaylistEvent event) {
     	getPlaylistInterface().getPlaylistTableModel().setContent(apl);
     }
+    
+    @Override
+    public void onPlaylistMoveUp(PlaylistIndexChangeEvent event) {
+    	getPlaylistInterface().getPlaylistTableModel().setContent(apl);
+    	
+    }
+    
+    @Override
+    public void onPlaylistMoveDown(PlaylistIndexChangeEvent event) {
+    	getPlaylistInterface().getPlaylistTableModel().setContent(apl);
+    }
 
+    
     @Override
     public void onPlaylistIncrement(PlaylistIndexChangeEvent event) {
-		initAudioFile();
+		initAudioFileAutoPlay();
         getPlaylistInterface().getPlaylistTable().changeSelection(event.getNewIndex(), 0, false, false);
 		System.out.println("Changed playlist index from no. " + event.getPreviousIndex() + " to no. " + event.getNewIndex());
     }

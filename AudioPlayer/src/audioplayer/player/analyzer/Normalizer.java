@@ -2,10 +2,12 @@ package audioplayer.player.analyzer;
 
 import javax.sound.sampled.AudioFormat;
 
-/** Class to Normalize audio data from byte to float.
+/**
+ *  LoLPlayer II - Audio-Player Project
  * 
- * @author Oliver
- *
+ * @author Oliver Daus
+ * 
+ * Class to Normalize audio data from byte to float.
  */
 public class Normalizer {
 

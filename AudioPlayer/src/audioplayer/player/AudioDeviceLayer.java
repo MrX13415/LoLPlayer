@@ -1,5 +1,6 @@
 package audioplayer.player;
 
+import audioplayer.Application;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -16,9 +17,11 @@ import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.AudioDeviceBase;
 
 /**
- * Implements an audio device by using the JavaSound API
+ *  LoLPlayer II - Audio-Player Project
+ * 
+ * @author Oliver Daus
+ * 
  */
-
 public class AudioDeviceLayer extends AudioDeviceBase {
 	
 	private SourceDataLine source = null;
@@ -83,7 +86,11 @@ public class AudioDeviceLayer extends AudioDeviceBase {
                 try{
                    volControl = (FloatControl) source.getControl(FloatControl.Type.MASTER_GAIN);
                 }catch (Exception e){
-                   volControl = (FloatControl) source.getControl(FloatControl.Type.VOLUME);
+                    try{
+                        volControl = (FloatControl) source.getControl(FloatControl.Type.VOLUME);
+                    }catch (Exception ex){   
+                        Application.getApplication().getControl().raiseVolumeControlError(ex);
+                    }
                 }
 	      
 	        // 0.0% = -80dB ; 100.0% = 6dB

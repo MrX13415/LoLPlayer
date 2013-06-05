@@ -7,8 +7,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- *
- * @author dausol
+ *  LoLPlayer II - Audio-Player Project
+ * 
+ * @author Oliver Daus
+ * 
  */
 public class DBConnectionLayer {
     
@@ -19,6 +21,8 @@ public class DBConnectionLayer {
     //Database command channel
     private Statement statement;
         
+    private boolean connected;
+    
     public DBConnectionLayer(DataBase db){
         this.db = db;
     }
@@ -35,17 +39,32 @@ public class DBConnectionLayer {
             //Init. command channel ...
             statement = database.createStatement();
             
+            connected = true;
+            
             System.out.println("OK");
-            return true;
+            
+            return connected;
         } catch (Exception ex) {
             System.out.println("ERROR");
             System.err.println("\tError: " + ex);
         }
-        return false;
+        return connected;
     }
         
     public ResultSet sendQuery(String sql) throws SQLException{
         return statement.executeQuery(sql);
+    }
+    
+    public ResultSet getValues(String view) throws SQLException{
+    	String sql = String.format("SELECT * FROM %s;", view);
+    	return sendQuery(sql);
+    }
+    
+    public String getValue(String view, String valName, String condValName, String condValue) throws SQLException{
+    	String sql = String.format("SELECT %s FROM %s WHERE %s = %s;", valName, view, condValName, condValue);
+    	ResultSet rs = sendQuery(sql);
+    	rs.next();
+    	return rs.getString(valName);
     }
     
     public boolean closeDB(){
@@ -61,5 +80,9 @@ public class DBConnectionLayer {
         }
         return false;
     }
+
+	public boolean isConnected() {
+		return connected;
+	}
     
 }

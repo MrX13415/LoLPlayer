@@ -6,13 +6,18 @@ import java.util.ArrayList;
 
 import javax.activity.InvalidActivityException;
 
+import javazoom.jl.decoder.BitstreamException;
+
 import audioplayer.player.AudioDeviceLayer;
+import audioplayer.player.listener.PlayerEvent;
 import audioplayer.player.listener.PlayerListener;
 
 /**
+ * LoLPlayer II - Audio-Player Project
+ * 
  * Base audio processing layer interface
  * 
- * @author Oliver
+ * @author Oliver Daus
  * @version 1.2
  * 
  */
@@ -30,16 +35,16 @@ public abstract class AudioProcessingLayer implements Runnable{
 	
 	protected PlayerState state = PlayerState.NEW; 	
 	
-	protected boolean closed;							
+	protected volatile boolean closed;							
 
-	protected double internaltimePosition;			//in milliseconds
-    protected long timePosition;
-	protected long newTimePosition;					//in milliseconds
-	protected boolean skipFrames;					
-	protected double skipedFrames;				
-	protected double timePerFrame;					//in milliseconds
+	protected volatile double internaltimePosition;			//in milliseconds
+    protected volatile long timePosition;
+	protected volatile long newTimePosition;					//in milliseconds
+	protected volatile boolean skipFrames;					
+	protected volatile double skipedFrames;				
+	protected volatile double timePerFrame;					//in milliseconds
 	
-	protected float volume = 25f; 					//default: 80%
+	protected volatile float volume = 25f; 					//default: 80%
 	
 	protected long timePerLoop = 0;
 	
@@ -56,16 +61,13 @@ public abstract class AudioProcessingLayer implements Runnable{
 			}
 			
 			@Override
-			public void stop() {}
+			public void closeStream() {}
 			
 			@Override
 			public void run() {}
 			
 			@Override
-			public void resetPlayer() throws Exception {}
-			
-			@Override
-			public void initialzePlayer(AudioFile f) {}
+			public void initializeAudioDevice() throws Exception {}
 			
 			@Override
 			protected void determineTimePerFrame() throws Exception,
@@ -309,11 +311,49 @@ public abstract class AudioProcessingLayer implements Runnable{
 	 *   
 	 * @param f	The file to be played
 	 */
-	public abstract void initialzePlayer(AudioFile f);
+	public void initialzePlayer(AudioFile f){
+		try {
+			this.file = f;
+			
+			if (decoderThread != null) decoderThread.interrupt();
+			
+			closeStream();
+			
+			if (audioDevice != null) audioDevice.close();
+			
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {}
+			
+			initializeAudioDevice();
+			                        
+			closed = false;
+			internaltimePosition = 0;
+			timePosition = 0;
+			newTimePosition = 0;
+			skipFrames = false;
+			skipedFrames = 0;
+
+			if (!isPlaying())
+				setState(PlayerState.INIT);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void resetPlayer(){
+		closeStream();
+		
+		closed = false;
+		internaltimePosition = 0;
+		timePosition = 0;
+	}
+	
 	
 	/** Resets the file bitstream and the audiodevice
 	 */
-	public abstract void resetPlayer() throws Exception;
+	protected abstract void initializeAudioDevice() throws Exception;
 	
 	/** Frame decoding and audio playing routine
 	 *  <br>
@@ -325,7 +365,37 @@ public abstract class AudioProcessingLayer implements Runnable{
 	
 	/** Stops the current playing file and closes the file stream
 	 */
-	public abstract void stop();
+	public void stop(){
+		if (closed != true && !isNew()) {
+			state = PlayerState.STOPPED;
+			if (decoderThread != null) decoderThread.interrupt();
+			
+			//Listener
+			synchronized (listener) {
+				for (int i = 0; i < listener.size(); i++) {
+					PlayerListener pl = listener.get(i);
+					pl.onPlayerStop(new PlayerEvent(this));
+				}
+			}
+			
+			closeStream();
+			
+			closeAudioDevice();
+		}
+	}
+	
+	protected abstract void closeStream();
+	
+	protected void closeAudioDevice(){
+		if (audioDevice != null) audioDevice.close();
+        
+		closed = true;
+		internaltimePosition = 0;
+		timePosition = 0;
+		newTimePosition = 0;
+		skipFrames = false;
+		skipedFrames = 0;
+	}
 	
 	/** Determines the time needed per frame
 	 */

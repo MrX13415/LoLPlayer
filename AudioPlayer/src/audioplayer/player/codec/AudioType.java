@@ -7,6 +7,12 @@ import javax.swing.filechooser.FileFilter;
 import audioplayer.player.codec.MPEG.MPEGAudioType;
 import audioplayer.player.codec.WAVE.WAVEAudioType;
 
+/**
+ *  LoLPlayer II - Audio-Player Project
+ * 
+ * @author Oliver Daus
+ * 
+ */
 public abstract class AudioType extends FileFilter{
 
 	protected static AudioType[] types = {new MPEGAudioType(), new WAVEAudioType()};

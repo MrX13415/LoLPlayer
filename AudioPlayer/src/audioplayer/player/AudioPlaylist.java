@@ -4,15 +4,23 @@
  */
 package audioplayer.player;
 
+import audioplayer.Application;
+import audioplayer.database.LoLPlayerDB.PlaylistItem;
 import audioplayer.player.codec.AudioFile;
+import audioplayer.player.codec.AudioFile.UnsupportedFileFormatException;
 import audioplayer.player.listener.PlayerListener;
 import audioplayer.player.listener.PlaylistEvent;
 import audioplayer.player.listener.PlaylistIndexChangeEvent;
+
+import java.io.File;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
- *
- * @author dausol
+ *  LoLPlayer II - Audio-Player Project
+ * 
+ * @author Oliver Daus
+ * 
  */
 public class AudioPlaylist {
     
@@ -98,6 +106,30 @@ public class AudioPlaylist {
             l.onPlaylistFileAdd(new PlaylistEvent(this));
     }
     
+    public void loadFromDB(){
+    	System.out.print("Load playlist from DataBase ...\t\t");
+    	if (!Application.getApplication().getDatabase().getConnection().isConnected()){
+    		System.out.println("SKIPED");
+    		return;
+    	}
+    	
+    	try {
+			PlaylistItem[] pis = Application.getApplication().getDatabase().getPlaylistItems();
+		
+			for (PlaylistItem playlistItem : pis) {
+				AudioFile af = new AudioFile(new File(playlistItem.getFilepath()), playlistItem.getTitle(), playlistItem.getAuthor());
+				try {
+					af.initAudioFile();
+				} catch (UnsupportedFileFormatException e) {}
+				add(af);
+			}
+			
+			System.out.println("OK");
+    	} catch (SQLException e) {
+    		System.out.println("ERROR");
+		}
+    }
+    
     public void remove(AudioFile af){
         content.remove(af);
         if(index >= content.size()) resetToFirstIndex();
@@ -130,4 +162,34 @@ public class AudioPlaylist {
     	return index == 0;
     }
     
+    public boolean isLastElement(AudioFile af){
+    	return content.lastIndexOf(af) == content.size() - 1;
+    }
+    
+    public boolean isFistElement(AudioFile af){
+    	return content.indexOf(af) == 0;
+    }
+    
+    public void moveUp(AudioFile af){
+    	int index = content.indexOf(af) - 1;
+    	content.add(index, af);
+    	content.remove(index + 2);
+    	
+    	if (getIndex() == index + 1) this.index -= 1;
+    	
+    	for (PlayerListener l : listener)
+    		l.onPlaylistMoveUp(new PlaylistIndexChangeEvent(this, index + 1, index));
+    }
+    
+    public void moveDown(AudioFile af){
+    	int index = content.indexOf(af) + 2;
+    	index = (index >= content.size() ? content.size() - 1 : index);
+    	content.add(index, af);
+    	content.remove(index - 2);
+    	
+    	if (getIndex() == index - 2) this.index += 1;
+    	
+    	for (PlayerListener l : listener)
+    		l.onPlaylistMoveDown(new PlaylistIndexChangeEvent(this, index - 2, index));
+    }
 }

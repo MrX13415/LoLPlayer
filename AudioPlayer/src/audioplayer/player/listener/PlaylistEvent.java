@@ -2,7 +2,12 @@ package audioplayer.player.listener;
 
 import audioplayer.player.AudioPlaylist;
 
-
+/**
+ *  LoLPlayer II - Audio-Player Project
+ * 
+ * @author Oliver Daus
+ * 
+ */
 public class PlaylistEvent {
 
     protected AudioPlaylist source;

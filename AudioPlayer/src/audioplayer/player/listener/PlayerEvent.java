@@ -2,7 +2,12 @@ package audioplayer.player.listener;
 
 import audioplayer.player.codec.AudioProcessingLayer;
 
-
+/**
+ *  LoLPlayer II - Audio-Player Project
+ * 
+ * @author Oliver Daus
+ * 
+ */
 public class PlayerEvent {
 
     protected  AudioProcessingLayer source;

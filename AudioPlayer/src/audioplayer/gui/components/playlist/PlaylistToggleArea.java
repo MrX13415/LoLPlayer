@@ -1,18 +1,23 @@
 package audioplayer.gui.components.playlist;
 
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
 
 /**
+ *  LoLPlayer II - Audio-Player Project
  * 
- * @author dausol
+ * @author Oliver Daus
+ * 
  */
 public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 
@@ -27,26 +32,26 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	private boolean lastState = toggleState;
 	private boolean runAnimation = false;
 	
-	private PlaylistInterface pli;
+	private PlaylistInterface playlistInterface;
 	private JFrame frame;
 	private int frameHeight;
 	private int thisHeight;
-	private int leftRightBorderSize = 30;
-	private ComponentAdapter componentResizer;
+	private Insets insets = new Insets(0, 25, 25, 25);
+	private int heightOffset = 0;
 
 	private Thread animationThread;
 	private boolean cancleAnimation = false;
 
 	// Animation speeds: has to be > 0; > 1 is faster
-	private int showAnimationSpeed = 10;
-	private int hideAnimationSpeed = 25;
+	private int showAnimationSpeed = 13;
+	private int hideAnimationSpeed = 23;
 
 	public PlaylistToggleArea(PlaylistInterface pli, JFrame frame) {
 		this(pli, frame, false);
 	}
 
 	public PlaylistToggleArea(PlaylistInterface pli, JFrame frame, boolean defaultState) {
-		this.pli = pli;
+		this.playlistInterface = pli;
 		this.frame = frame;
 		this.toggleState = lastState = defaultState;
 
@@ -59,49 +64,61 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 				
 		pli.setSize(new Dimension(400, 200));
 
-		initComponentResize(frame, pli);
-
 		if (defaultState) {
-			// init pli componente location
-			showComponente();
-
-			// init defualt size
-			this.setPreferredSize(new Dimension(this.getWidth(), toggleButton.getHeight() + pli.getHeight()));
+			heightOffset = 0;
 		} else {
-			// init pli componente location
-			hideComponente();
-
-			// init defualt size
-			this.setPreferredSize(new Dimension(this.getWidth(), toggleButton
-					.getHeight()));
+			heightOffset = playlistInterface.getPreferredSize().height * -1;
 		}
-
+		
+		this.setLayout(new LayoutManager() {
+			
+			@Override
+			public void removeLayoutComponent(Component p) {}
+			
+			@Override
+			public void addLayoutComponent(String s, Component p) {}
+			
+			@Override
+			public Dimension preferredLayoutSize(Container p) {
+				return new Dimension(0, toggleState
+						? playlistInterface.getPreferredSize().height + insets.top + insets.bottom
+				        : insets.bottom);
+			}
+			
+			@Override
+			public Dimension minimumLayoutSize(Container p) {
+				return new Dimension(0, insets.bottom);
+			}
+			
+			@Override
+			public void layoutContainer(Container p) {
+				for (int i = 0; i < p.getComponentCount(); i++) {
+					Component c = p.getComponent(i);
+				
+					if (c.equals(toggleButton)){
+						int h = insets.bottom;
+						int w = p.getWidth() - (insets.left + insets.right);
+						int x = insets.left;
+						int y = p.getHeight() - insets.bottom;
+						
+						c.setBounds(x, y, w, h);
+					}
+					
+					if (c.equals(playlistInterface)){
+						int h = c.getPreferredSize().height;
+						int w = p.getWidth() - (insets.left + insets.right);
+						int x = insets.left;
+						int y = insets.top + heightOffset;
+						
+						c.setBounds(x, y, w, h);
+					}
+				}
+			}
+		});
+		
 		this.add(toggleButton);
 		this.add(pli);
-	}
-
-	private void initComponentResize(final JFrame fframe,
-			final PlaylistInterface fpli) {
-		if (componentResizer != null)
-			frame.removeComponentListener(componentResizer);
-
-		componentResizer = new ComponentAdapter() {
-			@Override
-			public void componentResized(ComponentEvent e) {
-
-				int w = fframe.getContentPane().getWidth() - (leftRightBorderSize * 2);
-				
-				toggleButton.setSize(w, toggleButton.getSize().height);
-				
-				fpli.setSize(w, pli.getSize().height);
-
-				toggleButton.setLocation(leftRightBorderSize, toggleButton.getLocation().y);
-				
-				fpli.setLocation(leftRightBorderSize, fpli.getLocation().y);
-			}
-		};
-
-		frame.addComponentListener(componentResizer);
+		
 	}
 
 	@Override
@@ -117,21 +134,32 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	}
 
 	public void hideComponente() {
-		int y = pli.getSize().height * -1;
-		pli.setLocation(0, y);
+		final int targetHeightOffset = playlistInterface.getSize().height * -1;
 
-		// frame.setSize(frame.getWidth(), frameHeight - pli.getHeight());
-		// this.setPreferredSize(new Dimension(this.getWidth(), thisHeight -
-		// pli.getHeight()));
+		heightOffset = targetHeightOffset;
+		
+		final int sizeToremove = Math.abs(targetHeightOffset);
+		
+		frame.setSize(frame.getWidth(), frameHeight - sizeToremove);
+		setPreferredSize(new Dimension(getPreferredSize().width, insets.bottom));
+		
+		frame.repaint();
+		frame.validate();
 	}
 
 	public void showComponente() {
-		int y = 0;
-		pli.setLocation(0, y);
-		//
-		// frame.setSize(frame.getWidth(), frameHeight + pli.getHeight());
-		// this.setPreferredSize(new Dimension(this.getWidth(), thisHeight +
-		// pli.getHeight()));
+		final int targetHeightOffset = playlistInterface.getSize().height * -1;
+
+		heightOffset = 0;
+		
+		final int sizeToadd = Math.abs(targetHeightOffset);
+		final int size = playlistInterface.getPreferredSize().height + insets.top + insets.bottom;
+
+		setPreferredSize(new Dimension(getPreferredSize().width, size));
+		frame.setSize(frame.getWidth(), frameHeight + sizeToadd);
+		
+		frame.repaint();
+		frame.validate();
 	}
 
 	/**
@@ -152,74 +180,74 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 		lastState = show;
 		runAnimation = true;
 		
-		final int hideY = pli.getSize().height * -1;
-		final int showY = 0;
+		final int targetHeightOffset = playlistInterface.getSize().height * -1;
 
 		frameHeight = frame.getHeight();
 		thisHeight = this.getPreferredSize().height;
-		final int thisW = this.getPreferredSize().width;
-		final PlaylistToggleArea pta = this;
+		final int thisWidth = this.getPreferredSize().width;
 
 		animationThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				
+                            int yIndex = (show ? targetHeightOffset : 0);
 			
-				for (int yIndex = (show ? hideY : showY); (show ? yIndex <= showY
-						: yIndex >= hideY); yIndex = (show ? yIndex
-						+ showAnimationSpeed : yIndex - hideAnimationSpeed)) {
+                            while(show ? yIndex <= 0: yIndex >= targetHeightOffset){
+                                    //(show ? yIndex <= 0: yIndex >= targetHeightOffset);
+                                     //yIndex = (show ? yIndex + showAnimationSpeed : yIndex - hideAnimationSpeed)) {
 
-					if (cancleAnimation) {
-						cancleAnimation = false;
-						return;
-					}
+                                    if (cancleAnimation) {
+                                            cancleAnimation = false;
+                                            return;
+                                    }
 
-					final int fNewY = yIndex;
-					final int sizeToadd = fNewY + Math.abs(hideY);
-					final int sizeToremove = Math.abs(fNewY - showY);
+                                    heightOffset = yIndex;
 
-					SwingUtilities.invokeLater(new Runnable() {
-						@Override
-						public void run() {
+                                    final int sizeToadd = yIndex + Math.abs(targetHeightOffset);
+                                    final int sizeToremove = Math.abs(yIndex);
 
-							pli.setLocation(pli.getLocation().x, fNewY);
+                                    SwingUtilities.invokeLater(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                    if (show) {
+                                                            frame.setSize(frame.getWidth(), frameHeight + sizeToadd);
+                                                            setPreferredSize(new Dimension(thisWidth, thisHeight + sizeToadd));
+                                                    } else {
+                                                            setPreferredSize(new Dimension(thisWidth, thisHeight - sizeToremove));
+                                                            frame.setSize(frame.getWidth(), frameHeight - sizeToremove);
+                                                    }
+                                                    
+                                                    frame.repaint();
+                                                    
+                                                    try {
+                                                        Thread.sleep(15);
+                                                    } catch (InterruptedException ex) {
+                                                    }                                                    
+                                            }
+                                    });
 
-							toggleButton.setLocation(
-									toggleButton.getLocation().x,
-									fNewY + pli.getSize().height);
-							
-							if (show) {
-								pta.setPreferredSize(new Dimension(thisW,
-										thisHeight + sizeToadd));
-								frame.setSize(frame.getWidth(), frameHeight
-										+ sizeToadd);
-							} else {
-								frame.setSize(frame.getWidth(), frameHeight
-										- sizeToremove);
-								pta.setPreferredSize(new Dimension(thisW,
-										thisHeight - sizeToremove));
-							}
-						}
-					});
-					
-					try {
-						Thread.sleep(20);
-					} catch (InterruptedException ex) {
-					}
-				}
+                                    try {
+                                        Thread.sleep(10);
+                                    } catch (InterruptedException ex) {
+                                    }
+                                                                        
+                                 yIndex = (show ? yIndex + showAnimationSpeed : yIndex - hideAnimationSpeed);
+                            }
 
-				if (show)
-					showComponente();
-				else
-					hideComponente();
-				
-				frame.repaint();
-				
-				try {
-					Thread.sleep(20);
-				} catch (InterruptedException ex) {
-				}
-				runAnimation = false;
-				animationThread = null;
+                            
+                            SwingUtilities.invokeLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                          if (show)
+                                            showComponente();
+                                          else
+                                            hideComponente();
+                                    }
+                            });
+                                    
+                          
+                            runAnimation = false;
+                            animationThread = null;
 			}
 
 		});
@@ -227,7 +255,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 		animationThread.start();
 	}
 
-	public boolean isToggleStateTrue() {
+	public boolean isShowPlaylist() {
 		return toggleState;
 	}
 
@@ -236,7 +264,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	}
 
 	public PlaylistInterface getPli() {
-		return pli;
+		return playlistInterface;
 	}
 
 	public JFrame getFrame() {

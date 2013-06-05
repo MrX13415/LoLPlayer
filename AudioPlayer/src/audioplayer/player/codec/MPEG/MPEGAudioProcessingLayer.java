@@ -12,13 +12,14 @@ import javazoom.jl.decoder.Decoder;
 import javazoom.jl.decoder.Header;
 import javazoom.jl.decoder.SampleBuffer;
 import audioplayer.player.AudioDeviceLayer;
-import audioplayer.player.codec.AudioFile;
 import audioplayer.player.codec.AudioProcessingLayer;
 import audioplayer.player.codec.AudioType;
 import audioplayer.player.listener.PlayerEvent;
 import audioplayer.player.listener.PlayerListener;
 
 /**
+ *  LoLPlayer II - Audio-Player Project
+ *  
  * Audio processing layer for the MPEG 1-2.5 Layer I-III audio file format 
  * 
  * @author Oliver
@@ -47,52 +48,15 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer  implements R
 	public SampleBuffer getOutput() {
 		return output;
 	}
-
-	/** Initialize the play with the given file<br>
-	 * Always call this first, to play a song or to change the current playing song
-	 *   
-	 * @param f	The file to be played
-	 */
-	public void initialzePlayer(AudioFile f){
-		try {
-			this.file = f;
-			
-			if (decoderThread != null) decoderThread.interrupt();
-			try {
-				if (bitstream != null) bitstream.close();
-			} catch (BitstreamException ex) {}
-			if (audioDevice != null) audioDevice.close();
-			
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {}
-			
-			resetPlayer();
-			
-			newTimePosition = 0;
-			skipFrames = false;
-			skipedFrames = 0;
-
-			if (!isPlaying())
-				setState(PlayerState.INIT);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 	
 	/** Resets the file bit stream and the audio device
 	 */
-	public void resetPlayer() throws Exception{	
+	public void initializeAudioDevice() throws Exception{
 		bitstream = new Bitstream(new FileInputStream(file.getFile()));
 		audioDevice = new AudioDeviceLayer();
 		audioDevice.open(decoder = new Decoder());
-
-		closed = false;
-		internaltimePosition = 0;
 	}
-	
-	
+		
 	/** Frame decoding and audio playing routine
 	 *  <br>
 	 *  <br>
@@ -106,24 +70,24 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer  implements R
 			//Listener
 			for (PlayerListener pl : listener) pl.onPlayerStart(new PlayerEvent(this));
 
-			boolean hasMoreFrames = true;;
+			boolean hasMoreFrames = true;
 			
 			while (hasMoreFrames && !decoderThread.isInterrupted()) {
 				long tplStart = System.currentTimeMillis();
 				
 				boolean notPaused = !isPaused();
-								
+				boolean skip = skipFrames;
+				
 				if (!audioDevice.isOpen()) hasMoreFrames = false;
 
 				Header h = null; 
-				if (notPaused || skipFrames) h = bitstream.readFrame();
-								
+				if (notPaused || skip)
+					h = bitstream.readFrame();
+										
 				if (h != null){
 					timePerFrame = h.ms_per_frame();
 
-					if (!skipFrames){
-						try {Thread.sleep(1);} catch (Exception e) {}
-						
+					if (!skip){
 						output = (SampleBuffer) decoder.decodeFrame(h, bitstream);
 
 						if (audioDevice.isOpen()) {
@@ -134,11 +98,13 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer  implements R
 
 				}else if (notPaused) hasMoreFrames = false;
 				
-				if (notPaused || skipFrames) bitstream.closeFrame();
+				if (notPaused || skip) bitstream.closeFrame();
 
-				if (skipFrames){
+				if (skip){
 					if (newTimePosition < internaltimePosition){
-						resetPlayer();
+						closeStream();
+						initializeAudioDevice();
+						internaltimePosition = 0;
 						skipFrames = true;
 					}
 					
@@ -161,8 +127,6 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer  implements R
 		}finally{
 			boolean nextSong = isPlaying();
 			
-			stop();
-			
 			if (nextSong && reachedEnd()){
 				//Listener
 				synchronized (listener) {
@@ -172,36 +136,15 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer  implements R
 					}	
 				}				
 			}
+
+			stop();
 		}
 	}
 
-	/** Stops the current playing file and closes the file stream
-	 */
-	public synchronized void stop() {
-		if (closed != true && !isNew()) {
-			state = PlayerState.STOPPED;
-			if (decoderThread != null) decoderThread.interrupt();
-			
-			//Listener
-			synchronized (listener) {
-				for (int i = 0; i < listener.size(); i++) {
-					PlayerListener pl = listener.get(i);
-					pl.onPlayerStop(new PlayerEvent(this));
-				}
-			}
-						
-			try {
-				if (audioDevice != null) bitstream.close();
-			} catch (BitstreamException ex) {}
-
-			if (audioDevice != null) audioDevice.close();
-            
-			closed = true;
-			internaltimePosition = 0;
-			newTimePosition = 0;
-			skipFrames = false;
-			skipedFrames = 0;
-		}
+	public synchronized void closeStream() {		
+		try {
+			if (bitstream != null) bitstream.close();
+		} catch (BitstreamException ex) {}
 	}
 	
 	protected void determineTimePerFrame() throws BitstreamException, FileNotFoundException{
@@ -236,8 +179,9 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer  implements R
 		 
 		try{
 	        bitstream = new Bitstream(new FileInputStream(f));
+	        	
 	        Header header = bitstream.readFrame();
-	        
+
 	        long filesize = f.length();
 	        if (filesize != AudioSystem.NOT_SPECIFIED) {
 	        	length = (long) (((double)filesize * 8d / (double)header.bitrate()) * 1000d);
@@ -260,12 +204,7 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer  implements R
 	 * @return if the given file is an MPEG file (e.g. MP3)
 	 */
 	public boolean isSupportedAudioFile(File f) {
-		try {
-			calculateStreamLength(f);
-			return true;
-		} catch (Exception e) {
-			return false;
-		}
+		return f.getName().toLowerCase().endsWith(".mp1") || f.getName().toLowerCase().endsWith(".mp2") || f.getName().toLowerCase().endsWith(".mp3");
 	}
 
 	@Override

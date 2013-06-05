@@ -6,10 +6,12 @@ import java.util.Random;
 import org.magicwerk.brownies.collections.GapList;
 
 
-/** Represents a graph (a curve)
+/**
+ *  LoLPlayer II - Audio-Player Project
  * 
- * @author Oliver
- *
+ * @author Oliver Daus
+ * 
+ * Represents a graph (a curve)
  */
 public class AudioGraph{
 

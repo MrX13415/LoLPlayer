@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * SearchCircle Daus/Bellmann (c) 2013
  * 
  * @author Oliver Daus / Jens Bellmann
- * @version 1.9.4
+ * @version 1.9.5
  * 
  *          Description: A round search and progress bar
  * 
@@ -25,6 +25,10 @@ import java.util.ArrayList;
  *             For more Informations:
  *             http://creativecommons.org/licenses/by-nc-sa/3.0/
  * 
+ * 
+ *          Version: 1.9.5
+ *           - FIX: Button ist not fully dragable at the bar ends
+ * 
  *          Version: 1.9.4
  *           - FIX: Button dragging sometimes drags other
  *                  SearchCircles too (only added components)
@@ -35,6 +39,7 @@ import java.util.ArrayList;
  *           - ADD: Components with in the SearchCircle (SearchCircel in SearchCircle)
  *           - FIX: Improved Listener
  *           - ADD: Key function
+ * 
  *          Version: 1.9.2
  *           - ADD: Listener
  * 
@@ -665,14 +670,16 @@ public class SearchCircle extends JButton implements MouseListener,
 	public boolean isMouseOverComponent(int x, int y) {
 
 		recalcVectors(x, y);
-
+                
 		double mRad = povitMousePos.length();
 		double maxRad = povitStartPos.length() + buttonJutOut;
 		double minRad = povitStartPos.length() - barPartHeight - buttonJutOut;
 
 		double angle = recalcMouseAngle();
-
-		if (angle <= viewAngle && mRad < maxRad && mRad > minRad) {
+ 
+		if ((angle <= (viewAngle + buttonJutOut) ||  //<buttonJutOut>px over <viewangle>
+                    angle >= (360 - buttonJutOut)) &&        //<buttonJutOut>px before startangle
+                    mRad < maxRad && mRad > minRad) {       //vectorelength +-<buttonJutOut>px
 			return true;
 		}
 

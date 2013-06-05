@@ -10,7 +10,12 @@ import java.awt.RenderingHints;
 
 import javax.swing.border.AbstractBorder;
 
-
+/**
+ *  LoLPlayer II - Audio-Player Project
+ * 
+ * @author Oliver Daus
+ * 
+ */
 public class FrameTitleBorder extends AbstractBorder{
 
 	    /**

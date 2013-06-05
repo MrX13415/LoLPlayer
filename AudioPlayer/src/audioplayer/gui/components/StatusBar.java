@@ -1,6 +1,8 @@
 package audioplayer.gui.components;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -10,6 +12,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+/**
+ *  LoLPlayer II - Audio-Player Project
+ * 
+ * @author Oliver Daus
+ * 
+ */
 public class StatusBar extends JPanel{
 
 	/**
@@ -51,7 +59,8 @@ public class StatusBar extends JPanel{
 		
 		this.setBackground(new Color(50, 50, 50));
 		this.setBorder(BorderFactory.createRaisedBevelBorder());
-		this.setVisible(false);
+                this.setPreferredSize(new Dimension(0, 20));
+		setVisible(false);
 	}
 
 	public JProgressBar getBar() {
@@ -69,5 +78,13 @@ public class StatusBar extends JPanel{
 	public void setMessageText(String message) {
 		this.message.setText(message);
 	}
+        
+        @Override
+        public void setVisible(boolean visible){
+            for (int i = 0; i < this.getComponentCount(); i++) {
+                Component c = this.getComponent(i);
+                c.setVisible(visible);
+            }
+        }
 	
 }

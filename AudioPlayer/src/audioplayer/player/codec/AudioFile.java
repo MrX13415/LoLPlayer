@@ -7,8 +7,10 @@ package audioplayer.player.codec;
 import java.io.File;
 
 /**
- *
- * @author dausol
+ *  LoLPlayer II - Audio-Player Project
+ * 
+ * @author Oliver Daus
+ * 
  */
 public class AudioFile {
 	
@@ -18,16 +20,26 @@ public class AudioFile {
     
     private long length = 0;
     
+    private String title;
+    private String author = "Unknow";
+    
 //  private int rating;
 //  private int frequency;
         
     public AudioFile(File file){
         this.file = file;
-
+        title = file.getName();
+        
         type = AudioType.getAudioType(file);
     }
     
-    public void initAudioFile() throws UnsupportedFileFormatException{
+    public AudioFile(File file, String title, String author) {
+		this(file);
+		this.title = title;
+		this.author = author;
+	}
+
+	public void initAudioFile() throws UnsupportedFileFormatException{
     	 try{
          	length = type.getAudioProcessingLayerInstance().calculateStreamLength(file);	
          }catch(Exception e){
@@ -46,6 +58,22 @@ public class AudioFile {
 
 	public long getLength() {
 		return length;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
 	}
 
 	public String getFormatedLength() {

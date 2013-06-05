@@ -16,12 +16,12 @@ import com.jhlabs.image.GaussianFilter;
 import com.jhlabs.image.PremultiplyFilter;
 import com.jhlabs.image.UnpremultiplyFilter;
 
-
-/** A simple window to display Graphs
- *   
- * @author Oliver
- * @version 1.5
+/**
+ *  LoLPlayer II - Audio-Player Project
  * 
+ * @author Oliver Daus
+ * 
+ * A simple window to display Graphs
  */
 public class JGraph extends JPanel implements Graph{
 
