@@ -164,6 +164,12 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 
         if (s.equals(menu.getMenu_playlist_down()))
                 onMenu_playlist_down();
+        
+        if (s.equals(menu.getMenu_graph_merge()))
+            onMenu_graph_merge();
+        
+        if (s.equals(menu.getMenu_graph_gfilter()))
+            onMenu_graph_gfilter();
 
         if (s.equals(menu.getMenu_help_about()))
                 onMenu_help_about();
@@ -300,6 +306,9 @@ public abstract class UserInterface extends JFrame implements ActionListener,
     public abstract void onMenu_playlist_up();
     public abstract void onMenu_playlist_down();
 
+    public abstract void onMenu_graph_merge();
+    public abstract void onMenu_graph_gfilter();
+    
     public abstract void onMenu_help_about();
 
     public abstract void onButtonPlay();

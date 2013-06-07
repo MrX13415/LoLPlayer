@@ -1,0 +1,8 @@
+View (join) command examples:
+
+
+SELECT songid,no,filepath,title,author FROM filepath JOIN (title JOIN (author JOIN playlist ON playlist.songid = author.id) playlist ON playlist.songid = title.id) ON playlist.songid = filepath.id;
+
+SELECT titel,interpret,album,genre,laenge,pfad FROM lied JOIN datei ON lied.id = datei.id;
+
+

@@ -1,6 +1,8 @@
 package audioplayer;
 
 import audioplayer.gui.AboutDialog;
+
+import java.awt.Color;
 import java.io.File;
 
 import javax.activity.InvalidActivityException;
@@ -12,7 +14,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 import audioplayer.gui.UserInterface;
-import audioplayer.gui.components.PlayerControler.Display;
 import audioplayer.player.AudioDeviceLayer;
 import audioplayer.player.AudioPlaylist;
 import audioplayer.player.analyzer.Analyzer;
@@ -58,11 +59,9 @@ public class Control extends UserInterface implements PlayerListener {
             apl.loadFromDB();
             
             analyzer = new Analyzer(getPlayerControlInterface().getPlayerInterfaceGraph());
-            //analyzer.setDefaultChannelGraphColor(1, new Color(226, 0, 116));
-            //analyzer.setDefaultChannelGraphColor(1, new Color(226, 0, 116));
+            analyzer.setDefaultChannelGraphColor(1, new Color(255, 80, 0));
+            analyzer.setMergedChannels(true);
 
-            analyzer.setMergedChannels(false);
-               
             getPlayerControlInterface().getPlayerInterfaceGraph().setUi(this);
 
             initUIupdaterThread();
@@ -230,8 +229,8 @@ public class Control extends UserInterface implements PlayerListener {
 								getPlayerControlInterface().getSearchBar().setEnabled(true);
 
 							getPlayerControlInterface().getSearchBar().setBarValue(ppl.getTimePosition());
-							setDisplay(ppl);
-							setPlayPause(ppl);
+							getPlayerControlInterface().setDisplay(ppl);
+							getPlayerControlInterface().setPlayPause(ppl.isPlaying());
 
 							// synchronize button and bar
 							if (!ppl.isSkipFrames())
@@ -241,35 +240,6 @@ public class Control extends UserInterface implements PlayerListener {
 				}
 			}
 		};
-	}
-
-	public void setDisplay(AudioProcessingLayer ppl) {
-		
-		long time = ppl.getTimePosition();
-		long lenght = ppl.getStreamLength();
-		double posperc = Math.round(100d / (double) lenght * (double) time * 10d) / 10d;
-		double volume = Math.round(ppl.getVolume() * 100d) / 100d;
-		
-		String state = String.format("%s", ppl.getState());
-
-		String vol = String.format("%6s", String.format("%5.1f%%", volume));
-		String pperc = String.format("%6s", String.format("%5.1f%%", posperc));
-
-		Display d = this.getPlayerControlInterface().getDisplay();
-
-		d.setTimeText(ppl.getTimePosition());
-		d.setInfo1Text(state);
-		d.setInfo2Text(vol);
-		d.setStatusBar1Text(pperc);
-		if (ppl.getAudioFile() != null)d.setStatusBar2Text(ppl.getAudioFile().getTitle());
-
-	}
-
-	public void setPlayPause(AudioProcessingLayer ppl) {
-		if (ppl.isPlaying())
-			this.getPlayerControlInterface().getPlay().setText("\u2759\u2759");
-		else
-			this.getPlayerControlInterface().getPlay().setText("\u25BA");
 	}
 
 	private void initUIupdaterThread() {
@@ -424,6 +394,16 @@ public class Control extends UserInterface implements PlayerListener {
 		}
 		getPlaylistInterface().getPlaylistTable().changeSelection(rows[0] + 1, 0, false, false);
 		getPlaylistInterface().getPlaylistTable().setRowSelectionInterval(rows[0] + 1, rows[rows.length - 1] + 1);
+	}
+	
+	@Override
+	public void onMenu_graph_merge(){
+		analyzer.setMergedChannels(!analyzer.isMergedChannels());
+	}
+	
+	@Override
+	public void onMenu_graph_gfilter(){
+		getPlayerControlInterface().getPlayerInterfaceGraph().setGaussianFilter(!getPlayerControlInterface().getPlayerInterfaceGraph().isGaussianFilter());
 	}
 	
 	@Override

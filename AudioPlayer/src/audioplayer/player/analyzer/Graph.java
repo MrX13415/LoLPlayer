@@ -19,4 +19,6 @@ public interface Graph {
 	
 	public ArrayList<AudioGraph> getGraphs();
 
+	public void clearGraphs();
+	
 }

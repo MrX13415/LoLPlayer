@@ -79,6 +79,11 @@ public class JGraph extends JPanel implements Graph{
 	}
 	
 	@Override
+	public void clearGraphs() {
+		graphs.clear();
+	}
+	
+	@Override
 	public synchronized AudioGraph getGraph(int index){
 		return graphs.get(index);
 	}
@@ -95,9 +100,11 @@ public class JGraph extends JPanel implements Graph{
 		for (AudioGraph ag : graphs) {
 			ag.setShownValues(this.getWidth());
 			
-			int index = graphs.indexOf(ag);
-			if (index == 0) ag.setYOffset( this.getHeight() / 4 );
-			if (index == 1) ag.setYOffset( (this.getHeight() / 4) * -1 );
+			if (graphs.size() > 1){
+				int index = graphs.indexOf(ag);
+				if (index == 0) ag.setYOffset( this.getHeight() / 4 );
+				if (index == 1) ag.setYOffset( (this.getHeight() / 4) * -1 );
+			}
 			
 			paintGraph(ag);
 		}

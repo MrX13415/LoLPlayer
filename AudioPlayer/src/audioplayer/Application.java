@@ -5,6 +5,7 @@ import javax.swing.UIManager;
 import audioplayer.database.LoLPlayerDB;
 import audioplayer.font.FontLoader;
 import audioplayer.gui.AboutDialog;
+import audioplayer.images.ImageLoader;
 
 
 /**
@@ -16,7 +17,7 @@ import audioplayer.gui.AboutDialog;
 public class Application {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.4 beta";
+	public static String App_Version = "0.1.4.1 beta";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
 	public static String App_Author = "Oliver Daus";	
 	public static String App_License = "CC BY-NC-SA 3.0";
@@ -96,6 +97,7 @@ public class Application {
 		initDB();
 
 		FontLoader.loadFonts();
+		ImageLoader.loadImages();
 		AboutDialog.loadAboutText();
 		
 		try {

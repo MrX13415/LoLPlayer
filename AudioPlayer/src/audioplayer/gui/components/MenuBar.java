@@ -35,6 +35,10 @@ public class MenuBar extends JMenuBar {
 	private JMenuItem menu_playlist_up;
 	private JMenuItem menu_playlist_down;
 	
+	private JMenu menu_graph;
+	private JMenuItem menu_graph_merge;
+	private JMenuItem menu_graph_gfilter;
+	
 	private JMenu menu_help;
 	private JMenuItem menu_help_about;
 	
@@ -109,6 +113,28 @@ public class MenuBar extends JMenuBar {
 		menu_playlist.getPopupMenu().setBackground(new Color(50,50,50));
 		menu_playlist.getPopupMenu().setBorder(BorderFactory.createRaisedBevelBorder());
 		
+		menu_graph_merge = new MenuItem();
+		menu_graph_merge.setText("Toggle merged graphs");
+		menu_graph_merge.addActionListener(actionListener);
+		menu_graph_merge.setBackground(new Color(50,50,50));
+		menu_graph_merge.setForeground(new Color(255,255,255));
+		
+		menu_graph_gfilter = new MenuItem();
+		menu_graph_gfilter.setText("Toggle Gaussian filter");
+		menu_graph_gfilter.addActionListener(actionListener);
+		menu_graph_gfilter.setBackground(new Color(50,50,50));
+		menu_graph_gfilter.setForeground(new Color(255,255,255));
+		
+		menu_graph = new Menu();
+		menu_graph.setText("Graphs");
+		menu_graph.setBackground(new Color(50,50,50));
+		menu_graph.setForeground(new Color(255,255,255));
+		menu_graph.setBorder(BorderFactory.createRaisedBevelBorder());
+		menu_graph.add(menu_graph_merge);
+		menu_graph.add(menu_graph_gfilter);
+		menu_graph.getPopupMenu().setBackground(new Color(50,50,50));
+		menu_graph.getPopupMenu().setBorder(BorderFactory.createRaisedBevelBorder());
+		
 		menu_help_about = new MenuItem();
 		menu_help_about.setText("About");
 		menu_help_about.addActionListener(actionListener);
@@ -126,6 +152,7 @@ public class MenuBar extends JMenuBar {
 		
 		add(menu_file);
 		add(menu_playlist);
+		add(menu_graph);
 		add(menu_help);
 	}
 
@@ -163,6 +190,14 @@ public class MenuBar extends JMenuBar {
 
 	public JMenuItem getMenu_playlist_down() {
 		return menu_playlist_down;
+	}
+
+	public JMenuItem getMenu_graph_merge() {
+		return menu_graph_merge;
+	}
+
+	public JMenuItem getMenu_graph_gfilter() {
+		return menu_graph_gfilter;
 	}
 
 }

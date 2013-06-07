@@ -18,7 +18,9 @@ import javax.swing.SearchCircle.SearchCricleListener;
 import javax.swing.event.ChangeListener;
 
 import audioplayer.font.FontLoader;
+import audioplayer.images.ImageLoader;
 import audioplayer.player.analyzer.components.JGraph;
+import audioplayer.player.codec.AudioProcessingLayer;
 
 /**
  *  LoLPlayer II - Audio-Player Project
@@ -58,34 +60,47 @@ public class PlayerControlInterface extends JPanel{
 		
             display = new Display();
 
-            play = new JButton("\u25BA\u2759\u2759");
+            play = new JButton(""); // >  \u25BA  ||  \u2759\u2759
             play.setFont(FontLoader.fontGUIPlayerButtons);
             play.addActionListener(actionListener);
             play.setBackground(new Color(50,50,50));
             play.setContentAreaFilled(false);
             play.setForeground(new Color(255,0,0));
-
-            stop = new JButton("\u25FC");
+            play.setIcon(ImageLoader.image_play);
+            play.setPressedIcon(ImageLoader.image_play_pressed_hover);            
+            play.setRolloverIcon(ImageLoader.image_play_hover);
+            
+            stop = new JButton("");	// [ ]  \u25FC
             stop.setFont(FontLoader.fontGUIPlayerButtons);
             stop.addActionListener(actionListener);
             stop.setBackground(new Color(50,50,50));
             stop.setContentAreaFilled(false);
             stop.setForeground(new Color(255,0,0));
-
-            frw = new JButton("\u23ed");
+            stop.setIcon(ImageLoader.image_stop);
+            stop.setPressedIcon(ImageLoader.image_stop_pressed_hover);            
+            stop.setRolloverIcon(ImageLoader.image_stop_hover);
+            
+            frw = new JButton(""); // >>|  \u23ed 
             frw.setFont(FontLoader.fontGUIPlayerButtons);
             frw.addActionListener(actionListener);
             frw.setBackground(new Color(50,50,50));
             frw.setContentAreaFilled(false);
             frw.setForeground(new Color(255,0,0));
-
-            rev = new JButton("\u23ee");
+            frw.setIcon(ImageLoader.image_frw);
+            frw.setPressedIcon(ImageLoader.image_frw_pressed_hover);            
+            frw.setRolloverIcon(ImageLoader.image_frw_hover);
+            
+            rev = new JButton(""); // |<<  \u23ee
             rev.setFont(FontLoader.fontGUIPlayerButtons);
             rev.addActionListener(actionListener);
             rev.setBackground(new Color(50,50,50));
             rev.setContentAreaFilled(false);
             rev.setForeground(new Color(255,0,0));
-
+            rev.setIcon(ImageLoader.image_rev);
+            rev.setPressedIcon(ImageLoader.image_rev_pressed_hover);            
+            rev.setRolloverIcon(ImageLoader.image_rev_hover);
+            
+            
             playerButtons = new JPanel();
             playerButtons.setBackground(new Color(50,50,50));
             playerButtons.setOpaque(true);
@@ -244,6 +259,42 @@ public class PlayerControlInterface extends JPanel{
             this.setBorder(BorderFactory.createRaisedBevelBorder());
 	}
 
+	public void setPlayPause(boolean isPlaying) {
+		if (isPlaying){
+//			 play.setText("\u2759\u2759");
+			 play.setIcon(ImageLoader.image_pause);
+	         play.setPressedIcon(ImageLoader.image_pause_pressed_hover);            
+	         play.setRolloverIcon(ImageLoader.image_pause_hover);
+		}else{
+//			 play.setText("\u25BA");
+	         play.setIcon(ImageLoader.image_play);
+	         play.setPressedIcon(ImageLoader.image_play_pressed_hover);            
+	         play.setRolloverIcon(ImageLoader.image_play_hover);
+		}
+	}
+	
+	public void setDisplay(AudioProcessingLayer ppl) {
+		
+		long time = ppl.getTimePosition();
+		long lenght = ppl.getStreamLength();
+		double posperc = Math.round(100d / (double) lenght * (double) time * 10d) / 10d;
+		double volume = Math.round(ppl.getVolume() * 100d) / 100d;
+		
+		String state = String.format("%s", ppl.getState());
+
+		String vol = String.format("%6s", String.format("%5.1f%%", volume));
+		String pperc = String.format("%6s", String.format("%5.1f%%", posperc));
+
+		Display d = getDisplay();
+
+		d.setTimeText(ppl.getTimePosition());
+		d.setInfo1Text(state);
+		d.setInfo2Text(vol);
+		d.setStatusBar1Text(pperc);
+		if (ppl.getAudioFile() != null)d.setStatusBar2Text(ppl.getAudioFile().getTitle());
+
+	}
+	
 	public JGraph getPlayerInterfaceGraph() {
 		return playerInterfaceGraph;
 	}
