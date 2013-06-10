@@ -25,10 +25,12 @@ public class MenuBar extends JMenuBar {
 
 	private JMenu menu_file;
 	private JMenuItem menu_file_open;
+	private JMenuItem menu_file_opendir;
 	private JMenuItem menu_file_exit;
 
 	private JMenu menu_playlist;
 	private JMenuItem menu_playlist_add;
+	private JMenuItem menu_playlist_adddir;
 	private JMenuItem menu_playlist_remove;
 	private JMenuItem menu_playlist_clear;
 	
@@ -51,7 +53,13 @@ public class MenuBar extends JMenuBar {
 		menu_file_open.addActionListener(actionListener);
 		menu_file_open.setBackground(new Color(50,50,50));
 		menu_file_open.setForeground(new Color(255,255,255));
-
+		
+		menu_file_opendir = new MenuItem();
+		menu_file_opendir.setText("Open Directory ...");
+		menu_file_opendir.addActionListener(actionListener);
+		menu_file_opendir.setBackground(new Color(50,50,50));
+		menu_file_opendir.setForeground(new Color(255,255,255));
+		
 		menu_file_exit = new MenuItem();
 		menu_file_exit.setText("Exit");
 		menu_file_exit.addActionListener(actionListener);
@@ -64,6 +72,7 @@ public class MenuBar extends JMenuBar {
 		menu_file.setForeground(new Color(255,255,255));
 		menu_file.setBorder(BorderFactory.createRaisedBevelBorder());
 		menu_file.add(menu_file_open);
+		menu_file.add(menu_file_opendir);
 		menu_file.add(separator);
 		menu_file.add(menu_file_exit);
 		menu_file.getPopupMenu().setBackground(new Color(50,50,50));
@@ -74,6 +83,12 @@ public class MenuBar extends JMenuBar {
 		menu_playlist_add.addActionListener(actionListener);
 		menu_playlist_add.setBackground(new Color(50,50,50));
 		menu_playlist_add.setForeground(new Color(255,255,255));
+		
+		menu_playlist_adddir = new MenuItem();
+		menu_playlist_adddir.setText("Add Directory ...");
+		menu_playlist_adddir.addActionListener(actionListener);
+		menu_playlist_adddir.setBackground(new Color(50,50,50));
+		menu_playlist_adddir.setForeground(new Color(255,255,255));
 		
 		menu_playlist_remove = new MenuItem();
 		menu_playlist_remove.setText("Remove");
@@ -105,6 +120,7 @@ public class MenuBar extends JMenuBar {
 		menu_playlist.setForeground(new Color(255,255,255));
 		menu_playlist.setBorder(BorderFactory.createRaisedBevelBorder());
 		menu_playlist.add(menu_playlist_add);
+		menu_playlist.add(menu_playlist_adddir);
 		menu_playlist.add(menu_playlist_remove);
 		menu_playlist.add(menu_playlist_clear);
 		menu_playlist.add(separator);
@@ -198,6 +214,14 @@ public class MenuBar extends JMenuBar {
 
 	public JMenuItem getMenu_graph_gfilter() {
 		return menu_graph_gfilter;
+	}
+
+	public JMenuItem getMenu_file_opendir() {
+		return menu_file_opendir;
+	}
+
+	public JMenuItem getMenu_playlist_adddir() {
+		return menu_playlist_adddir;
 	}
 
 }

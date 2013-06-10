@@ -140,6 +140,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 		
 		final int sizeToremove = Math.abs(targetHeightOffset);
 		
+		frame.setMinimumSize(new Dimension(frame.getWidth(), frameHeight - sizeToremove));
 		frame.setSize(frame.getWidth(), frameHeight - sizeToremove);
 		setPreferredSize(new Dimension(getPreferredSize().width, insets.bottom));
 		
@@ -157,7 +158,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 
 		setPreferredSize(new Dimension(getPreferredSize().width, size));
 		frame.setSize(frame.getWidth(), frameHeight + sizeToadd);
-		
+		frame.setMinimumSize(new Dimension(frame.getWidth(), frameHeight + sizeToadd));
 		frame.repaint();
 		frame.validate();
 	}

@@ -15,6 +15,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
+
 /**
  *  LoLPlayer II - Audio-Player Project
  * 
@@ -45,7 +46,8 @@ public class PlaylistInterface extends JPanel{
         playlistTable.setGridColor(new Color(255, 128 ,0));
         playlistTable.getTableHeader().setBackground(new Color(50,50,50));
         playlistTable.getTableHeader().setBorder(BorderFactory.createRaisedBevelBorder());
-   
+        playlistTable.setDefaultRenderer(Object.class, new PlaylistTableCellRenderer());
+        
     	DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer();
     	headerRenderer.setBackground(new Color(50,50,50));
 

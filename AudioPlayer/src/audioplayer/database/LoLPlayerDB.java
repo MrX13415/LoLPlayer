@@ -4,6 +4,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import audioplayer.player.codec.AudioFile;
+import java.io.File;
+
 /**
  *  LoLPlayer II - Audio-Player Project
  * 
@@ -40,7 +43,52 @@ public class LoLPlayerDB extends DataBase{
 		PlaylistItem[] rpli = new PlaylistItem[pi.size()];
 		return pi.toArray(rpli);
 	}
+        
+        
 	
+	public void addAudioFile(AudioFile af){
+            //AudioFile naf = getAudioFilebyFilepath();
+	}
+	
+        public AudioFile getAudioFilebyFilepath(String filepath){
+            String sql =  "SELECT mediafile.*"
+                        + "FROM mediafile "
+                        + "WHERE mediafile.path = '%s';";
+            try {
+                ResultSet rs = getConnection().sendQuery(String.format(sql, new File(filepath).toString()));
+                
+                AudioFile af = getAudioFile(rs);
+                if (af == null){
+                    rs = getConnection().sendQuery(String.format(sql, new File(filepath).getAbsolutePath()));
+                    af = getAudioFile(rs);
+                }
+                
+                return af;    
+            } catch (SQLException ex) {
+                return null;
+            }
+	}
+        
+        private AudioFile getAudioFile(ResultSet rs){
+            try {
+                if (!rs.next()) return null;
+                
+                AudioFile af = new AudioFile(new File(rs.getString("path")));
+                af.setTitle(rs.getString("title"));
+                af.setAuthor(rs.getString("author"));
+                af.setAlbum(rs.getString("album"));
+                af.setGenre(rs.getString("genre"));
+                af.setRating(rs.getInt("rate"));
+                af.setFrequency(rs.getInt("frequency"));
+                af.setId(rs.getInt("id"));
+                
+                return af;
+            } catch (SQLException ex) {
+                return null;
+            }
+        }
+        
+        
 	public class PlaylistItem{
 		
 		private int songid;

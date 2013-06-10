@@ -1,6 +1,7 @@
 package audioplayer.player.codec;
 
 import java.io.File;
+import java.io.FilenameFilter;
 
 import javax.swing.filechooser.FileFilter;
 
@@ -90,6 +91,23 @@ public abstract class AudioType extends FileFilter{
 					if (at.accept(f)) return true;
 				}
 				return f.isDirectory();
+			}
+		};
+		
+		return ff;
+	}
+	
+	public static FilenameFilter getAllSupportedFilenamesFilter(){
+		FilenameFilter ff = new FilenameFilter() {
+			
+			@Override
+			public boolean accept(File f, String s) {
+				boolean sup = false;
+				for (AudioType at : types) {
+					sup = at.accept(new File(f, s));
+					if (sup) return true;
+				}
+				return sup;
 			}
 		};
 		

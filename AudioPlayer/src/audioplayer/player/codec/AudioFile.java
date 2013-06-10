@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package audioplayer.player.codec;
 
 import java.io.File;
@@ -14,18 +10,21 @@ import java.io.File;
  */
 public class AudioFile {
 	
-	private AudioType type; 
-
+    private int id = -1;	//-1 means not in the database ...
+	
+    private AudioType type; 
     private File file;
-    
     private long length = 0;
     
     private String title;
     private String author = "Unknow";
-    
-//  private int rating;
-//  private int frequency;
+    private String album = "Unknow";
+    private String genre = "Unknow";
+ 
+    private int rating = 0;
+    private int frequency = 0;
         
+    
     public AudioFile(File file){
         this.file = file;
         title = file.getName();
@@ -108,4 +107,54 @@ public class AudioFile {
 		}
 			
 	}
+
+	public String getAlbum() {
+		return album;
+	}
+
+	public void setAlbum(String album) {
+		this.album = album;
+	}
+
+	public String getGenre() {
+		return genre;
+	}
+
+	public void setGenre(String genre) {
+		this.genre = genre;
+	}
+
+	public int getRating() {
+		return rating;
+	}
+
+	public void setRating(int rating) {
+		this.rating = rating;
+	}
+
+	public int getFrequency() {
+		return frequency;
+	}
+
+	public void setFrequency(int frequency) {
+		this.frequency = frequency;
+	}
+        
+        public int getId() {
+		return id;
+	}
+        
+	public void setId(int id) {
+		this.id = id;
+	}
+	
+	public boolean isNotInDataBase() {
+		return id == -1;
+	}
+
+    @Override
+    public String toString() {
+        return "AudioFile{" + "id=" + id + ", type=" + type + ", file=" + file + ", length=" + length + ", title=" + title + ", author=" + author + ", album=" + album + ", genre=" + genre + ", rating=" + rating + ", frequency=" + frequency + '}';
+    }
+    
 }

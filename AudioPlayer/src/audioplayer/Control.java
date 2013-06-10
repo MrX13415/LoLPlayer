@@ -60,7 +60,7 @@ public class Control extends UserInterface implements PlayerListener {
             
             analyzer = new Analyzer(getPlayerControlInterface().getPlayerInterfaceGraph());
             analyzer.setDefaultChannelGraphColor(1, new Color(255, 80, 0));
-            analyzer.setMergedChannels(true);
+            analyzer.setMergedChannels(false);
 
             getPlayerControlInterface().getPlayerInterfaceGraph().setUi(this);
 
@@ -83,6 +83,51 @@ public class Control extends UserInterface implements PlayerListener {
 		ppl.stop();
 		apl.clear();           
 		addFiles(file);
+    }
+    
+    public void openDirs(File[] dir) {
+    	ppl.stop();
+		apl.clear();
+    	addDirs(dir);
+    }
+    
+    public void addDirs(final File[] dir) {
+    	
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				
+				getStatusbar().getBar().setMinimum(0);
+				getStatusbar().getBar().setMaximum(dir.length);
+				getStatusbar().setMessageText(String.format("Loading dir ... (dirs: %6s/%6s ; files: %6s)", 0, dir.length, 0));
+				getStatusbar().setVisible(true);
+			
+		    	DirSearcher ds = new DirSearcher() {
+					@Override
+					public void processFile(File f) {
+						System.out.println(f);
+						addFile(f, false);
+					}
+				};
+				
+				for (File file : dir) {
+					ds.addDir(file);
+				}
+				ds.setFilenameFilter(AudioType.getAllSupportedFilenamesFilter());
+				ds.startSearcher();
+				
+				while (ds.isRunning()){
+					getStatusbar().getBar().setMaximum(ds.getDirsCount());
+					getStatusbar().getBar().setValue(ds.getDirsDoneSearched());
+					getStatusbar().setMessageText(String.format("Loading dir ... (dirs: %6s/%6s ; files: %6s)",
+							ds.getDirsDoneSearched(),
+							ds.getDirsCount(),
+							ds.getFilesCount()));
+				}
+				
+				getStatusbar().setVisible(false);
+			}
+		}).start();
     }
      
     public void addFiles(final File[] file) {       
@@ -110,6 +155,10 @@ public class Control extends UserInterface implements PlayerListener {
     }
     
     public void addFile(File file) {
+    	addFile(file, true);
+    }
+    
+    public void addFile(File file, boolean provideErrorMsg) {
         boolean aplwasEmpty = apl.isEmpty();
         
         AudioFile af = new AudioFile(file);
@@ -118,7 +167,7 @@ public class Control extends UserInterface implements PlayerListener {
 			apl.add(af);
 			System.out.println("Added to playlist: " + af.getFile().getAbsolutePath());
 		} catch (UnsupportedFileFormatException e) {
-			raiseNotSupportedFileFormatError(af);
+			raiseNotSupportedFileFormatError(af, provideErrorMsg);
 		}
                 
         if (aplwasEmpty){
@@ -149,7 +198,7 @@ public class Control extends UserInterface implements PlayerListener {
 	        analyzer.init(ppl.getAudioDevice());
 	       
 	        if (!af.isSupported()){
-	        	raiseNotSupportedFileFormatError(af);
+	        	raiseNotSupportedFileFormatError(af, true);
 	        	apl.remove(af);
 	        	if (!apl.isEmpty()) initAudioFile();
 	        }
@@ -159,13 +208,13 @@ public class Control extends UserInterface implements PlayerListener {
 		return false;
 	}
 
-	public void raiseNotSupportedFileFormatError(AudioFile af) {
+	public void raiseNotSupportedFileFormatError(AudioFile af, boolean provideErrorMsg) {
 		System.err.println("Error: File format not supported!");
 		System.err.printf("Type: %s File: %s\n", af.getType().getName(), af.getFile().getAbsolutePath());
 		
 		String msg = String.format("File format not supported!\nType: %s\nFile: %s", af.getType().getName(), af.getFile().getAbsolutePath());
 		
-		JOptionPane.showMessageDialog(this, msg, Application.App_Name_Version, JOptionPane.ERROR_MESSAGE);
+		if (provideErrorMsg) JOptionPane.showMessageDialog(this, msg, Application.App_Name_Version, JOptionPane.ERROR_MESSAGE);
 	}
         
         public void raiseVolumeControlError(Exception ex) {
@@ -328,6 +377,18 @@ public class Control extends UserInterface implements PlayerListener {
 	}
 	
 	@Override
+	public void onMenu_file_opendir() {
+		JFileChooser fc = initDirOpenDialog();
+		
+		int retopt = fc.showOpenDialog(this);
+
+		if (retopt == JFileChooser.APPROVE_OPTION) {
+            File[] dir = fc.getSelectedFiles();
+            openDirs(dir);
+		}
+	}
+	
+	@Override
 	public void onMenu_file_exit(){
 		Application.exit();
 	}
@@ -340,6 +401,18 @@ public class Control extends UserInterface implements PlayerListener {
 		if (retopt == JFileChooser.APPROVE_OPTION) {
             File[] file = fc.getSelectedFiles();
             addFiles(file);
+		}
+	}
+	
+	@Override
+	public void onMenu_playlist_adddir() {
+		JFileChooser fc = initDirOpenDialog();
+		
+		int retopt = fc.showOpenDialog(this);
+
+		if (retopt == JFileChooser.APPROVE_OPTION) {
+            File[] dir = fc.getSelectedFiles();
+            addDirs(dir);
 		}
 	}
 	
@@ -430,6 +503,14 @@ public class Control extends UserInterface implements PlayerListener {
 		
 		return fc;
 	}
+	
+	private JFileChooser initDirOpenDialog() {
+		JFileChooser fc = new JFileChooser(new File(System.getProperty("user.home")));
+		fc.setAcceptAllFileFilterUsed(false);
+		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		fc.setMultiSelectionEnabled(true);
+		return fc;
+	}
 
 	@Override
 	public void onPlayerStart(PlayerEvent event) {
@@ -485,7 +566,8 @@ public class Control extends UserInterface implements PlayerListener {
     public void onPlaylistIncrement(PlaylistIndexChangeEvent event) {
 		initAudioFileAutoPlay();
         getPlaylistInterface().getPlaylistTable().changeSelection(event.getNewIndex(), 0, false, false);
-		System.out.println("Changed playlist index from no. " + event.getPreviousIndex() + " to no. " + event.getNewIndex());
+
+        System.out.println("Changed playlist index from no. " + event.getPreviousIndex() + " to no. " + event.getNewIndex());
     }
 
     @Override

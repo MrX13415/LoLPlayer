@@ -123,7 +123,7 @@ public abstract class UserInterface extends JFrame implements ActionListener,
         }
 
         this.setLocation((screenSize.width - frameSize.width) / 2,
-                (screenSize.height - frameSize.height) / 2);
+                (screenSize.height - frameSize.height) / 2 - 100);
         
         this.setVisible(true);	
     }
@@ -147,12 +147,18 @@ public abstract class UserInterface extends JFrame implements ActionListener,
         if (s.equals(menu.getMenu_file_open()))
                 onMenu_file_open();
 
+        if (s.equals(menu.getMenu_file_opendir()))
+            onMenu_file_opendir();
+        
         if (s.equals(menu.getMenu_file_exit()))
                 onMenu_file_exit();
 
         if (s.equals(menu.getMenu_playlist_add()))
                 onMenu_playlist_add();
 
+        if (s.equals(menu.getMenu_playlist_adddir()))
+            onMenu_playlist_adddir();
+        
         if (s.equals(menu.getMenu_playlist_remove()))
                 onMenu_playlist_remove();
 
@@ -297,9 +303,11 @@ public abstract class UserInterface extends JFrame implements ActionListener,
     }
 
     public abstract void onMenu_file_open();
+    public abstract void onMenu_file_opendir();
     public abstract void onMenu_file_exit();
 
     public abstract void onMenu_playlist_add();
+    public abstract void onMenu_playlist_adddir();
     public abstract void onMenu_playlist_remove();
     public abstract void onMenu_playlist_clear();
 

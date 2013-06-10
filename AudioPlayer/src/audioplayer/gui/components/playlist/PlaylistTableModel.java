@@ -4,8 +4,16 @@
  */
 package audioplayer.gui.components.playlist;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.util.Arrays;
+import java.util.List;
+
 import audioplayer.player.AudioPlaylist;
+
+import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 
 /**
  *  LoLPlayer II - Audio-Player Project
@@ -22,6 +30,19 @@ public class PlaylistTableModel extends AbstractTableModel{
 	private String[] columnNames = {" No.", " Title", " Length"};
     private Object[][] data = {};
 
+    private List<Color> rowColours = Arrays.asList(Color.red);
+
+    
+    public void setRowColour(int row, Color c) {
+        rowColours.set(row, c);
+        fireTableRowsUpdated(row, row);
+    }
+    
+    public Color getRowColour(int row) {
+        if (row < rowColours.size()) return rowColours.get(row);
+        return null;
+    }
+    
     public void setContent(AudioPlaylist apl){
         Object[][] ndata = new Object[apl.size()][3];
         

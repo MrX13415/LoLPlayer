@@ -17,13 +17,13 @@ import audioplayer.images.ImageLoader;
 public class Application {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.4.1 beta";
+	public static String App_Version = "0.1.4.2 beta";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
-	public static String App_Author = "Oliver Daus";	
+	public static String App_Author = "Oliver Daus / Luca Madonia";	
 	public static String App_License = "CC BY-NC-SA 3.0";
     public static String App_License_Link = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         
-	private static boolean debug = false;
+    private static boolean debug = false;
 	
     private static Application application;
         
@@ -99,7 +99,7 @@ public class Application {
 		FontLoader.loadFonts();
 		ImageLoader.loadImages();
 		AboutDialog.loadAboutText();
-		
+
 		try {
 			control = new Control();
 		} catch (Exception e) {
