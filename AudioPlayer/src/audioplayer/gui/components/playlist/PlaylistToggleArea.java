@@ -43,8 +43,8 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	private boolean cancleAnimation = false;
 
 	// Animation speeds: has to be > 0; > 1 is faster
-	private int showAnimationSpeed = 13;
-	private int hideAnimationSpeed = 23;
+	private int showAnimationSpeed = 15;
+	private int hideAnimationSpeed = 15;
 
 	public PlaylistToggleArea(PlaylistInterface pli, JFrame frame) {
 		this(pli, frame, false);
@@ -194,9 +194,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
                             int yIndex = (show ? targetHeightOffset : 0);
 			
                             while(show ? yIndex <= 0: yIndex >= targetHeightOffset){
-                                    //(show ? yIndex <= 0: yIndex >= targetHeightOffset);
-                                     //yIndex = (show ? yIndex + showAnimationSpeed : yIndex - hideAnimationSpeed)) {
-
+          
                                     if (cancleAnimation) {
                                             cancleAnimation = false;
                                             return;
@@ -211,19 +209,18 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
                                             @Override
                                             public void run() {
                                                     if (show) {
-                                                            frame.setSize(frame.getWidth(), frameHeight + sizeToadd);
-                                                            setPreferredSize(new Dimension(thisWidth, thisHeight + sizeToadd));
+                                                    	setPreferredSize(new Dimension(thisWidth, thisHeight + sizeToadd));
+                                                        frame.setSize(frame.getWidth(), frameHeight + sizeToadd);
+                                                        frame.setMinimumSize(new Dimension(frame.getWidth(), frameHeight + sizeToadd));
                                                     } else {
-                                                            setPreferredSize(new Dimension(thisWidth, thisHeight - sizeToremove));
-                                                            frame.setSize(frame.getWidth(), frameHeight - sizeToremove);
+                                                    	frame.setMinimumSize(new Dimension(frame.getWidth(), frameHeight - sizeToremove));
+                                                        frame.setSize(frame.getWidth(), frameHeight - sizeToremove);
+                                                        setPreferredSize(new Dimension(thisWidth, thisHeight - sizeToremove));
                                                     }
                                                     
-                                                    frame.repaint();
-                                                    
-                                                    try {
-                                                        Thread.sleep(15);
-                                                    } catch (InterruptedException ex) {
-                                                    }                                                    
+                                                    frame.validate();
+//                                                  frame.repaint();
+                                                                                                   
                                             }
                                     });
 

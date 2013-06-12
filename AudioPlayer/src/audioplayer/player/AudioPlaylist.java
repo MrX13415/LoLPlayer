@@ -4,17 +4,13 @@
  */
 package audioplayer.player;
 
-import audioplayer.Application;
-import audioplayer.database.LoLPlayerDB.PlaylistItem;
 import audioplayer.player.codec.AudioFile;
-import audioplayer.player.codec.AudioFile.UnsupportedFileFormatException;
 import audioplayer.player.listener.PlayerListener;
 import audioplayer.player.listener.PlaylistEvent;
 import audioplayer.player.listener.PlaylistIndexChangeEvent;
 
-import java.io.File;
-import java.sql.SQLException;
 import java.util.ArrayList;
+
 
 /**
  *  LoLPlayer II - Audio-Player Project
@@ -104,30 +100,6 @@ public class AudioPlaylist {
         content.add(af);
         for (PlayerListener l : listener)
             l.onPlaylistFileAdd(new PlaylistEvent(this));
-    }
-    
-    public void loadFromDB(){
-    	System.out.print("Load playlist from DataBase ...\t\t");
-    	if (!Application.getApplication().getDatabase().getConnection().isConnected()){
-    		System.out.println("SKIPED");
-    		return;
-    	}
-    	
-    	try {
-			PlaylistItem[] pis = Application.getApplication().getDatabase().getPlaylistItems();
-		
-			for (PlaylistItem playlistItem : pis) {
-				AudioFile af = new AudioFile(new File(playlistItem.getFilepath()), playlistItem.getTitle(), playlistItem.getAuthor());
-				try {
-					af.initAudioFile();
-				} catch (UnsupportedFileFormatException e) {}
-				add(af);
-			}
-			
-			System.out.println("OK");
-    	} catch (SQLException e) {
-    		System.out.println("ERROR");
-		}
     }
     
     public void remove(AudioFile af){

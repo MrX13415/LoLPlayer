@@ -5,15 +5,10 @@
 package audioplayer.gui.components.playlist;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.util.Arrays;
 import java.util.List;
-
 import audioplayer.player.AudioPlaylist;
-
-import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
 
 /**
  *  LoLPlayer II - Audio-Player Project
@@ -47,25 +42,19 @@ public class PlaylistTableModel extends AbstractTableModel{
         Object[][] ndata = new Object[apl.size()][3];
         
         for (int i = 0; i < apl.size(); i++) {
-            ndata[i] = new Object[] {i + 1, 
-            		apl.get(i).getAuthor().equals("Unknow") ? 
-    				apl.get(i).getTitle() :
-    				String.format("%s - %s", apl.get(i).getAuthor(), apl.get(i).getTitle()),
-    				apl.get(i).getFormatedLength()};
+        	try {
+        		ndata[i] = new Object[] {i + 1, 
+                		apl.get(i).getAuthor().equals("Unknow") ? 
+        				apl.get(i).getTitle() :
+        				String.format("%s - %s", apl.get(i).getAuthor(), apl.get(i).getTitle()),
+        				apl.get(i).getFormatedLength()};
+			} catch (Exception e) {}
         }
         
         data = ndata;
         fireTableDataChanged();
     }
-    
-    public void add(){
-        
-    }
-            
-    public void remove(){
-        
-    }
-            
+         
     @Override
     public int getRowCount() {
         return data.length;

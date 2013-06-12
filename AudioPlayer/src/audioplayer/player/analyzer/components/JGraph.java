@@ -96,18 +96,21 @@ public class JGraph extends JPanel implements Graph{
 	private synchronized void repaintGraphs(){
 		if(this.getWidth() > 0 && this.getHeight() > 0)
 			image = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
-			
-		for (AudioGraph ag : graphs) {
-			ag.setShownValues(this.getWidth());
-			
-			if (graphs.size() > 1){
-				int index = graphs.indexOf(ag);
-				if (index == 0) ag.setYOffset( this.getHeight() / 4 );
-				if (index == 1) ag.setYOffset( (this.getHeight() / 4) * -1 );
+		
+		try {
+			for (AudioGraph ag : graphs) {
+				ag.setShownValues(this.getWidth());
+				
+				if (graphs.size() > 1){
+					int index = graphs.indexOf(ag);
+					if (index == 0) ag.setYOffset( this.getHeight() / 4 );
+					if (index == 1) ag.setYOffset( (this.getHeight() / 4) * -1 );
+				}
+				
+				paintGraph(ag);
 			}
-			
-			paintGraph(ag);
-		}
+		} catch (Exception e) {}	
+		
 		
 		if(this.getWidth() > 0 && this.getHeight() > 0)
 	        destimage = (isGaussianFilter() ? upf.filter(gf.filter(pf.filter(image, null), null), null) : image);

@@ -6,24 +6,26 @@ import audioplayer.database.LoLPlayerDB;
 import audioplayer.font.FontLoader;
 import audioplayer.gui.AboutDialog;
 import audioplayer.images.ImageLoader;
+import audioplayer.process.SavePlaylistDBProcess;
 
 
 /**
  *  LoLPlayer II - Audio-Player Project
  * 
  * @author Oliver Daus
- * @version 0.1.4
+ * @version 0.1.5
  */
 public class Application {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.4.2 beta";
+	public static String App_Version = "0.1.5.1 beta";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
 	public static String App_Author = "Oliver Daus / Luca Madonia";	
 	public static String App_License = "CC BY-NC-SA 3.0";
     public static String App_License_Link = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         
     private static boolean debug = false;
+	private static boolean waitForExit = false;
 	
     private static Application application;
         
@@ -99,7 +101,7 @@ public class Application {
 		FontLoader.loadFonts();
 		ImageLoader.loadImages();
 		AboutDialog.loadAboutText();
-
+                
 		try {
 			control = new Control();
 		} catch (Exception e) {
@@ -124,7 +126,29 @@ public class Application {
 	}
 
 	public static void exit() {
-		System.exit(0);
+		if (waitForExit) return;
+		
+		SavePlaylistDBProcess spdbp = null;
+		
+		try {
+			spdbp = getApplication().control.savePlaylistToDB();
+		} catch (Exception e) {}
+		
+		final SavePlaylistDBProcess fspdbp = spdbp;
+        new Thread(new Runnable() {
+			@Override
+			public void run() {
+				waitForExit = true;
+				System.out.println("Awaiting end of process to exit ...");
+		        while(fspdbp != null && !fspdbp.isReachedEnd()){
+		        	System.out.print("");
+		        }
+		        waitForExit = false;
+		        
+		        System.out.println("Exit ...");
+		        System.exit(0);
+			}
+		}).start();
 	}
 
         public static Application getApplication() {

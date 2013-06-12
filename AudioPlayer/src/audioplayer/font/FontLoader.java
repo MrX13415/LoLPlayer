@@ -17,8 +17,9 @@ public class FontLoader {
 
 	//---------------------------------------------------------------
 	
-	public static Font fontGUIPlayerButtons = new Font(font_Symbola, Font.PLAIN, 20);
-
+	public static Font fontSymbola = new Font(font_Symbola, Font.PLAIN, 25);
+	public static Font fontSymbola_16p = new Font(font_Symbola, Font.PLAIN, 16);
+	
 	public static void loadFonts(){
 		System.out.print("Load fonts ...\t\t\t\t");
 		
@@ -30,7 +31,8 @@ public class FontLoader {
 
 			font = Font.createFont(Font.TRUETYPE_FONT, fontStream);
 
-			fontGUIPlayerButtons = font.deriveFont(Font.PLAIN, 25);
+			fontSymbola = font.deriveFont(Font.PLAIN, 25);
+			fontSymbola_16p = font.deriveFont(Font.PLAIN, 16);
 			
 			fontStream.close();
 			

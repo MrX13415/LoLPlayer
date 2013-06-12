@@ -61,7 +61,7 @@ public class PlayerControlInterface extends JPanel{
             display = new Display();
 
             play = new JButton(""); // >  \u25BA  ||  \u2759\u2759
-            play.setFont(FontLoader.fontGUIPlayerButtons);
+            play.setFont(FontLoader.fontSymbola);
             play.addActionListener(actionListener);
             play.setBackground(new Color(50,50,50));
             play.setContentAreaFilled(false);
@@ -71,7 +71,7 @@ public class PlayerControlInterface extends JPanel{
             play.setRolloverIcon(ImageLoader.image_play_hover);
             
             stop = new JButton("");	// [ ]  \u25FC
-            stop.setFont(FontLoader.fontGUIPlayerButtons);
+            stop.setFont(FontLoader.fontSymbola);
             stop.addActionListener(actionListener);
             stop.setBackground(new Color(50,50,50));
             stop.setContentAreaFilled(false);
@@ -81,7 +81,7 @@ public class PlayerControlInterface extends JPanel{
             stop.setRolloverIcon(ImageLoader.image_stop_hover);
             
             frw = new JButton(""); // >>|  \u23ed 
-            frw.setFont(FontLoader.fontGUIPlayerButtons);
+            frw.setFont(FontLoader.fontSymbola);
             frw.addActionListener(actionListener);
             frw.setBackground(new Color(50,50,50));
             frw.setContentAreaFilled(false);
@@ -91,7 +91,7 @@ public class PlayerControlInterface extends JPanel{
             frw.setRolloverIcon(ImageLoader.image_frw_hover);
             
             rev = new JButton(""); // |<<  \u23ee
-            rev.setFont(FontLoader.fontGUIPlayerButtons);
+            rev.setFont(FontLoader.fontSymbola);
             rev.addActionListener(actionListener);
             rev.setBackground(new Color(50,50,50));
             rev.setContentAreaFilled(false);

@@ -7,8 +7,10 @@ import javax.swing.BorderFactory;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JSeparator;
+import javax.swing.KeyStroke;
 
 import javax.swing.JMenuItem;
+
 
 /**
  *  LoLPlayer II - Audio-Player Project
@@ -47,12 +49,16 @@ public class MenuBar extends JMenuBar {
 	public MenuBar(ActionListener actionListener) {
 		JSeparator separator = new JSeparator();
 		separator.setBackground(new Color(50,50,50));
-				
+							
 		menu_file_open = new MenuItem();
 		menu_file_open.setText("Open ...");
 		menu_file_open.addActionListener(actionListener);
 		menu_file_open.setBackground(new Color(50,50,50));
 		menu_file_open.setForeground(new Color(255,255,255));
+		
+		menu_file_open.setAccelerator(KeyStroke.getKeyStroke(
+		        java.awt.event.KeyEvent.VK_O, 
+		        java.awt.Event.CTRL_MASK));
 		
 		menu_file_opendir = new MenuItem();
 		menu_file_opendir.setText("Open Directory ...");
@@ -83,6 +89,9 @@ public class MenuBar extends JMenuBar {
 		menu_playlist_add.addActionListener(actionListener);
 		menu_playlist_add.setBackground(new Color(50,50,50));
 		menu_playlist_add.setForeground(new Color(255,255,255));
+		menu_playlist_add.setAccelerator(KeyStroke.getKeyStroke(
+		        java.awt.event.KeyEvent.VK_O, 
+		        java.awt.Event.ALT_MASK + java.awt.Event.CTRL_MASK));
 		
 		menu_playlist_adddir = new MenuItem();
 		menu_playlist_adddir.setText("Add Directory ...");
@@ -95,24 +104,33 @@ public class MenuBar extends JMenuBar {
 		menu_playlist_remove.addActionListener(actionListener);
 		menu_playlist_remove.setBackground(new Color(50,50,50));
 		menu_playlist_remove.setForeground(new Color(255,255,255));
+		menu_playlist_remove.setAccelerator(KeyStroke.getKeyStroke(
+		        java.awt.event.KeyEvent.VK_DELETE, 
+		        java.awt.Event.ALT_MASK));
 		
 		menu_playlist_clear = new MenuItem();
 		menu_playlist_clear.setText("Clear");
 		menu_playlist_clear.addActionListener(actionListener);
 		menu_playlist_clear.setBackground(new Color(50,50,50));
 		menu_playlist_clear.setForeground(new Color(255,255,255));
-		
+				
 		menu_playlist_up = new MenuItem();
 		menu_playlist_up.setText("Move up");
 		menu_playlist_up.addActionListener(actionListener);
 		menu_playlist_up.setBackground(new Color(50,50,50));
 		menu_playlist_up.setForeground(new Color(255,255,255));
+		menu_playlist_up.setAccelerator(KeyStroke.getKeyStroke(
+		        java.awt.event.KeyEvent.VK_UP, 
+		        java.awt.Event.ALT_MASK));
 		
 		menu_playlist_down = new MenuItem();
 		menu_playlist_down.setText("Move down");
 		menu_playlist_down.addActionListener(actionListener);
 		menu_playlist_down.setBackground(new Color(50,50,50));
 		menu_playlist_down.setForeground(new Color(255,255,255));
+		menu_playlist_down.setAccelerator(KeyStroke.getKeyStroke(
+		        java.awt.event.KeyEvent.VK_DOWN, 
+		        java.awt.Event.ALT_MASK));
 		
 		menu_playlist = new Menu();
 		menu_playlist.setText("Playlist");

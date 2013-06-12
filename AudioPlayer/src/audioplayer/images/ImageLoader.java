@@ -3,7 +3,6 @@ package audioplayer.images;
 import java.awt.Image;
 import java.io.File;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.security.CodeSource;
 import java.util.ArrayList;

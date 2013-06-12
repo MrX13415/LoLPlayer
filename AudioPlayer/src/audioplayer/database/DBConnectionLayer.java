@@ -51,18 +51,22 @@ public class DBConnectionLayer {
         return connected;
     }
         
-    public ResultSet sendQuery(String sql) throws SQLException{
+    public ResultSet sendSQLQuery(String sql) throws SQLException{
         return statement.executeQuery(sql);
+    }
+    
+    public void sendSQLUpdate(String sql) throws SQLException{
+        statement.executeUpdate(sql);
     }
     
     public ResultSet getValues(String view) throws SQLException{
     	String sql = String.format("SELECT * FROM %s;", view);
-    	return sendQuery(sql);
+    	return sendSQLQuery(sql);
     }
     
     public String getValue(String view, String valName, String condValName, String condValue) throws SQLException{
     	String sql = String.format("SELECT %s FROM %s WHERE %s = %s;", valName, view, condValName, condValue);
-    	ResultSet rs = sendQuery(sql);
+    	ResultSet rs = sendSQLQuery(sql);
     	rs.next();
     	return rs.getString(valName);
     }

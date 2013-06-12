@@ -7,15 +7,21 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.KeyStroke;
 import javax.swing.SearchCircle;
 import javax.swing.SearchCircle.SearchCircleChangeEvent;
 import javax.swing.SearchCircle.SearchCircleKeyEvent;
@@ -27,7 +33,7 @@ import javax.swing.event.ChangeListener;
 import audioplayer.Application;
 import audioplayer.gui.components.MenuBar;
 import audioplayer.gui.components.PlayerControler.PlayerControlInterface;
-import audioplayer.gui.components.StatusBar;
+import audioplayer.process.components.StatusBar;
 import audioplayer.gui.components.playlist.PlaylistInterface;
 import audioplayer.gui.components.playlist.PlaylistToggleArea;
 import java.awt.Toolkit;
@@ -42,7 +48,7 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 															  SearchCricleListener,
 															  MouseListener,
 															  WindowFocusListener,
-															  ChangeListener {
+															  ChangeListener{
 
     /**
      * 
@@ -94,14 +100,21 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 
         this.setJMenuBar(menu);
 
-        this.addWindowFocusListener(this);
-
         this.getContentPane().setLayout(new BorderLayout());
         this.getContentPane().add(mainPane, BorderLayout.CENTER);
         this.getContentPane().add(pta, BorderLayout.SOUTH);
         this.getContentPane().setBackground(new Color(255,10,10));
         
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        
+        this.addWindowFocusListener(this);
+        this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				Application.exit();
+			}
+		});
+
         this.setTitle(Application.App_Name_Version);
 
         this.setPreferredSize(new Dimension(420, 475));
@@ -125,9 +138,140 @@ public abstract class UserInterface extends JFrame implements ActionListener,
         this.setLocation((screenSize.width - frameSize.width) / 2,
                 (screenSize.height - frameSize.height) / 2 - 100);
         
+        this.requestFocusInWindow();
         this.setVisible(true);	
+        
+        defineKeyBindings();
     }
 	        
+    private void defineKeyBindings(){
+    	InputMap imap = this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+    	
+        imap.put(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_LEFT, KeyEvent.CTRL_DOWN_MASK), "rev");
+        imap.put(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK), "playpause");
+        imap.put(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK), "stop");
+        imap.put(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_RIGHT, KeyEvent.CTRL_DOWN_MASK), "frw");
+        
+        imap.put(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_UP, KeyEvent.CTRL_DOWN_MASK), "volup");
+        imap.put(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_DOWN, KeyEvent.CTRL_DOWN_MASK), "voldown");
+        
+        imap.put(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_LEFT, KeyEvent.ALT_DOWN_MASK + KeyEvent.CTRL_DOWN_MASK), "screv");
+        imap.put(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_RIGHT, KeyEvent.ALT_DOWN_MASK + KeyEvent.CTRL_DOWN_MASK), "scfrw");
+        
+        this.getRootPane().getActionMap().put("rev", new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -1594888027786430243L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				onButtonRev();
+			}
+		});
+        this.getRootPane().getActionMap().put("playpause", new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 4610839225638958100L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				onButtonPlay();
+			}
+		});
+        this.getRootPane().getActionMap().put("stop", new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -4192441940275972821L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				onButtonStop();
+			}
+		});
+        this.getRootPane().getActionMap().put("frw", new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -3094115933604274973L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				onButtonFrw();
+			}
+		});
+        
+        this.getRootPane().getActionMap().put("volup", new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -9055591316859895624L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				double val = getPlayerControlInterface().getVolume().getButtonValue();
+				double ksm = 1;
+				getPlayerControlInterface().getVolume().setButtonValue(val + ksm);
+				onVolumeButtonMove(getPlayerControlInterface().getVolume());
+			}
+		});
+        
+        this.getRootPane().getActionMap().put("voldown", new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 68238191871929894L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				double val = getPlayerControlInterface().getVolume().getButtonValue();
+				double ksm = 1;
+				getPlayerControlInterface().getVolume().setButtonValue(val - ksm);
+				onVolumeButtonMove(getPlayerControlInterface().getVolume());
+			}
+		});
+        
+        this.getRootPane().getActionMap().put("screv", new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 6427718119568525302L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				double val = getPlayerControlInterface().getSearchBar().getButtonValue();
+				double ksm = getPlayerControlInterface().getSearchBar().getKeyScrollamount();
+				getPlayerControlInterface().getSearchBar().setButtonValue(val - ksm);
+				onSearchBarButtonMove(getPlayerControlInterface().getSearchBar());
+			}
+		});
+        
+        this.getRootPane().getActionMap().put("scfrw", new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 3615191271327654371L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				double val = getPlayerControlInterface().getSearchBar().getButtonValue();
+				double ksm = getPlayerControlInterface().getSearchBar().getKeyScrollamount();
+				getPlayerControlInterface().getSearchBar().setButtonValue(val + ksm);
+				onSearchBarButtonMove(getPlayerControlInterface().getSearchBar());
+			}
+		});
+    }
+    
     @Override
     public void actionPerformed(ActionEvent ae) {
         Object s = ae.getSource();
@@ -139,10 +283,6 @@ public abstract class UserInterface extends JFrame implements ActionListener,
                 onButtonFrw();
         if (s.equals(pci.getRev()))
                 onButtonRev();
-
-        // Use MouseClicked instad ...
-        // if (s.equals(searchBar)) onSearchBarButtonSet((SearchCircle) s);
-        // if (s.equals(volume)) onVolumeButtonSet((SearchCircle) s);
 
         if (s.equals(menu.getMenu_file_open()))
                 onMenu_file_open();
