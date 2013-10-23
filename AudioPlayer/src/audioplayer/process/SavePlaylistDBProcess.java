@@ -6,7 +6,8 @@ package audioplayer.process;
 
 import audioplayer.Application;
 import audioplayer.Control;
-import audioplayer.player.codec.AudioFile;
+import audioplayer.player.AudioFile;
+
 import java.sql.SQLException;
 
 /**

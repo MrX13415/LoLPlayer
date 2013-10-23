@@ -17,11 +17,19 @@ public abstract class Process implements Runnable{
     public Process(Control control) {
         this.control = control;
         this.control.getStatusbar().addProcess(this);
-        thread = new Thread(this);
+        initThread();
+    }
+    
+    private void initThread(){
+         if (thread == null){
+            thread = new Thread(this);
+            String name = this.getClass().getSimpleName();
+            thread.setName(name);
+        }
     }
     
     public void start() {
-        if (thread == null) thread = new Thread(this);
+        initThread();
         thread.start();
         running = true;
         if (Application.isDebug()) System.out.println("Process '" + this.getClass().getName() + "' started ...");

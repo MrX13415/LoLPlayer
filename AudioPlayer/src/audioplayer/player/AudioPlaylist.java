@@ -1,10 +1,5 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package audioplayer.player;
 
-import audioplayer.player.codec.AudioFile;
 import audioplayer.player.listener.PlayerListener;
 import audioplayer.player.listener.PlaylistEvent;
 import audioplayer.player.listener.PlaylistIndexChangeEvent;
@@ -145,7 +140,7 @@ public class AudioPlaylist {
     public void moveUp(AudioFile af){
     	int index = content.indexOf(af) - 1;
     	content.add(index, af);
-    	content.remove(index + 2);
+    	if (index + 2 < content.size()) content.remove(index + 2);
     	
     	if (getIndex() == index + 1) this.index -= 1;
     	
@@ -157,7 +152,7 @@ public class AudioPlaylist {
     	int index = content.indexOf(af) + 2;
     	index = (index >= content.size() ? content.size() - 1 : index);
     	content.add(index, af);
-    	content.remove(index - 2);
+    	if (index - 2 >= 0) content.remove(index - 2);
     	
     	if (getIndex() == index - 2) this.index += 1;
     	

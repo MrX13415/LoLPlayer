@@ -44,11 +44,15 @@ public class PlaylistTableModel extends AbstractTableModel{
         for (int i = 0; i < apl.size(); i++) {
         	try {
         		ndata[i] = new Object[] {i + 1, 
-                		apl.get(i).getAuthor().equals("Unknow") ? 
-        				apl.get(i).getTitle() :
+                		apl.get(i).isTitleEmpty() ? 
+                		apl.get(i).getName() :
+                		apl.get(i).isAuthorEmpty() ?
+                		apl.get(i).getTitle() :
         				String.format("%s - %s", apl.get(i).getAuthor(), apl.get(i).getTitle()),
         				apl.get(i).getFormatedLength()};
-			} catch (Exception e) {}
+			} catch (Exception e) {
+				System.out.println(e);
+			}
         }
         
         data = ndata;

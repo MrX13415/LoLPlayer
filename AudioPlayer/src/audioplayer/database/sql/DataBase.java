@@ -1,4 +1,4 @@
-package audioplayer.database;
+package audioplayer.database.sql;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,10 +22,10 @@ public class DataBase {
 	protected String DBusername = "";
 	protected String DBpassword = "";
 
-    private DBConnectionLayer dbConnectionLayer;
+    private DerbySQLConnectionLayer dbConnectionLayer;
     
     public DataBase() {
-    	dbConnectionLayer = new DBConnectionLayer(this);
+    	dbConnectionLayer = new DerbySQLConnectionLayer(this);
     }
     
     public DataBase(String DBname, String DBurl) {
@@ -120,11 +120,11 @@ public class DataBase {
          
     }
     
-    public DBConnectionLayer getConnection() {
+    public DerbySQLConnectionLayer getConnection() {
 		return dbConnectionLayer;
 	}
 
-	public  void createTables(DBConnectionLayer dbcl){
+	public  void createTables(PostgresSQLConnectionLayer dbcl){
 /*
  * -- =============================================
    --

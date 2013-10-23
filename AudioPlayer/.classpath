@@ -10,5 +10,8 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="Filters.jar"/>
+	<classpathentry kind="lib" path="java_mp3.jar"/>
+	<classpathentry kind="lib" path="db4o-8.0.249.16098-all-java5.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/jdk1.7.0_25/db/lib/derby.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

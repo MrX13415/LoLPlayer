@@ -2,23 +2,26 @@ package audioplayer;
 
 import javax.swing.UIManager;
 
-import audioplayer.database.LoLPlayerDB;
+import audioplayer.database.NDataBase;
+import audioplayer.database.sql.LoLPlayerDB;
 import audioplayer.font.FontLoader;
 import audioplayer.gui.AboutDialog;
 import audioplayer.images.ImageLoader;
 import audioplayer.process.SavePlaylistDBProcess;
+
+import java.awt.Color;
 
 
 /**
  *  LoLPlayer II - Audio-Player Project
  * 
  * @author Oliver Daus
- * @version 0.1.5
+ * @version 0.1.5.2
  */
 public class Application {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.5.1 beta";
+	public static String App_Version = "0.1.5.2 beta";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
 	public static String App_Author = "Oliver Daus / Luca Madonia";	
 	public static String App_License = "CC BY-NC-SA 3.0";
@@ -87,6 +90,14 @@ public class Application {
 	 */
 	public void initialize() {
 
+        UIManager.put("TabbedPane.selected", Color.GREEN);
+		UIManager.put("MenuItem.selectionBackground", Color.GREEN);
+		UIManager.put("MenuItem.selectionForeground", Color.BLUE);
+		UIManager.put("Menu.selectionBackground", Color.GREEN);
+		UIManager.put("Menu.selectionForeground", Color.BLUE);
+		UIManager.put("MenuBar.selectionBackground", Color.GREEN);
+		UIManager.put("MenuBar.selectionForeground", Color.BLUE);
+                
 		try {
 			System.out.print("Load Nimubs Look and Feel (L&F) ...\t");
 			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");

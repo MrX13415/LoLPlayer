@@ -39,6 +39,9 @@ public class MenuBar extends JMenuBar {
 	private JMenuItem menu_playlist_up;
 	private JMenuItem menu_playlist_down;
 	
+	private JMenu menu_media;
+	private JMenuItem menu_media_library;
+	
 	private JMenu menu_graph;
 	private JMenuItem menu_graph_merge;
 	private JMenuItem menu_graph_gfilter;
@@ -147,6 +150,21 @@ public class MenuBar extends JMenuBar {
 		menu_playlist.getPopupMenu().setBackground(new Color(50,50,50));
 		menu_playlist.getPopupMenu().setBorder(BorderFactory.createRaisedBevelBorder());
 		
+		menu_media_library = new MenuItem();
+		menu_media_library.setText("Library");
+		menu_media_library.addActionListener(actionListener);
+		menu_media_library.setBackground(new Color(50,50,50));
+		menu_media_library.setForeground(new Color(255,255,255));
+		
+		menu_media = new Menu();
+		menu_media.setText("Media");
+		menu_media.setBackground(new Color(50,50,50));
+		menu_media.setForeground(new Color(255,255,255));
+		menu_media.setBorder(BorderFactory.createRaisedBevelBorder());
+		menu_media.add(menu_media_library);
+		menu_media.getPopupMenu().setBackground(new Color(50,50,50));
+		menu_media.getPopupMenu().setBorder(BorderFactory.createRaisedBevelBorder());
+		
 		menu_graph_merge = new MenuItem();
 		menu_graph_merge.setText("Toggle merged graphs");
 		menu_graph_merge.addActionListener(actionListener);
@@ -186,6 +204,7 @@ public class MenuBar extends JMenuBar {
 		
 		add(menu_file);
 		add(menu_playlist);
+		add(menu_media);
 		add(menu_graph);
 		add(menu_help);
 	}
@@ -240,6 +259,10 @@ public class MenuBar extends JMenuBar {
 
 	public JMenuItem getMenu_playlist_adddir() {
 		return menu_playlist_adddir;
+	}
+
+	public JMenuItem getMenu_media_library() {
+		return menu_media_library;
 	}
 
 }

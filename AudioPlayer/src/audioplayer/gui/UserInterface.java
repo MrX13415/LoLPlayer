@@ -162,9 +162,9 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 		        KeyEvent.VK_DOWN, KeyEvent.CTRL_DOWN_MASK), "voldown");
         
         imap.put(KeyStroke.getKeyStroke(
-		        KeyEvent.VK_LEFT, KeyEvent.ALT_DOWN_MASK + KeyEvent.CTRL_DOWN_MASK), "screv");
+		        KeyEvent.VK_LEFT, KeyEvent.ALT_DOWN_MASK), "screv");
         imap.put(KeyStroke.getKeyStroke(
-		        KeyEvent.VK_RIGHT, KeyEvent.ALT_DOWN_MASK + KeyEvent.CTRL_DOWN_MASK), "scfrw");
+		        KeyEvent.VK_RIGHT, KeyEvent.ALT_DOWN_MASK), "scfrw");
         
         this.getRootPane().getActionMap().put("rev", new AbstractAction() {
 			/**
@@ -311,6 +311,9 @@ public abstract class UserInterface extends JFrame implements ActionListener,
         if (s.equals(menu.getMenu_playlist_down()))
                 onMenu_playlist_down();
         
+        if (s.equals(menu.getMenu_media_library()))
+            onMenu_media_library();
+        
         if (s.equals(menu.getMenu_graph_merge()))
             onMenu_graph_merge();
         
@@ -410,12 +413,23 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 
     @Override
     public void mouseClicked(MouseEvent e) {
-            if (e.getClickCount() == 2 && !e.isConsumed()) {
-                 //handle double click event.
-                    mouseDoubleClicked(e);
-            }
+        if (e.getClickCount() == 2 && !e.isConsumed() && e.getButton() == MouseEvent.BUTTON1) {
+            //handle double click event.
+        	mouseDoubleClicked(e);
+        }
+        System.out.println(e.getButton());
+        if (e.getSource().equals(pli.getPlaylistTable()) && e.getButton() == MouseEvent.BUTTON3) {
+        	//handle right click event
+        	mouseRightClicked(e);
+        }
     }
 
+    public void mouseRightClicked(MouseEvent e) {
+    	 if (e.getSource().equals(pli.getPlaylistTable())) {
+             onPlaylistRightClick(pli.getPlaylistTable().getSelectedRow());
+         }
+    }
+    
     public void mouseDoubleClicked(MouseEvent e) {
             if (e.getSource().equals(pli.getPlaylistTable())) {
                     onPlaylistDoubleClick(pli.getPlaylistTable().getSelectedRow());
@@ -453,7 +467,9 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 
     public abstract void onMenu_playlist_up();
     public abstract void onMenu_playlist_down();
-
+    
+    public abstract void onMenu_media_library();
+    
     public abstract void onMenu_graph_merge();
     public abstract void onMenu_graph_gfilter();
     
@@ -465,7 +481,8 @@ public abstract class UserInterface extends JFrame implements ActionListener,
     public abstract void onButtonRev();
 
     public abstract void onPlaylistDoubleClick(int index);
-
+    public abstract void onPlaylistRightClick(int index);
+    
     public abstract void onSearchBarButtonMove(SearchCircle s);
     public abstract void onSearchBarMousePressed(SearchCircle s);
     public abstract void onSearchBarMouseReleased(SearchCircle s);

@@ -291,7 +291,7 @@ public class PlayerControlInterface extends JPanel{
 		d.setInfo1Text(state);
 		d.setInfo2Text(vol);
 		d.setStatusBar1Text(pperc);
-		if (ppl.getAudioFile() != null)d.setStatusBar2Text(ppl.getAudioFile().getTitle());
+		if (ppl.getAudioFile() != null)d.setStatusBar2Text(ppl.getAudioFile().getName());
 
 	}
 	

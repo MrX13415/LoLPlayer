@@ -11,7 +11,6 @@ import javax.sound.sampled.SourceDataLine;
 
 import audioplayer.player.analyzer.Analyzer;
 
-
 import javazoom.jl.decoder.Decoder;
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.AudioDeviceBase;
@@ -24,7 +23,7 @@ import javazoom.jl.player.AudioDeviceBase;
  */
 public class AudioDeviceLayer extends AudioDeviceBase {
 	
-	private SourceDataLine source = null;
+	private volatile SourceDataLine source = null;
 	private AudioFormat fmt = null;
 	private byte[] byteBuf = new byte[4096];
 	private byte[] currentSamplesBytes;
@@ -85,6 +84,17 @@ public class AudioDeviceLayer extends AudioDeviceBase {
                         
                 try{
                    volControl = (FloatControl) source.getControl(FloatControl.Type.MASTER_GAIN);
+                
+                    // 0.0% = -80dB ; 100.0% = 6dB
+                    //linear: float newvol = (volControl.getMinimum() + (volControl.getMaximum() - volControl.getMinimum()) / 100f * vol);
+                    //log:
+                    double vmax = volControl.getMaximum();
+                    double vmin = volControl.getMinimum();
+                    double lvol = (Math.log ((vol)/100f) * ((vmin - vmax) / Math.log(0.01/100f))) + vmax;
+                    if (lvol > vmax) lvol = vmax;
+                    if (lvol < vmin) lvol = vmin;
+
+                    volControl.setValue((float) lvol);
                 }catch (Exception e){
                     try{
                         volControl = (FloatControl) source.getControl(FloatControl.Type.VOLUME);
@@ -93,16 +103,6 @@ public class AudioDeviceLayer extends AudioDeviceBase {
                     }
                 }
 	      
-	        // 0.0% = -80dB ; 100.0% = 6dB
-	        //linear: float newvol = (volControl.getMinimum() + (volControl.getMaximum() - volControl.getMinimum()) / 100f * vol);
-	        //log:
-	        double vmax = volControl.getMaximum();
-	        double vmin = volControl.getMinimum();
-	        double lvol = (Math.log ((vol)/100f) * ((vmin - vmax) / Math.log(0.01/100f))) + vmax;
-	        if (lvol > vmax) lvol = vmax;
-	        if (lvol < vmin) lvol = vmin;
-	        
-	        volControl.setValue((float) lvol);
 	    }
     }
 	

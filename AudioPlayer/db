@@ -1,5 +1,6 @@
 # Load db
 DBname: lolplayerDB
-DBurl: jdbc:postgresql://localhost:5432/lolplayerDB
+DBurl: jdbc:derby:lolplayerDB;create=true
+# DBurl: jdbc:postgresql://localhost:5432/lolplayerDB
 DBusername: postgres
 DBpassword: fisch

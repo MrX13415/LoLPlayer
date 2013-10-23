@@ -1,16 +1,17 @@
-package audioplayer.database;
+package audioplayer.database.sql;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-import audioplayer.player.codec.AudioFile;
+import audioplayer.player.AudioFile;
+
 import java.io.File;
 
 /**
  * LoLPlayer II - Audio-Player Project
  * 
- * @author Oliver Daus
+ * @author Oliver Daus / Luca Madonia
  * 
  */
 public class LoLPlayerDB extends DataBase {
@@ -329,6 +330,10 @@ public class LoLPlayerDB extends DataBase {
 			return null;
 		}
 	}
+	
+	public void updateFrequency(int id) throws SQLException {                     
+		getConnection().sendSQLUpdate("UPDATE statistic SET frequency = frequency + 1 WHERE songid = " + id);
+    }
 
 	public class PlaylistItem {
 

@@ -6,8 +6,8 @@ package audioplayer.process;
 
 import audioplayer.Application;
 import audioplayer.Control;
-import audioplayer.player.codec.AudioFile;
-import audioplayer.player.codec.AudioFile.UnsupportedFileFormatException;
+import audioplayer.player.AudioFile;
+import audioplayer.player.AudioFile.UnsupportedFileFormatException;
 
 import java.sql.SQLException;
 import java.util.HashMap;

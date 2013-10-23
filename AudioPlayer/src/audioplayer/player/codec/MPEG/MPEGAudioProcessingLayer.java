@@ -80,15 +80,16 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer  implements R
 				
 				if (!audioDevice.isOpen()) hasMoreFrames = false;
 
-				Header h = null; 
+				Header header = null;
+                                
 				if (notPaused || skip)
-					h = bitstream.readFrame();
-										
-				if (h != null){
-					timePerFrame = h.ms_per_frame();
+					header = bitstream.readFrame();
+                                        
+				if (header != null){
+					timePerFrame = header.ms_per_frame();
 
 					if (!skip){
-						output = (SampleBuffer) decoder.decodeFrame(h, bitstream);
+						output = (SampleBuffer) decoder.decodeFrame(header, bitstream);
 
 						if (audioDevice.isOpen()) {
 							audioDevice.setVolume(volume);
@@ -123,7 +124,7 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer  implements R
 				timePerLoop = System.currentTimeMillis() - tplStart;
 			} //loop end
 		} catch (Exception e) {
-			e.printStackTrace();
+                    System.err.println("Error while playing Audiofile: " + e);
 		}finally{
 			boolean nextSong = isPlaying();
 			

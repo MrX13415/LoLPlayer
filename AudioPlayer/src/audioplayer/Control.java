@@ -1,12 +1,15 @@
 package audioplayer;
 
 import audioplayer.gui.AboutDialog;
+import audioplayer.gui.AudioFilePropertiesDialog;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.io.File;
 
 import javax.activity.InvalidActivityException;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JSlider;
 import javax.swing.SearchCircle;
@@ -14,11 +17,14 @@ import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 import audioplayer.gui.UserInterface;
+import audioplayer.medialibary.DesignMedienPlayer;
+import audioplayer.medialibary.DesignMedienPlayerDB;
+import audioplayer.medialibary.DesignerMedienPlayerSortby;
 import audioplayer.player.AudioDeviceLayer;
+import audioplayer.player.AudioFile;
 import audioplayer.player.AudioPlaylist;
+import audioplayer.player.AudioFile.UnsupportedFileFormatException;
 import audioplayer.player.analyzer.Analyzer;
-import audioplayer.player.codec.AudioFile;
-import audioplayer.player.codec.AudioFile.UnsupportedFileFormatException;
 import audioplayer.player.codec.AudioProcessingLayer;
 import audioplayer.player.codec.AudioType;
 import audioplayer.player.listener.PlayerEvent;
@@ -248,7 +254,6 @@ public class Control extends UserInterface implements PlayerListener {
 			public void run() {
 
 				while (true) {
-
 					if (analyzer != null)
 						analyzer.setDebug(Application.isDebug());
 					getPlayerControlInterface().getSearchBar().setDebug(
@@ -260,13 +265,23 @@ public class Control extends UserInterface implements PlayerListener {
 						Thread.sleep(20);
 					} catch (InterruptedException e) {
 					}
-
+                                        
 					if (audioProcessingLayer == null)
 						continue;
 
 					// Synchronize the audio device and the analyzer ...
 					audioProcessingLayer.getAudioDevice().setAnalyzer(analyzer);
 
+					// Update the song frequency in the statistic ...
+					long time = audioProcessingLayer.getTimePosition();
+					long lenght = audioProcessingLayer.getStreamLength();
+					double posperc = Math.round(100d / (double) lenght * (double) time * 10d) / 10d;
+					if (posperc > 20f){
+						try {
+							Application.getApplication().getDatabase().updateFrequency(audioProcessingLayer.getAudioFile().getId());
+						} catch (Exception e) {}					
+					}
+					
 					SwingUtilities.invokeLater(new Runnable() {
 
 						@Override
@@ -334,6 +349,11 @@ public class Control extends UserInterface implements PlayerListener {
 		audioPlaylist.setIndex(index);
 		initAudioFileAutoPlay();
 		System.out.println("no. " + audioPlaylist.getIndex());
+	}
+	
+	@Override
+	public void onPlaylistRightClick(int index) {
+		new AudioFilePropertiesDialog(audioPlaylist.get(index));
 	}
 
 	@Override
@@ -498,7 +518,24 @@ public class Control extends UserInterface implements PlayerListener {
 		getPlaylistInterface().getPlaylistTable().setRowSelectionInterval(
 				rows[0] + 1, rows[rows.length - 1] + 1);
 	}
-
+	
+	@Override
+	public void onMenu_media_library() {
+		DesignMedienPlayer mlib = new DesignMedienPlayer();
+		DesignerMedienPlayerSortby mlibs = new DesignerMedienPlayerSortby();
+		DesignMedienPlayerDB mlibdb = new DesignMedienPlayerDB();
+		
+		JFrame mlibf = new JFrame("Media Library");
+		mlibf.setLayout(new BorderLayout());
+		mlibf.getContentPane().add(mlib, BorderLayout.NORTH);
+		mlibf.getContentPane().add(mlibdb, BorderLayout.CENTER);
+		mlibf.getContentPane().add(mlibs, BorderLayout.SOUTH);
+		
+		mlibf.pack();
+		mlibf.setVisible(true);
+		
+	}
+	
 	@Override
 	public void onMenu_graph_merge() {
 		analyzer.setMergedChannels(!analyzer.isMergedChannels());
