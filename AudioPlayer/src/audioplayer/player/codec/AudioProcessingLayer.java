@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import javax.activity.InvalidActivityException;
 
 import javazoom.jl.decoder.BitstreamException;
-import audioplayer.player.AudioDeviceLayer;
 import audioplayer.player.AudioFile;
+import audioplayer.player.device.AudioDeviceLayer;
 import audioplayer.player.listener.PlayerEvent;
 import audioplayer.player.listener.PlayerListener;
 

@@ -17,6 +17,7 @@ import java.util.Random;
 public class AudioPlaylist {
     
     private ArrayList<AudioFile> content = new ArrayList<AudioFile>();
+    private History history = new History();
     
     private int index;
     private boolean shuffle;
@@ -47,7 +48,7 @@ public class AudioPlaylist {
         index = content.size() - 1;
     }
     
-    public void setIndex(int index){
+    private void setIndex(int index){
         int preIndex = this.index;
          
         this.index = index;
@@ -56,53 +57,47 @@ public class AudioPlaylist {
             l.onPlaylistIndexSet(new PlaylistIndexChangeEvent(this, preIndex, index));
     }
     
-    public int setRandomIndex(){
+    public void setNextIndex(int index){
+    	if (shuffle){
+    		history.addNext(index);
+    	}
+    	setIndex(index);
+    }
+ 
+    public int setNextRandomIndex(){
     	int index = getRandomIndex();
     	setIndex(index);
     	return index;
     }
     
-    public void setNextRandomIndex(){
-//    	int curIndex = this.index;
-    	
-//    	AudioFile curFile = content.get(this.index);
-	
-//    	if(curFile.getNextIndex() >= 0){
-//    		setIndex(curFile.getNextIndex());
-//    	}else{
-    		int nextIndex = setRandomIndex();
-//    		AudioFile nextfile = content.get(nextIndex);
-    		
-
-//    	}
+    public void nextRandomIndex(){
+    	if (history.hasNext()){
+    		setIndex(history.getNextPlaylistIndex());
+    	}else{
+    		int nextIndex = setNextRandomIndex();
+    		history.addNext(nextIndex);
+    	}
     }
     
-    public void setPrevRandomIndex(){
-//    	int curIndex = this.index;
-    	
-//    	AudioFile curFile = content.get(this.index);
-	
-//    	if(curFile.getPrevIndex() >= 0){
-//    		setIndex(curFile.getPrevIndex());
-//    	}else{
-    		int nextIndex = setRandomIndex();
-//    		AudioFile nextfile = content.get(nextIndex);
-    		
-//    		curFile.setNextIndex(nextIndex);
-//    		nextfile.setPrevIndex(curIndex);
-//    	}
+    public void priorRandomIndex(){
+    	if (history.hasPrior()){
+    		setIndex(history.getPriorPlaylistIndex());
+    	}else{
+    		int priorIndex = setNextRandomIndex();
+    		history.addPrior(priorIndex);
+    	}
     }
     
     public void nextIndex(){
     	if (shuffle)
-    		setNextRandomIndex();
+    		nextRandomIndex();
     	else
     		incrementIndex();
     }
 
-    public void prevIndex(){
+    public void priorIndex(){
     	if (shuffle)
-    		setPrevRandomIndex();
+    		priorRandomIndex();
     	else
     		decrementIndex();
     }
@@ -234,5 +229,46 @@ public class AudioPlaylist {
         int randomNum = rand.nextInt((max - min) + 1) + min;
 
         return randomNum;
+    }
+    
+    public class History {
+
+        private ArrayList<Integer> history = new ArrayList<Integer>();
+        
+        private int index;
+        
+        public boolean hasNext(){
+        	return !isEmpty() && index < (history.size()-1);
+        }
+        
+        public boolean hasPrior(){
+        	return !isEmpty() && index > 0;
+        }
+        
+        public boolean isEmpty(){
+        	return history.isEmpty();
+        }
+        
+        public int getNextPlaylistIndex(){
+        	return hasNext() ? history.get(++index) : -1;
+        }
+        
+        public int getPriorPlaylistIndex(){
+        	return hasPrior() ? history.get(--index) : -1;
+        }
+        
+        public void addNext(int playlistIndex){
+        	if (hasNext())
+        		history.subList(index+1, history.size()).clear();
+        	
+        	history.add(playlistIndex);
+    		index = (history.size()-1);
+        }
+        
+        public void addPrior(int playlistIndex){
+    		history.add(0, playlistIndex);
+    		index = 0;
+        }
+        
     }
 }

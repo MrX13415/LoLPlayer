@@ -61,7 +61,7 @@ public class SearchCircle extends JButton implements MouseListener,
 
 	public boolean debug = false;
 
-	public static enum POS {
+	public static enum Anchor {
 		CENTER, LEFT, RIGHT;
 	}
 
@@ -125,7 +125,7 @@ public class SearchCircle extends JButton implements MouseListener,
 	private int buttonHeight = 18;
 	private int buttonWidth = 18;
 	private int buttonJutOut = 5;
-	private POS anchor = POS.CENTER;
+	private Anchor anchor = Anchor.CENTER;
 	private Alignment alignment = new Alignment(0, 0);
 
 	// current state
@@ -347,15 +347,15 @@ public class SearchCircle extends JButton implements MouseListener,
 	// }
 
 	private void recalcPovit(Dimension size) {
-		if (anchor == POS.CENTER) {
+		if (anchor == Anchor.CENTER) {
 			searchCirclePivotX = this.getSize().width / 2 + alignment.getX();
 			searchCirclePivotY = this.getSize().height / 2 + alignment.getY();
 
-		} else if (anchor == POS.LEFT) {
+		} else if (anchor == Anchor.LEFT) {
 			searchCirclePivotX = this.getSize().height / 2 + alignment.getX();
 			searchCirclePivotY = this.getSize().height / 2 + alignment.getY();
 
-		} else if (anchor == POS.RIGHT) {
+		} else if (anchor == Anchor.RIGHT) {
 			searchCirclePivotX = this.getSize().width
 					- (this.getSize().height / 2) + alignment.getX();
 			searchCirclePivotY = this.getSize().height / 2 + alignment.getY();
@@ -1152,11 +1152,11 @@ public class SearchCircle extends JButton implements MouseListener,
 		return viewAngle;
 	}
 
-	public void setAnchor(POS position) {
+	public void setAnchor(Anchor position) {
 		anchor = position;
 	}
 
-	public POS getAnchor() {
+	public Anchor getAnchor() {
 		return anchor;
 	}
 

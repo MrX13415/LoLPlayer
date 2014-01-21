@@ -11,10 +11,9 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import javazoom.jl.decoder.BitstreamException;
-
-import audioplayer.player.AudioDeviceLayer;
 import audioplayer.player.codec.AudioProcessingLayer;
 import audioplayer.player.codec.AudioType;
+import audioplayer.player.device.AudioDeviceLayer;
 import audioplayer.player.listener.PlayerEvent;
 import audioplayer.player.listener.PlayerListener;
 

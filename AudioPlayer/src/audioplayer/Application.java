@@ -22,7 +22,7 @@ import java.awt.Color;
 public class Application {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.5.4 beta";
+	public static String App_Version = "0.1.5.5 beta";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
 	public static String App_Author = "Oliver Daus";	
 	public static String App_License = "CC BY-NC-SA 3.0";

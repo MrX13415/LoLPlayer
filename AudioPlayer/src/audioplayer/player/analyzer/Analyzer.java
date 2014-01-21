@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import audioplayer.player.AudioDeviceLayer;
+import audioplayer.player.device.AudioDeviceLayer;
 
 /**
  * LoLPlayer II - Audio-Player Project

@@ -11,10 +11,10 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.SearchCircle;
+import javax.swing.SearchCircle.Anchor;
 import javax.swing.SearchCircle.SearchCricleListener;
 import javax.swing.event.ChangeListener;
 
@@ -54,10 +54,7 @@ public class PlayerControlInterface extends JPanel{
 	private JSlider graphdetail;
 	private JSlider heightlevel;
 	private JSlider zoomlevel;
-	
-	private JButton shuffle;
-	
-	
+
 	public PlayerControlInterface(ActionListener actionListener,
 			SearchCricleListener searchCricleListener, ChangeListener changeListener) {
 
@@ -216,6 +213,13 @@ public class PlayerControlInterface extends JPanel{
                                     int h = oH - 2 * 40;		//contract 40px from the top and the bottom
                                     int w = h;					//keep it rectangular
                                     int x = (oW - w) / 2;		//center horizontally
+                                    
+                                    if (searchBar.getAnchor() == Anchor.LEFT)
+                                    	x = (oH - w) / 2;
+                                    
+                                    if (searchBar.getAnchor() == Anchor.RIGHT)
+                                    	x = (oH - w) / 2 + (oW - oH);
+                                    
                                     int y = (oH - h) / 2;		//center vertically
 
                                     c.setBounds(x, y, w, h);
@@ -224,6 +228,7 @@ public class PlayerControlInterface extends JPanel{
             });
             searchBar.setFocusPainted(false);
             searchBar.setOpaque(false);
+            searchBar.setAnchor(Anchor.LEFT);
             searchBar.add(volume);
 
             //register searchBar as mouse event source from volume 

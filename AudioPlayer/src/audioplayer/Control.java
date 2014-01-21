@@ -20,7 +20,6 @@ import audioplayer.gui.UserInterface;
 import audioplayer.medialibary.DesignMedienPlayer;
 import audioplayer.medialibary.DesignMedienPlayerDB;
 import audioplayer.medialibary.DesignerMedienPlayerSortby;
-import audioplayer.player.AudioDeviceLayer;
 import audioplayer.player.AudioFile;
 import audioplayer.player.AudioPlaylist;
 import audioplayer.player.AudioFile.UnsupportedFileFormatException;
@@ -28,6 +27,7 @@ import audioplayer.player.analyzer.Analyzer;
 import audioplayer.player.analyzer.components.JGraph.DrawMode;
 import audioplayer.player.codec.AudioProcessingLayer;
 import audioplayer.player.codec.AudioType;
+import audioplayer.player.device.AudioDeviceLayer;
 import audioplayer.player.listener.PlayerEvent;
 import audioplayer.player.listener.PlayerListener;
 import audioplayer.player.listener.PlaylistEvent;
@@ -342,12 +342,12 @@ public class Control extends UserInterface implements PlayerListener {
 
 	@Override
 	public void onButtonRev() {
-		audioPlaylist.prevIndex();
+		audioPlaylist.priorIndex();
 	}
 
 	@Override
 	public void onPlaylistDoubleClick(int index) {
-		audioPlaylist.setIndex(index);
+		audioPlaylist.setNextIndex(index);
 		initAudioFileAutoPlay();
 		System.out.println("no. " + audioPlaylist.getIndex());
 	}

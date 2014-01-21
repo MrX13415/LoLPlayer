@@ -120,7 +120,7 @@ public abstract class UserInterface extends JFrame implements ActionListener,
         this.setTitle(Application.App_Name_Version);
 
         this.setPreferredSize(new Dimension(420, 475));
-        this.setMinimumSize(new Dimension(430, 470));
+        this.setMinimumSize(new Dimension(430, 475));
         this.pack();
         
         this.setLocationRelativeTo(null);

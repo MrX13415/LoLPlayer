@@ -12,9 +12,9 @@ import javazoom.jl.decoder.Decoder;
 import javazoom.jl.decoder.Header;
 import javazoom.jl.decoder.Obuffer;
 import javazoom.jl.decoder.SampleBuffer;
-import audioplayer.player.AudioDeviceLayer;
 import audioplayer.player.codec.AudioProcessingLayer;
 import audioplayer.player.codec.AudioType;
+import audioplayer.player.device.AudioDeviceLayer;
 import audioplayer.player.listener.PlayerEvent;
 import audioplayer.player.listener.PlayerListener;
 
