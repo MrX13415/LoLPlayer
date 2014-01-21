@@ -1,5 +1,7 @@
 package audioplayer.gui.components.playlist;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -8,10 +10,13 @@ import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.border.BevelBorder;
 
 /**
  *  LoLPlayer II - Audio-Player Project
@@ -36,8 +41,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	private JFrame frame;
 	private int frameHeight;
 	private int thisHeight;
-	private Insets insets = new Insets(0, 25, 25, 25);
-	private int heightOffset = 0;
+	private Insets insets = new Insets(10, 15, 25, 15);
 
 	private Thread animationThread;
 	private boolean cancleAnimation = false;
@@ -59,17 +63,12 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 
 		toggleButton = new JButton("Playlist");
 		toggleButton.addActionListener(this);
-		toggleButton.setSize(new Dimension(400, 25));
+		toggleButton.setSize(new Dimension(400, insets.bottom));
+		toggleButton.setPreferredSize(new Dimension(400, insets.bottom));
 		toggleButton.setContentAreaFilled(false);
 				
 		pli.setSize(new Dimension(400, 200));
 
-		if (defaultState) {
-			heightOffset = 0;
-		} else {
-			heightOffset = playlistInterface.getPreferredSize().height * -1;
-		}
-		
 		this.setLayout(new LayoutManager() {
 			
 			@Override
@@ -95,6 +94,53 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 				for (int i = 0; i < p.getComponentCount(); i++) {
 					Component c = p.getComponent(i);
 				
+					int h = c.getPreferredSize().height;
+					int w = p.getWidth();
+					
+					double d = w / 100d * 20d;
+					w -= d;
+					
+					int x = 20;
+					int y = (h - p.getHeight()) * -1;
+					
+					c.setBounds(x, y, w, h);
+				}
+			}
+		});
+		
+		JPanel main = new JPanel();
+		main.add(toggleButton);
+		main.add(pli);
+		main.setBackground(new Color(235, 65, 65));
+		main.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+		main.setLayout(new LayoutManager() {
+			
+			@Override
+			public void removeLayoutComponent(Component p) {}
+			
+			@Override
+			public void addLayoutComponent(String s, Component p) {}
+			
+			@Override
+			public Dimension preferredLayoutSize(Container p) {
+				return minimumLayoutSize(p);
+			}
+			
+			@Override
+			public Dimension minimumLayoutSize(Container p) {
+				int h = insets.top * 2;
+				for (int i = 0; i < p.getComponentCount(); i++) {
+					Component c = p.getComponent(i);
+					h += c.getPreferredSize().height;
+				}
+				return new Dimension(0, h);
+			}
+			
+			@Override
+			public void layoutContainer(Container p) {
+				for (int i = 0; i < p.getComponentCount(); i++) {
+					Component c = p.getComponent(i);
+				
 					if (c.equals(toggleButton)){
 						int h = insets.bottom;
 						int w = p.getWidth() - (insets.left + insets.right);
@@ -108,7 +154,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 						int h = c.getPreferredSize().height;
 						int w = p.getWidth() - (insets.left + insets.right);
 						int x = insets.left;
-						int y = insets.top + heightOffset;
+						int y = insets.top * 2;
 						
 						c.setBounds(x, y, w, h);
 					}
@@ -116,9 +162,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 			}
 		});
 		
-		this.add(toggleButton);
-		this.add(pli);
-		
+		this.add(main);
 	}
 
 	@Override
@@ -134,10 +178,8 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	}
 
 	public void hideComponente() {
-		final int targetHeightOffset = playlistInterface.getSize().height * -1;
+		final int targetHeightOffset = (playlistInterface.getSize().height + insets.top) * -1;
 
-		heightOffset = targetHeightOffset;
-		
 		final int sizeToremove = Math.abs(targetHeightOffset);
 		
 		frame.setMinimumSize(new Dimension(frame.getWidth(), frameHeight - sizeToremove));
@@ -149,9 +191,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	}
 
 	public void showComponente() {
-		final int targetHeightOffset = playlistInterface.getSize().height * -1;
-
-		heightOffset = 0;
+		final int targetHeightOffset = (playlistInterface.getSize().height + insets.top) * -1;
 		
 		final int sizeToadd = Math.abs(targetHeightOffset);
 		final int size = playlistInterface.getPreferredSize().height + insets.top + insets.bottom;
@@ -199,8 +239,6 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
                                             cancleAnimation = false;
                                             return;
                                     }
-
-                                    heightOffset = yIndex;
 
                                     final int sizeToadd = yIndex + Math.abs(targetHeightOffset);
                                     final int sizeToremove = Math.abs(yIndex);

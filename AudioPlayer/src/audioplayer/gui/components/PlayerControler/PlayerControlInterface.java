@@ -272,7 +272,7 @@ public class PlayerControlInterface extends JPanel{
             this.add(playerInterfaceGraph, BorderLayout.CENTER);
             this.add(sliderPanel, BorderLayout.WEST);
             this.setPreferredSize(new Dimension(400, 400));
-            this.setBackground(new Color(20, 20, 20));
+            this.setBackground(new Color(30, 30, 30));
             this.setBorder(BorderFactory.createRaisedBevelBorder());
 	}
 

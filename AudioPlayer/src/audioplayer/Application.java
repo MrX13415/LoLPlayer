@@ -11,18 +11,23 @@ import audioplayer.process.SavePlaylistDBProcess;
 import audioplayer.test.TestLoader;
 
 import java.awt.Color;
-
+//version: 0.1.5.5
+//* ADD: Playlist history in shufflemode
+//* Playercontrols anchored to the left side
+//* FIX: GUI is able to get smaller as intended
+//
+//Signed-off-by: MrX13415 <Mr.X.13415@googlemail.com>
 
 /**
  *  LoLPlayer II - Audio-Player Project
  * 
  * @author Oliver Daus
- * @version 0.1.5.4
+ * @version 0.1.5.6
  */
 public class Application {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.5.5 beta";
+	public static String App_Version = "0.1.5.6 beta";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
 	public static String App_Author = "Oliver Daus";	
 	public static String App_License = "CC BY-NC-SA 3.0";

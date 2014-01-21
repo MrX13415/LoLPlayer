@@ -2,9 +2,17 @@ package audioplayer.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsDevice.WindowTranslucency;
+import java.awt.GraphicsEnvironment;
+import java.awt.LayoutManager;
+import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -19,6 +27,7 @@ import javax.swing.BorderFactory;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.KeyStroke;
@@ -35,6 +44,8 @@ import audioplayer.gui.components.MenuBar;
 import audioplayer.gui.components.PlayerControler.PlayerControlInterface;
 import audioplayer.player.analyzer.components.JGraph.DrawMode;
 import audioplayer.process.components.StatusBar;
+import audioplayer.gui.components.frame.TitleFrameBorder;
+import audioplayer.gui.components.frame.TitleFramePane;
 import audioplayer.gui.components.playlist.PlaylistInterface;
 import audioplayer.gui.components.playlist.PlaylistToggleArea;
 
@@ -62,89 +73,120 @@ public abstract class UserInterface extends JFrame implements ActionListener,
     private PlaylistInterface pli;
         
     private MenuBar menu;
+    private JPanel titleFrame;
+    private JPanel framePane;
     private JPanel mainPane;
+    private JPanel contentPane;
     private StatusBar statusbar;
-
     
-    public UserInterface() {
-                            
-        pci = new PlayerControlInterface(this, this, this);
+    
+	public UserInterface() {
 
-        pli = new PlaylistInterface(this);
-        
-        pta = new PlaylistToggleArea(pli, this);      
-        
-        statusbar = new StatusBar();
-                       
-        mainPane = new JPanel();
-        mainPane.setLayout(new BorderLayout());
-        mainPane.add(pci, BorderLayout.CENTER); 
-        mainPane.add(statusbar, BorderLayout.SOUTH);
+		GraphicsEnvironment ge = GraphicsEnvironment
+				.getLocalGraphicsEnvironment();
+		GraphicsDevice gd = ge.getDefaultScreenDevice();
 
-        menu = new MenuBar(this){
-            /**
+		boolean isPerPixelTranslucencySupported = gd
+				.isWindowTranslucencySupported(WindowTranslucency.PERPIXEL_TRANSLUCENT);
+
+		System.out.print("Per-pixel translucency ...\t\t");
+
+		// If translucent windows aren't supported, exit.
+		if (!isPerPixelTranslucencySupported) {
+			System.out.println("NOT SUPPORTED");
+		} else
+			System.out.println("SUPPORTED");
+
+		pci = new PlayerControlInterface(this, this, this);
+
+		pli = new PlaylistInterface(this);
+
+		pta = new PlaylistToggleArea(pli, this);
+
+		statusbar = new StatusBar();
+
+		menu = new MenuBar(this) {
+			/**
              * 
              */
-            private static final long serialVersionUID = -4792554976830903762L;
+			private static final long serialVersionUID = -4792554976830903762L;
 
-            @Override
-            protected void paintComponent(Graphics g)
-            {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setColor(menu.getBackground());
-                g2d.fillRect(0, 0, getWidth(), getHeight());
-            }
-        };
-        menu.setBackground(new Color(50,50,50));
-        menu.setForeground(new Color(255,255,255));
-        menu.setBorder(BorderFactory.createRaisedBevelBorder());
+			@Override
+			protected void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				Graphics2D g2d = (Graphics2D) g;
+				g2d.setColor(menu.getBackground());
+				g2d.fillRect(0, 0, getWidth(), getHeight());
+			}
+		};
+		menu.setBackground(new Color(50, 50, 50));
+		menu.setForeground(new Color(255, 255, 255));
+		menu.setBorder(BorderFactory.createRaisedBevelBorder());
 
-        this.setJMenuBar(menu);
+		contentPane = new JPanel();
+		contentPane.setLayout(new BorderLayout());
+		contentPane.add(menu, BorderLayout.NORTH);
+		contentPane.add(pci, BorderLayout.CENTER);
+		contentPane.add(statusbar, BorderLayout.SOUTH);
+		contentPane.setBackground(new Color(50, 50, 50));
 
-        this.getContentPane().setLayout(new BorderLayout());
-        this.getContentPane().add(mainPane, BorderLayout.CENTER);
-        this.getContentPane().add(pta, BorderLayout.SOUTH);
-        this.getContentPane().setBackground(new Color(255,10,10));
-        
-        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        
-        this.addWindowFocusListener(this);
-        this.addWindowListener(new WindowAdapter() {
+		mainPane = new JPanel();
+		mainPane.setLayout(new BorderLayout());
+		mainPane.add(contentPane, BorderLayout.CENTER);
+		mainPane.add(pta, BorderLayout.SOUTH);
+		mainPane.setBackground(new Color(128, 128, 128, 0));
+		mainPane.setPreferredSize(new Dimension(400, 400));
+
+		this.setTitle(Application.App_Name_Version);
+		this.setUndecorated(true);
+
+		titleFrame = new TitleFrameBorder(this);
+		titleFrame.setBackground(new Color(235, 65, 65));
+		titleFrame.setBorder(BorderFactory.createRaisedBevelBorder());
+
+		framePane = new TitleFramePane(titleFrame, mainPane);
+		framePane.setBackground(new Color(128, 128, 128, 0));
+
+		this.getContentPane().setLayout(new BorderLayout());
+		this.getContentPane().add(framePane);
+
+		this.setBackground(new Color(0, 0, 0, 0));
+		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+		this.addWindowFocusListener(this);
+		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				Application.exit();
 			}
 		});
 
-        this.setTitle(Application.App_Name_Version);
+		// this.setPreferredSize(framePane.getPreferredSize());
+		// this.setMinimumSize(new Dimension(430, 475));
+		this.pack();
 
-        this.setPreferredSize(new Dimension(420, 475));
-        this.setMinimumSize(new Dimension(430, 475));
-        this.pack();
-        
-        this.setLocationRelativeTo(null);
-        
-        //Center the frame window
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension frameSize = this.getSize();
+		this.setLocationRelativeTo(null);
 
-        if (frameSize.height > screenSize.height) {
-            frameSize.height = screenSize.height;
-        }
+		// Center the frame window
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension frameSize = this.getSize();
 
-        if (frameSize.width > screenSize.width) {
-            frameSize.width = screenSize.width;
-        }
+		if (frameSize.height > screenSize.height) {
+			frameSize.height = screenSize.height;
+		}
 
-        this.setLocation((screenSize.width - frameSize.width) / 2,
-                (screenSize.height - frameSize.height) / 2 - 100);
-        
-        this.requestFocusInWindow();
-        this.setVisible(true);	
-        
-        defineKeyBindings();
-    }
+		if (frameSize.width > screenSize.width) {
+			frameSize.width = screenSize.width;
+		}
+
+		this.setLocation((screenSize.width - frameSize.width) / 2,
+				(screenSize.height - frameSize.height) / 2 - 100);
+
+		this.requestFocusInWindow();
+		this.setVisible(true);
+
+		defineKeyBindings();
+	}
 	        
     private void defineKeyBindings(){
     	InputMap imap = this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -529,7 +571,7 @@ public abstract class UserInterface extends JFrame implements ActionListener,
     }
 
     public JPanel getMainPane() {
-        return mainPane;
+        return contentPane;
     }
     
     @Override

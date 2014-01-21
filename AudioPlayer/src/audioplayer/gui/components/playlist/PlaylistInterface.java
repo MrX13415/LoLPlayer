@@ -39,7 +39,7 @@ public class PlaylistInterface extends JPanel{
         playlistTable.addMouseListener(ml);
         playlistTable.getColumnModel().getColumn(0).setMaxWidth(50);
         playlistTable.getColumnModel().getColumn(2).setMaxWidth(80);
-        playlistTable.setBackground(new Color(150,0,0));
+        playlistTable.setBackground(new Color(150, 38, 38));
         playlistTable.setForeground(new Color(255,255,255));
         playlistTable.setSelectionBackground(new Color(255, 128 ,0));
         playlistTable.setSelectionForeground(new Color(0,0,0));
@@ -58,10 +58,10 @@ public class PlaylistInterface extends JPanel{
         playlistTable.setOpaque(false);
         	
         playlistScrollPane = new JScrollPane(playlistTable);
-        playlistScrollPane.getViewport().setBackground(new Color(150,00,00));
-        playlistScrollPane.setBackground(new Color(150,00,00));
+        playlistScrollPane.getViewport().setBackground(new Color(150, 38, 38));
+        playlistScrollPane.setBackground(new Color(150, 38, 38));
         playlistScrollPane.setBorder(BorderFactory.createLoweredBevelBorder());
-        playlistScrollPane.getVerticalScrollBar().setBackground(new Color(150,00,00));
+        playlistScrollPane.getVerticalScrollBar().setBackground(new Color(150, 38, 38));
 
         this.setLayout(new BorderLayout());
         this.add(playlistScrollPane, BorderLayout.CENTER);

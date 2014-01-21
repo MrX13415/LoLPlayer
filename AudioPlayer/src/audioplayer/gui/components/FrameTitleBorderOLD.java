@@ -16,7 +16,7 @@ import javax.swing.border.AbstractBorder;
  * @author Oliver Daus
  * 
  */
-public class FrameTitleBorder extends AbstractBorder{
+public class FrameTitleBorderOLD extends AbstractBorder{
 
 	    /**
 	 * 
@@ -25,7 +25,7 @@ public class FrameTitleBorder extends AbstractBorder{
 	
 		private int thickness;
 
-		public FrameTitleBorder(int thick) {
+		public FrameTitleBorderOLD(int thick) {
 		    this.thickness = thick;
 	    }
 
@@ -52,7 +52,6 @@ public class FrameTitleBorder extends AbstractBorder{
 	    
 		@Override
 		public boolean isBorderOpaque() {
-			// TODO Auto-generated method stub
 			return false;
 		}
 
