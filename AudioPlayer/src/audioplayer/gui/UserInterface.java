@@ -33,9 +33,11 @@ import javax.swing.event.ChangeListener;
 import audioplayer.Application;
 import audioplayer.gui.components.MenuBar;
 import audioplayer.gui.components.PlayerControler.PlayerControlInterface;
+import audioplayer.player.analyzer.components.JGraph.DrawMode;
 import audioplayer.process.components.StatusBar;
 import audioplayer.gui.components.playlist.PlaylistInterface;
 import audioplayer.gui.components.playlist.PlaylistToggleArea;
+
 import java.awt.Toolkit;
 
 /**
@@ -78,7 +80,7 @@ public abstract class UserInterface extends JFrame implements ActionListener,
         mainPane.setLayout(new BorderLayout());
         mainPane.add(pci, BorderLayout.CENTER); 
         mainPane.add(statusbar, BorderLayout.SOUTH);
-        
+
         menu = new MenuBar(this){
             /**
              * 
@@ -311,6 +313,9 @@ public abstract class UserInterface extends JFrame implements ActionListener,
         if (s.equals(menu.getMenu_playlist_down()))
                 onMenu_playlist_down();
         
+        if (s.equals(menu.getMenu_playlist_shuffle()))
+            onMenu_playlist_shuffle();
+    
         if (s.equals(menu.getMenu_media_library()))
             onMenu_media_library();
         
@@ -322,6 +327,11 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 
         if (s.equals(menu.getMenu_help_about()))
                 onMenu_help_about();
+        
+        if (ae.getActionCommand().startsWith("SetJGraphDrawingMODE:")){
+        	String mode = ae.getActionCommand().split(":")[1];
+        	onMenu_graph_dmode_change(DrawMode.valueOf(mode));
+        }
     }
 
 
@@ -332,6 +342,9 @@ public abstract class UserInterface extends JFrame implements ActionListener,
     	}
     	if (e.getSource().equals(pci.getHeightlevel())){
     		onHeightLevelBarChange(pci.getHeightlevel());
+    	}
+    	if (e.getSource().equals(pci.getZoomlevel())){
+    		onZoomLevelBarChange(pci.getZoomlevel());
     	}
     }
 	
@@ -467,11 +480,13 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 
     public abstract void onMenu_playlist_up();
     public abstract void onMenu_playlist_down();
+    public abstract void onMenu_playlist_shuffle();
     
     public abstract void onMenu_media_library();
     
     public abstract void onMenu_graph_merge();
     public abstract void onMenu_graph_gfilter();
+    public abstract void onMenu_graph_dmode_change(DrawMode mode);
     
     public abstract void onMenu_help_about();
 
@@ -491,6 +506,7 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 
     public abstract void onGraphDetailBarChange(JSlider detailBar);
     public abstract void onHeightLevelBarChange(JSlider heightLevelBar);
+    public abstract void onZoomLevelBarChange(JSlider zoomLevelBar);
 	
     public PlayerControlInterface getPlayerControlInterface() {
             return pci;

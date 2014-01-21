@@ -211,7 +211,7 @@ public class AudioDeviceLayer extends AudioDeviceBase {
 	}
 
 	protected byte[] getByteArray(int length) {
-		if (byteBuf.length < length) {
+		if (byteBuf.length != length) {
 			byteBuf = new byte[length];
 		}
 		return byteBuf;
@@ -225,6 +225,7 @@ public class AudioDeviceLayer extends AudioDeviceBase {
 			s = samples[offs++];
 			b[idx++] = (byte) s;
 			b[idx++] = (byte) (s >>> 8);
+			
 		}
 		return b;
 	}

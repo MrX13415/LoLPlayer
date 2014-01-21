@@ -1,6 +1,7 @@
 package audioplayer.player.analyzer.components;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -21,7 +22,7 @@ import com.jhlabs.image.UnpremultiplyFilter;
  * 
  * @author Oliver Daus
  * 
- * A simple window to display Graphs
+ * A simple panel to display Graphs
  */
 public class JGraph extends JPanel implements Graph{
 
@@ -29,7 +30,35 @@ public class JGraph extends JPanel implements Graph{
 	 * 
 	 */
 	private static final long serialVersionUID = -8370043378690135186L;
-		
+	
+	public enum DrawMode{
+		STRAIGHT{
+			@Override
+			public String toString() {
+				return super.toString().substring(0,1).toUpperCase() + super.toString().substring(1).toLowerCase();
+			}
+		},
+		DOTS{
+			@Override
+			public String toString() {
+				return super.toString().substring(0,1).toUpperCase() + super.toString().substring(1).toLowerCase();
+			}
+		},
+		LINES{
+			@Override
+			public String toString() {
+				return super.toString().substring(0,1).toUpperCase() + super.toString().substring(1).toLowerCase();
+			}
+		},
+		DOUBLE_LINES{
+			@Override
+			public String toString() {
+				String t = super.toString().replace("_", " ");
+				return t.substring(0,1).toUpperCase() + t.substring(1).toLowerCase();
+			}
+		};
+	}
+	
 	private Thread graphRepaintThread = new Thread();	
 	private volatile ArrayList<AudioGraph> graphs = new ArrayList<AudioGraph>();
 	private BufferedImage image;
@@ -41,12 +70,14 @@ public class JGraph extends JPanel implements Graph{
 	 *       cause in lagging of the graphs
 	 */
 	private volatile boolean gaussianFilter = false;
+	private volatile DrawMode drawMode = DrawMode.STRAIGHT;
 	
 	private GaussianFilter gf = new GaussianFilter(2f);
 	private PremultiplyFilter pf = new PremultiplyFilter();
 	private UnpremultiplyFilter upf = new UnpremultiplyFilter();
     
 	private float heightLevel = 0.4f;
+	private int zoomlLevel = 1;
 	
     UserInterface ui;
 
@@ -99,7 +130,7 @@ public class JGraph extends JPanel implements Graph{
 		
 		try {
 			for (AudioGraph ag : graphs) {
-				ag.setShownValues(this.getWidth());
+				ag.setShownValues(this.getWidth() * zoomlLevel);
 				
 				if (graphs.size() > 1){
 					int index = graphs.indexOf(ag);
@@ -128,19 +159,30 @@ public class JGraph extends JPanel implements Graph{
 		int h = height >> 1;
 		
 		//define max point count
-		int pointCount = this.getWidth();
+		int pointCount = this.getWidth() * zoomlLevel;
 		
 		//calculate min index ...
 		int minIndex = graph.getValues().size() - (pointCount); 
 			minIndex = (minIndex < 0 ? 0 : minIndex);
-			
+
+		int graphcenterY = Math.round((0 * (float)(h * heightLevel)) + h) + graph.getYOffset();;
+		
+		//draw center Line
+		g.setColor(Color.darkGray);
+		g.setStroke(new BasicStroke(1f));
+		g.drawLine(0, graphcenterY, this.getWidth(), graphcenterY);	
+		
 		//define first point ...
 		int lastPoint_x = 0;
 		int lastPoint_y = Math.round((graph.getValue(minIndex) * (float)(h * heightLevel)) + h) + graph.getYOffset();
-		
+
 		//current point 
 		int point_x = 0;
 		int point_y = 0;
+
+		int detailC = 0;
+		
+		int lastI = minIndex;
 		
 		//update minIndex because first point is already defined ... 
 		minIndex++;
@@ -154,17 +196,51 @@ public class JGraph extends JPanel implements Graph{
 			point_y += graph.getYOffset();
 			
 			//calculate x coordinate;
-			point_x++; 
-				
+			detailC++;
+			
+			if (detailC >= zoomlLevel) {
+				point_x++;
+				detailC = 0;
+			}
+
 			//draw a line from the last point to the current one ...
 			g.setColor(graph.getColor());
 			g.setStroke(new BasicStroke(1f));
-			g.drawLine(lastPoint_x, lastPoint_y, point_x, point_y);				
+			
+			if (drawMode == DrawMode.STRAIGHT){
+				g.drawLine(lastPoint_x, lastPoint_y, point_x, point_y);
+			}
+			
+			if (drawMode == DrawMode.DOTS){
+				g.drawLine(point_x, point_y, point_x, point_y);
+			}
+			
+			if (drawMode == DrawMode.LINES){
+				int offset = 0;
 
+				if (detailC == 0 && (i - zoomlLevel * 3) == lastI){
+					offset = 16;
+					lastI = i;
+					g.drawLine(point_x, point_y - offset/2, point_x, point_y + offset/2);
+				}
+			}
+			
+			if (drawMode == DrawMode.DOUBLE_LINES){
+				if (detailC == 0 && (i - zoomlLevel * 3) == lastI){
+					lastI = i;
+					if(point_y <= graphcenterY){
+						g.drawLine(point_x, point_y - 5, point_x, point_y - 16);
+					}
+					
+					if(point_y >= graphcenterY){
+						g.drawLine(point_x, point_y + 5, point_x, point_y + 16);
+					}
+				}
+			}
+			
 			//Update last point ...
 			lastPoint_x = point_x;
 			lastPoint_y = point_y;
-			
 		}
 		g.dispose();
 	}
@@ -197,12 +273,28 @@ public class JGraph extends JPanel implements Graph{
 		this.heightLevel = heightLevel;
 	}
 
+	public int getZoomlLevel() {
+		return zoomlLevel;
+	}
+
+	public void setZoomlLevel(int zoomlLevel) {
+		this.zoomlLevel = zoomlLevel;
+	}
+
 	public boolean isGaussianFilter() {
 		return gaussianFilter;
 	}
 
 	public void setGaussianFilter(boolean enableGF) {
 		this.gaussianFilter = enableGF;
+	}
+
+	public DrawMode getDrawMode() {
+		return drawMode;
+	}
+
+	public void setDrawMode(DrawMode drawMode) {
+		this.drawMode = drawMode;
 	}
 
 	

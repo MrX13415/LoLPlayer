@@ -29,8 +29,7 @@ public class AudioFile {
  
     private int rating = 0;
     private int frequency = 0;
-        
-    
+
     public AudioFile(File file){
         this.file = file;
         
@@ -88,7 +87,7 @@ public class AudioFile {
     	return type.isSupported(file);
     }
     
-    public File getFile(){
+	public File getFile(){
         return file;
     }
 

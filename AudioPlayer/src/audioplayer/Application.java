@@ -8,6 +8,7 @@ import audioplayer.font.FontLoader;
 import audioplayer.gui.AboutDialog;
 import audioplayer.images.ImageLoader;
 import audioplayer.process.SavePlaylistDBProcess;
+import audioplayer.test.TestLoader;
 
 import java.awt.Color;
 
@@ -16,14 +17,14 @@ import java.awt.Color;
  *  LoLPlayer II - Audio-Player Project
  * 
  * @author Oliver Daus
- * @version 0.1.5.2
+ * @version 0.1.5.4
  */
 public class Application {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.5.2 beta";
+	public static String App_Version = "0.1.5.4 beta";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
-	public static String App_Author = "Oliver Daus / Luca Madonia";	
+	public static String App_Author = "Oliver Daus";	
 	public static String App_License = "CC BY-NC-SA 3.0";
     public static String App_License_Link = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         
@@ -47,6 +48,8 @@ public class Application {
 		
 		application = new Application();
 		application.initialize();
+		
+		TestLoader.load();
 	}
 
 	public static void proccessCommands(String[] args){

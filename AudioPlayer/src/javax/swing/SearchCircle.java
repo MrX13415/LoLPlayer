@@ -27,7 +27,7 @@ import java.util.ArrayList;
  * 
  * 
  *          Version: 1.9.5
- *           - FIX: Button ist not fully dragable at the bar ends
+ *           - FIX: Button is not fully dragable at the bar ends
  * 
  *          Version: 1.9.4
  *           - FIX: Button dragging sometimes drags other
@@ -36,7 +36,7 @@ import java.util.ArrayList;
  *          
  *          Version: 1.9.3
  *           - ADD: Better mouse interacting
- *           - ADD: Components with in the SearchCircle (SearchCircel in SearchCircle)
+ *           - ADD: Components within the SearchCircle (SearchCircel in SearchCircle)
  *           - FIX: Improved Listener
  *           - ADD: Key function
  * 

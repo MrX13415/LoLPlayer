@@ -44,7 +44,7 @@ public abstract class AudioProcessingLayer implements Runnable{
 	protected volatile double skipedFrames;				
 	protected volatile double timePerFrame;					//in milliseconds
 	
-	protected volatile float volume = 25f; 					//default: 80%
+	protected volatile float volume = 25f; 					//default: 80% (25f)
 	
 	protected long timePerLoop = 0;
 	

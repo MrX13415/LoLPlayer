@@ -20,10 +20,10 @@ public class AudioGraph{
 	 * The remove() method of an ArrayList is too slow.
 	 */
 	private volatile GapList<Float> values = new GapList<Float>();
-	private int id = (int) System.currentTimeMillis() + new Random().nextInt(500);
-	private int shownValues = 1000;
-	private Color color = Color.red;
-	private int yOffset = 0;
+	private volatile int id = (int) System.currentTimeMillis() + new Random().nextInt(500);
+	private volatile int shownValues = 1000;
+	private volatile Color color = Color.red;
+	private volatile int yOffset = 0;
 	
 	public AudioGraph() {
 		for (int i = 0; i < shownValues; i++) {

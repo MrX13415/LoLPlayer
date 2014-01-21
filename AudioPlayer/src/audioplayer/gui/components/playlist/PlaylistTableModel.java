@@ -7,7 +7,9 @@ package audioplayer.gui.components.playlist;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
+
 import audioplayer.player.AudioPlaylist;
+
 import javax.swing.table.AbstractTableModel;
 
 /**

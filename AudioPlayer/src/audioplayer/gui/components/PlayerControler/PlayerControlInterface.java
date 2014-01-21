@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.SearchCircle;
@@ -52,12 +53,14 @@ public class PlayerControlInterface extends JPanel{
 
 	private JSlider graphdetail;
 	private JSlider heightlevel;
-		
+	private JSlider zoomlevel;
+	
+	private JButton shuffle;
+	
 	
 	public PlayerControlInterface(ActionListener actionListener,
 			SearchCricleListener searchCricleListener, ChangeListener changeListener) {
 
-		
             display = new Display();
 
             play = new JButton(""); // >  \u25BA  ||  \u2759\u2759
@@ -227,10 +230,11 @@ public class PlayerControlInterface extends JPanel{
             volume.addParentMouseListener(searchBar);
 
             playerInterfaceGraph = new JGraph();
+            playerInterfaceGraph.setLayout(null);
             playerInterfaceGraph.setGaussianFilter(false);
             playerInterfaceGraph.setOpaque(false);
             playerInterfaceGraph.setLayout(new GridLayout(0, 1, 5, 5));
-            playerInterfaceGraph.add(searchBar);
+            playerInterfaceGraph.add(searchBar, BorderLayout.CENTER);
 
             graphdetail = new JSlider(0, 1000); 
             graphdetail.setPreferredSize(new Dimension(16, 0));
@@ -245,9 +249,17 @@ public class PlayerControlInterface extends JPanel{
             heightlevel.setOrientation(JSlider.VERTICAL);
             heightlevel.setValue(400);
             heightlevel.addChangeListener(changeListener);
-
+            
+            zoomlevel = new JSlider(1, 500); 
+            zoomlevel.setPreferredSize(new Dimension(16, 0));
+            zoomlevel.setOpaque(false);
+            zoomlevel.setOrientation(JSlider.VERTICAL);
+            zoomlevel.setValue(1);
+            zoomlevel.addChangeListener(changeListener);
+            
             JPanel sliderPanel = new JPanel(new BorderLayout());
-            sliderPanel.add(heightlevel, BorderLayout.WEST);
+            sliderPanel.add(zoomlevel, BorderLayout.WEST);
+            sliderPanel.add(heightlevel, BorderLayout.CENTER);
             sliderPanel.add(graphdetail, BorderLayout.EAST);
             sliderPanel.setOpaque(false);
 	
@@ -337,6 +349,10 @@ public class PlayerControlInterface extends JPanel{
 
 	public JSlider getHeightlevel() {
 		return heightlevel;
+	}
+
+	public JSlider getZoomlevel() {
+		return zoomlevel;
 	}
 	
 }

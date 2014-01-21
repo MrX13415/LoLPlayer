@@ -48,6 +48,7 @@ public class Analyzer {
 
 	private int sleepTime = 10; // in ms ; must be around 10 ms, otherwise the
 								// Graph on the GUI will start lagging
+								
 	private long duractionTime; // in ns
 	private long speed; // in AudioByteBlock/s
 

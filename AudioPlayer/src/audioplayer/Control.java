@@ -25,6 +25,7 @@ import audioplayer.player.AudioFile;
 import audioplayer.player.AudioPlaylist;
 import audioplayer.player.AudioFile.UnsupportedFileFormatException;
 import audioplayer.player.analyzer.Analyzer;
+import audioplayer.player.analyzer.components.JGraph.DrawMode;
 import audioplayer.player.codec.AudioProcessingLayer;
 import audioplayer.player.codec.AudioType;
 import audioplayer.player.listener.PlayerEvent;
@@ -336,12 +337,12 @@ public class Control extends UserInterface implements PlayerListener {
 
 	@Override
 	public void onButtonFrw() {
-		audioPlaylist.incrementIndex();
+		audioPlaylist.nextIndex();
 	}
 
 	@Override
 	public void onButtonRev() {
-		audioPlaylist.decrementIndex();
+		audioPlaylist.prevIndex();
 	}
 
 	@Override
@@ -519,6 +520,18 @@ public class Control extends UserInterface implements PlayerListener {
 				rows[0] + 1, rows[rows.length - 1] + 1);
 	}
 	
+	public void onMenu_playlist_shuffle() {
+		getMenu().getMenu_playlist_shuffle().setText("Shuffle: Enabled");
+		getMenu().getMenu_playlist_shuffle().setText("Shuffle: Disabled");
+		
+		audioPlaylist.setShuffle(!audioPlaylist.isShuffle());
+		
+		if (audioPlaylist.isShuffle())
+			getMenu().getMenu_playlist_shuffle().setText("Disable shufflemode");
+		else
+			getMenu().getMenu_playlist_shuffle().setText("Enable shufflemode");		
+	}
+	
 	@Override
 	public void onMenu_media_library() {
 		DesignMedienPlayer mlib = new DesignMedienPlayer();
@@ -547,6 +560,12 @@ public class Control extends UserInterface implements PlayerListener {
 				.setGaussianFilter(
 						!getPlayerControlInterface().getPlayerInterfaceGraph()
 								.isGaussianFilter());
+	}
+	
+	@Override
+	public void onMenu_graph_dmode_change(DrawMode mode) {
+		getPlayerControlInterface().getPlayerInterfaceGraph().setDrawMode(mode);
+		System.out.println("Graph drawing mode set to: "+ mode.toString());
 	}
 
 	@Override
@@ -600,7 +619,7 @@ public class Control extends UserInterface implements PlayerListener {
 
 	@Override
 	public void onPlayerNextSong(PlayerEvent event) {
-		audioPlaylist.incrementIndex();
+		audioPlaylist.nextIndex();
 	}
 
 	@Override
@@ -663,7 +682,12 @@ public class Control extends UserInterface implements PlayerListener {
 
 	@Override
 	public void onPlaylistIndexSet(PlaylistIndexChangeEvent event) {
+		initAudioFileAutoPlay();
+		getPlaylistInterface().getPlaylistTable().changeSelection(
+				event.getNewIndex(), 0, false, false);
 
+		System.out.println("Changed playlist index from no. "
+				+ event.getPreviousIndex() + " to no. " + event.getNewIndex());
 	}
 
 	@Override
@@ -687,6 +711,13 @@ public class Control extends UserInterface implements PlayerListener {
 		System.out.println("HeightModifier: " + hval);
 		getPlayerControlInterface().getPlayerInterfaceGraph().setHeightLevel(
 				hval);
+	}
+	
+	@Override
+	public void onZoomLevelBarChange(JSlider zoomLevelBar) {
+		int value = zoomLevelBar.getValue();
+		System.out.println("ZoomLevel: " + value);
+		getPlayerControlInterface().getPlayerInterfaceGraph().setZoomlLevel(value);
 	}
 
 }

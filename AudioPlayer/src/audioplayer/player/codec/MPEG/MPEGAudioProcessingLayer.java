@@ -10,6 +10,7 @@ import javazoom.jl.decoder.Bitstream;
 import javazoom.jl.decoder.BitstreamException;
 import javazoom.jl.decoder.Decoder;
 import javazoom.jl.decoder.Header;
+import javazoom.jl.decoder.Obuffer;
 import javazoom.jl.decoder.SampleBuffer;
 import audioplayer.player.AudioDeviceLayer;
 import audioplayer.player.codec.AudioProcessingLayer;
@@ -93,7 +94,7 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer  implements R
 
 						if (audioDevice.isOpen()) {
 							audioDevice.setVolume(volume);
-							audioDevice.write(output.getBuffer(), 0, output.getBufferLength());
+							audioDevice.writeImpl(output.getBuffer(), 0, output.getBufferLength());
 						}
 					}
 

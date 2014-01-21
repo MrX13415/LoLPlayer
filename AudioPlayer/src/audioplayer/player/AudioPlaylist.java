@@ -5,6 +5,7 @@ import audioplayer.player.listener.PlaylistEvent;
 import audioplayer.player.listener.PlaylistIndexChangeEvent;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 
 /**
@@ -16,8 +17,10 @@ import java.util.ArrayList;
 public class AudioPlaylist {
     
     private ArrayList<AudioFile> content = new ArrayList<AudioFile>();
-    private int index;
     
+    private int index;
+    private boolean shuffle;
+      
     private ArrayList<PlayerListener> listener = new ArrayList<PlayerListener>();
     
     public ArrayList<PlayerListener> getPlayerListener() {
@@ -45,7 +48,7 @@ public class AudioPlaylist {
     }
     
     public void setIndex(int index){
-        int preIndex = index;
+        int preIndex = this.index;
          
         this.index = index;
         
@@ -53,6 +56,57 @@ public class AudioPlaylist {
             l.onPlaylistIndexSet(new PlaylistIndexChangeEvent(this, preIndex, index));
     }
     
+    public int setRandomIndex(){
+    	int index = getRandomIndex();
+    	setIndex(index);
+    	return index;
+    }
+    
+    public void setNextRandomIndex(){
+//    	int curIndex = this.index;
+    	
+//    	AudioFile curFile = content.get(this.index);
+	
+//    	if(curFile.getNextIndex() >= 0){
+//    		setIndex(curFile.getNextIndex());
+//    	}else{
+    		int nextIndex = setRandomIndex();
+//    		AudioFile nextfile = content.get(nextIndex);
+    		
+
+//    	}
+    }
+    
+    public void setPrevRandomIndex(){
+//    	int curIndex = this.index;
+    	
+//    	AudioFile curFile = content.get(this.index);
+	
+//    	if(curFile.getPrevIndex() >= 0){
+//    		setIndex(curFile.getPrevIndex());
+//    	}else{
+    		int nextIndex = setRandomIndex();
+//    		AudioFile nextfile = content.get(nextIndex);
+    		
+//    		curFile.setNextIndex(nextIndex);
+//    		nextfile.setPrevIndex(curIndex);
+//    	}
+    }
+    
+    public void nextIndex(){
+    	if (shuffle)
+    		setNextRandomIndex();
+    	else
+    		incrementIndex();
+    }
+
+    public void prevIndex(){
+    	if (shuffle)
+    		setPrevRandomIndex();
+    	else
+    		decrementIndex();
+    }
+
     public void incrementIndex(){
     	int preIndex = index;
 	
@@ -79,7 +133,15 @@ public class AudioPlaylist {
             l.onPlaylistDecrement(new PlaylistIndexChangeEvent(this, preIndex, index));
     }
     
-    public AudioFile get(){
+    public boolean isShuffle() {
+		return shuffle;
+	}
+
+	public void setShuffle(boolean shuffle) {
+		this.shuffle = shuffle;
+	}
+
+	public AudioFile get(){
     	return content.get(index);
     }
     
@@ -158,5 +220,19 @@ public class AudioPlaylist {
     	
     	for (PlayerListener l : listener)
     		l.onPlaylistMoveDown(new PlaylistIndexChangeEvent(this, index - 2, index));
+    }
+    
+    public int getRandomIndex() { 
+    	int min = 0;
+    	int max = content.size() - 1;
+    	
+        // Usually this can be a field rather than a method variable
+        Random rand = new Random();
+
+        // nextInt is normally exclusive of the top value,
+        // so add 1 to make it inclusive
+        int randomNum = rand.nextInt((max - min) + 1) + min;
+
+        return randomNum;
     }
 }
