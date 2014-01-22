@@ -2,22 +2,19 @@ package audioplayer.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsDevice.WindowTranslucency;
 import java.awt.GraphicsEnvironment;
-import java.awt.LayoutManager;
-import java.awt.Paint;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
@@ -27,7 +24,6 @@ import javax.swing.BorderFactory;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.KeyStroke;
@@ -42,14 +38,13 @@ import javax.swing.event.ChangeListener;
 import audioplayer.Application;
 import audioplayer.gui.components.MenuBar;
 import audioplayer.gui.components.PlayerControler.PlayerControlInterface;
-import audioplayer.player.analyzer.components.JGraph.DrawMode;
-import audioplayer.process.components.StatusBar;
 import audioplayer.gui.components.frame.TitleFrameBorder;
 import audioplayer.gui.components.frame.TitleFramePane;
+import audioplayer.gui.components.frame.TitleFrameResizeHandler;
 import audioplayer.gui.components.playlist.PlaylistInterface;
 import audioplayer.gui.components.playlist.PlaylistToggleArea;
-
-import java.awt.Toolkit;
+import audioplayer.player.analyzer.components.JGraph.DrawMode;
+import audioplayer.process.components.StatusBar;
 
 /**
  *  LoLPlayer II - Audio-Player Project
@@ -73,12 +68,13 @@ public abstract class UserInterface extends JFrame implements ActionListener,
     private PlaylistInterface pli;
         
     private MenuBar menu;
-    private JPanel titleFrame;
-    private JPanel framePane;
+    private TitleFrameBorder titleFrame;
+    private TitleFramePane framePane;
     private JPanel mainPane;
     private JPanel contentPane;
     private StatusBar statusbar;
     
+    boolean cursoSet = false;
     
 	public UserInterface() {
 
@@ -102,8 +98,11 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 		pli = new PlaylistInterface(this);
 
 		pta = new PlaylistToggleArea(pli, this);
-
+		pta.setName("PlaylistToggleArea");
+		pta.getToggleComponent().setName("PlaylistToggleComponent");
+		
 		statusbar = new StatusBar();
+		statusbar.setName("Statusbar");
 
 		menu = new MenuBar(this) {
 			/**
@@ -124,34 +123,46 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 		menu.setBorder(BorderFactory.createRaisedBevelBorder());
 
 		contentPane = new JPanel();
+		contentPane.setName("ContentPane");
 		contentPane.setLayout(new BorderLayout());
+		contentPane.add(statusbar, BorderLayout.SOUTH);
 		contentPane.add(menu, BorderLayout.NORTH);
 		contentPane.add(pci, BorderLayout.CENTER);
-		contentPane.add(statusbar, BorderLayout.SOUTH);
 		contentPane.setBackground(new Color(50, 50, 50));
 
 		mainPane = new JPanel();
+		mainPane.setName("MainPane");
 		mainPane.setLayout(new BorderLayout());
 		mainPane.add(contentPane, BorderLayout.CENTER);
 		mainPane.add(pta, BorderLayout.SOUTH);
 		mainPane.setBackground(new Color(128, 128, 128, 0));
-		mainPane.setPreferredSize(new Dimension(400, 400));
+		mainPane.setPreferredSize(new Dimension(430, 430));
 
 		this.setTitle(Application.App_Name_Version);
 		this.setUndecorated(true);
 
 		titleFrame = new TitleFrameBorder(this);
+		titleFrame.setName("TitleFrame");
 		titleFrame.setBackground(new Color(235, 65, 65));
 		titleFrame.setBorder(BorderFactory.createRaisedBevelBorder());
+		
+		TitleFrameResizeHandler resizeHandler = new TitleFrameResizeHandler(this);
+		resizeHandler.addResizeableComponent(pta.getToggleComponent());
+		resizeHandler.addResizeableComponent(titleFrame);
+		resizeHandler.addResizeableComponent(contentPane);
 
+		titleFrame.setResizehandler(resizeHandler);
+		
 		framePane = new TitleFramePane(titleFrame, mainPane);
 		framePane.setBackground(new Color(128, 128, 128, 0));
-
+		framePane.setName("FramePane");
+		
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(framePane);
 
 		this.setBackground(new Color(0, 0, 0, 0));
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		this.setResizable(false);
 
 		this.addWindowFocusListener(this);
 		this.addWindowListener(new WindowAdapter() {
@@ -160,7 +171,7 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 				Application.exit();
 			}
 		});
-
+		
 		// this.setPreferredSize(framePane.getPreferredSize());
 		// this.setMinimumSize(new Dimension(430, 475));
 		this.pack();
@@ -432,6 +443,7 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 
     @Override
     public void onMouseMoved(SearchCircleMouseEvent event) {
+    	
     }
 
     @Override
@@ -502,15 +514,15 @@ public abstract class UserInterface extends JFrame implements ActionListener,
     }
 
     @Override
-    public void mousePressed(MouseEvent arg0) {
+    public void mousePressed(MouseEvent e) {
 
     }
 
     @Override
-    public void mouseReleased(MouseEvent arg0) {
+    public void mouseReleased(MouseEvent e) {
 
     }
-
+    
     public abstract void onMenu_file_open();
     public abstract void onMenu_file_opendir();
     public abstract void onMenu_file_exit();

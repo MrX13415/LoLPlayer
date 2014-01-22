@@ -32,7 +32,8 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	private static final long serialVersionUID = 6885243785578821275L;
 
 	private JButton toggleButton;
-
+	private JPanel toggleComponent;
+	
 	private boolean toggleState = false;
 	private boolean lastState = toggleState;
 	private boolean runAnimation = false;
@@ -62,6 +63,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 		// ** init componentes **
 
 		toggleButton = new JButton("Playlist");
+		toggleButton.setForeground(new Color(130, 38, 38));
 		toggleButton.addActionListener(this);
 		toggleButton.setSize(new Dimension(400, insets.bottom));
 		toggleButton.setPreferredSize(new Dimension(400, insets.bottom));
@@ -108,12 +110,12 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 			}
 		});
 		
-		JPanel main = new JPanel();
-		main.add(toggleButton);
-		main.add(pli);
-		main.setBackground(new Color(235, 65, 65));
-		main.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-		main.setLayout(new LayoutManager() {
+		toggleComponent = new JPanel();
+		toggleComponent.add(toggleButton);
+		toggleComponent.add(pli);
+		toggleComponent.setBackground(new Color(235, 65, 65));
+		toggleComponent.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+		toggleComponent.setLayout(new LayoutManager() {
 			
 			@Override
 			public void removeLayoutComponent(Component p) {}
@@ -162,7 +164,11 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 			}
 		});
 		
-		this.add(main);
+		this.add(toggleComponent);
+	}
+
+	public JPanel getToggleComponent() {
+		return toggleComponent;
 	}
 
 	@Override

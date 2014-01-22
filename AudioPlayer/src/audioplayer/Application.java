@@ -22,12 +22,12 @@ import java.awt.Color;
  *  LoLPlayer II - Audio-Player Project
  * 
  * @author Oliver Daus
- * @version 0.1.5.6
+ * @version 0.1.5.7
  */
 public class Application {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.5.6 beta";
+	public static String App_Version = "0.1.5.7 beta";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
 	public static String App_Author = "Oliver Daus";	
 	public static String App_License = "CC BY-NC-SA 3.0";
