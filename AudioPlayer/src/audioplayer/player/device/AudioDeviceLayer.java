@@ -1,16 +1,16 @@
 package audioplayer.player.device;
 
-import audioplayer.Application;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.Control;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
+import audioplayer.Application;
 import audioplayer.player.analyzer.Analyzer;
-
 import javazoom.jl.decoder.Decoder;
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.AudioDeviceBase;
@@ -19,6 +19,10 @@ import javazoom.jl.player.AudioDeviceBase;
  *  LoLPlayer II - Audio-Player Project
  * 
  * @author Oliver Daus
+ * 
+ * @version 1.2
+ * 
+ * TODO: marker for 0 DB
  * 
  */
 public class AudioDeviceLayer extends AudioDeviceBase {
@@ -31,7 +35,7 @@ public class AudioDeviceLayer extends AudioDeviceBase {
 	private int currentOffs;
 	private int currentLen;
 	private Analyzer analyzer;
-	
+		
 	public AudioDeviceLayer() {
             super();
 	}
@@ -79,49 +83,52 @@ public class AudioDeviceLayer extends AudioDeviceBase {
 
 	public void setVolume(float vol){
 	    if (source != null){
-                
-                FloatControl volControl = null;
-                        
-                try{
-                   volControl = (FloatControl) source.getControl(FloatControl.Type.MASTER_GAIN);
-                
-                    // 0.0% = -80dB ; 100.0% = 6dB
-                    //linear: float newvol = (volControl.getMinimum() + (volControl.getMaximum() - volControl.getMinimum()) / 100f * vol);
-                    //log:
-                    double vmax = volControl.getMaximum();
-                    double vmin = volControl.getMinimum();
-                    double lvol = (Math.log ((vol)/100f) * ((vmin - vmax) / Math.log(0.01/100f))) + vmax;
-                    if (lvol > vmax) lvol = vmax;
-                    if (lvol < vmin) lvol = vmin;
+	    	
+            FloatControl control = getVolumeControl();
 
-                    volControl.setValue((float) lvol);
-                }catch (Exception e){
-                    try{
-                        volControl = (FloatControl) source.getControl(FloatControl.Type.VOLUME);
-                    }catch (Exception ex){   
-                        Application.getApplication().getControl().raiseVolumeControlError(ex);
-                    }
-                }
-	      
+            if (control == null){
+        	    Application.getApplication().getControl().raiseVolumeControlError();
+        	    return;
+            }
+
+            //linear:
+            //float newvol = (volControl.getMinimum() + (volControl.getMaximum() - volControl.getMinimum()) / 100f * vol);
+            
+            //log:
+            float vmax = 3f; //volControl.getMaximum();
+            float vmin = control.getMinimum();
+
+            float vdelta = vmin - vmax;
+            float vnew = (float) (Math.log(vol/100f) * (vdelta / Math.log(0.01f/100f)) + vmax);
+            if (vnew > vmax) vnew = vmax;
+            if (vnew < vmin) vnew = vmin;
+
+            control.setValue((float) vnew);
 	    }
     }
-	
+		
 	public float getVolume(){
-	    if (source != null){
-	        FloatControl volControl = (FloatControl) source.getControl(FloatControl.Type.MASTER_GAIN);
-	        return volControl.getValue();
-	    }
-	    return 0;
+		return getVolumeControl() != null ? getVolumeControl().getValue() : 0;
     }
 	
 	public FloatControl getVolumeControl(){
 	    if (source != null){
-	        FloatControl volControl = (FloatControl) source.getControl(FloatControl.Type.MASTER_GAIN);
-	        return volControl;
+	    	
+			Control.Type[] controlTypes = new Control.Type[] {
+					FloatControl.Type.MASTER_GAIN,
+					FloatControl.Type.VOLUME
+					};
+			
+			for (Control.Type control : controlTypes) {
+				if (!source.isControlSupported(control)) continue;
+				
+				return (FloatControl) source.getControl(control);
+			}
 	    }
+
 	    return null;
     }
-	
+		
 	public AudioFormat getFmt() {
 		return fmt;
 	}
@@ -145,10 +152,10 @@ public class AudioDeviceLayer extends AudioDeviceBase {
 		return info;
 	}
 
-	public void open(AudioFormat fmt){
+	public void open(AudioFormat fmt) throws JavaLayerException{
 		if (!isOpen()) {
 			setAudioFormat(fmt);
-//			openImpl();
+			openImpl(); //TODO
 			setOpen(true);
 		}
 	}
@@ -203,16 +210,16 @@ public class AudioDeviceLayer extends AudioDeviceBase {
 		this.currentLen = len; 
 		this.currentSamplesBytes = samples;
 		
-		source.write(this.currentSamplesBytes, 0, len);
+		source.write(samples, 0, len);
 		
 		if (analyzer != null){
-			analyzer.addToAnalyze(currentSamplesBytes, offs, len);
+			analyzer.addToAnalyze(samples, offs, len);
 		}		
 	}
 
 	protected byte[] getByteArray(int length) {
 		if (byteBuf.length != length) {
-			byteBuf = new byte[length];
+			byteBuf = new byte[length]; //TODO: +1024?
 		}
 		return byteBuf;
 	}

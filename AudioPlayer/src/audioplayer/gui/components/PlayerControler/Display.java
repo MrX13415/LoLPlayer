@@ -46,7 +46,10 @@ public class Display extends JPanel {
 		info2.setPreferredSize(new Dimension(60, info2.getPreferredSize().height));
 		info2.setHorizontalAlignment(JLabel.RIGHT);
 		
-		info3 = new JLabel(" ");
+		info3 = new JLabel("0.0 dB");
+		info3.setForeground(new Color(255, 128 ,0));
+		info3.setPreferredSize(new Dimension(60, info2.getPreferredSize().height));
+		info3.setHorizontalAlignment(JLabel.RIGHT);
 
 		statusbar1 = new JLabel("50.0%");
 		statusbar1.setPreferredSize(new Dimension(45, statusbar1.getPreferredSize().height));
@@ -63,6 +66,7 @@ public class Display extends JPanel {
 		infoPane.setOpaque(false);
 		infoPane.add(info1);
 		infoPane.add(info2);
+		infoPane.add(info3);
 
 		JPanel timepane = new JPanel(new BorderLayout());
 		timepane.setOpaque(false);

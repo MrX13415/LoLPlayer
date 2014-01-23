@@ -44,7 +44,7 @@ public class TitleFrameResizeHandler extends JComponent implements MouseListener
 	}
 	
 	private boolean debug_printDeltaValues = false;
-	private boolean debug_drawDirectionRectangles = true;
+	private boolean debug_drawDirectionRectangles = false;
 	private boolean debug_printComponent = false;
 	private boolean debug_printDirection = false;
 	

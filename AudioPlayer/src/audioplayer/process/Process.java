@@ -1,7 +1,7 @@
 package audioplayer.process;
 
 import audioplayer.Application;
-import audioplayer.Control;
+import audioplayer.PlayerControl;
 
 /**
  *
@@ -9,12 +9,12 @@ import audioplayer.Control;
  */
 public abstract class Process implements Runnable{
     
-	protected Control control;
+	protected PlayerControl control;
     protected boolean running;
     protected boolean reachedEnd;
     protected Thread thread;
     
-    public Process(Control control) {
+    public Process(PlayerControl control) {
         this.control = control;
         this.control.getStatusbar().addProcess(this);
         initThread();

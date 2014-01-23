@@ -24,6 +24,7 @@ public class AudioGraph{
 	private volatile int shownValues = 1000;
 	private volatile Color color = Color.red;
 	private volatile int yOffset = 0;
+	private volatile String name = "";
 	
 	public AudioGraph() {
 		for (int i = 0; i < shownValues; i++) {
@@ -51,6 +52,18 @@ public class AudioGraph{
                 this.yOffset = yOffset;
 	}
         
+    public void clear(){
+    	values.clear();
+    }
+       
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public void setID(int id) {
 		this.id = id;
 	}

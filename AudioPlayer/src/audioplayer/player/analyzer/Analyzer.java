@@ -67,6 +67,8 @@ public class Analyzer {
 		this.g = g;
 
 		initAnalyzerThread();
+		
+		setDefaultGraphs(2);
 	}
 
 	public Analyzer(AudioDeviceLayer device, Graph g) {
@@ -74,6 +76,24 @@ public class Analyzer {
 		init(device);
 	}
 
+	public void setDefaultGraphs(int count){
+		for (int i = 0; i < count; i++) {
+	        Color color = getDefaultChannelGraphColor(count);
+			if (color == null)
+				color = new Color(new Random().nextInt(256),
+						new Random().nextInt(256),
+						new Random().nextInt(256));
+
+			Integer yOffset = getDefaultChannelGraphYOffset(count);
+
+			AudioGraph ag = new AudioGraph(yOffset, color);
+			ag.clear();
+			ag.addValue(Float.MAX_VALUE);
+			ag.setName(i == 0 ? "L" : i == 1 ? "R" : "");
+			g.addGraph(ag);
+		}
+	}
+	
 	/**
 	 * Set the default color for each graph by index (usualy there are two
 	 * graphs).<br>
@@ -333,6 +353,7 @@ public class Analyzer {
 
 	private void initMergedChannelGraph() {
 		synchronized (channelGraphs) {
+			g.clearGraphs();
 			AudioGraph ag = new AudioGraph(mergedGraphSettingsColor, mergedGraphSettingsYOffset);
 			channelGraphs.add(ag);
 			g.addGraph(ag);
@@ -349,10 +370,14 @@ public class Analyzer {
 
 	private void initChannelGraphs() {
 		synchronized (channelGraphs) {
+//			g.clearGraphs();
+			
 			while (channelGraphs.size() < device.getFmt().getChannels()) {
 
 				int index = channelGraphs.size();
 
+				String name = index == 0 ? "R" : index == 1 ? "L" : "" ;
+											
 				Color color = getDefaultChannelGraphColor(index);
 				if (color == null)
 					color = new Color(new Random().nextInt(256),
@@ -362,7 +387,8 @@ public class Analyzer {
 				Integer yOffset = getDefaultChannelGraphYOffset(index);
 
 				AudioGraph ag = new AudioGraph(yOffset, color);
-
+				ag.setName(name);
+				
 				channelGraphs.add(ag);
 				g.addGraph(ag);
 			}

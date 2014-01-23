@@ -45,7 +45,7 @@ import javazoom.jl.decoder.JavaLayerException;
  * @author Oliver Daus
  * 
  */
-public class Control extends UserInterface implements PlayerListener {
+public class PlayerControl extends UserInterface implements PlayerListener {
 
 	/**
 	 * 
@@ -65,7 +65,7 @@ public class Control extends UserInterface implements PlayerListener {
 	/**
 	 * Start a new Instance of the AudioPlayer ...
 	 */
-	public Control() {
+	public PlayerControl() {
 
 		audioPlaylist.addPlayerListener(this);
 		loadPlaylistFromDB();
@@ -219,11 +219,11 @@ public class Control extends UserInterface implements PlayerListener {
 					Application.App_Name_Version, JOptionPane.ERROR_MESSAGE);
 	}
 
-	public void raiseVolumeControlError(Exception ex) {
-		System.err.println("Error: Volume control not supported");
-		System.err.println(ex);
+	public void raiseVolumeControlError() {
+		System.err.println("Error: No volume control type not supported");
+//		System.err.println(ex);
 
-		String msg = String.format("Volume control not supported!");
+		String msg = String.format("Error: No volume control type not supported!");
 
 		JOptionPane.showMessageDialog(this, msg, Application.App_Name_Version,
 				JOptionPane.ERROR_MESSAGE);
@@ -373,6 +373,7 @@ public class Control extends UserInterface implements PlayerListener {
 				v.setBarValue(v.getButtonValue());
 			}
 		});
+		onPlayerVolumeChange(new PlayerEvent(audioProcessingLayer));
 	}
 
 	@Override

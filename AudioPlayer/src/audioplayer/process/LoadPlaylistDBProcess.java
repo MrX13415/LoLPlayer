@@ -5,7 +5,7 @@
 package audioplayer.process;
 
 import audioplayer.Application;
-import audioplayer.Control;
+import audioplayer.PlayerControl;
 import audioplayer.player.AudioFile;
 import audioplayer.player.AudioFile.UnsupportedFileFormatException;
 
@@ -20,7 +20,7 @@ import java.util.TreeSet;
  */
 public class LoadPlaylistDBProcess extends Process{
 
-    public LoadPlaylistDBProcess(Control control) {
+    public LoadPlaylistDBProcess(PlayerControl control) {
         super(control);
     }
         

@@ -4,7 +4,7 @@
  */
 package audioplayer.process;
 
-import audioplayer.Control;
+import audioplayer.PlayerControl;
 import audioplayer.player.codec.AudioType;
 import java.io.File;
 
@@ -18,7 +18,7 @@ public class LoadDirProcess extends Process {
 
 	private File[] dir;
 
-	public LoadDirProcess(Control control, File[] dir) {
+	public LoadDirProcess(PlayerControl control, File[] dir) {
 		super(control);
 		this.dir = dir;
 	}

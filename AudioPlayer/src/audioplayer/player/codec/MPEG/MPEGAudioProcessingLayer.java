@@ -10,7 +10,6 @@ import javazoom.jl.decoder.Bitstream;
 import javazoom.jl.decoder.BitstreamException;
 import javazoom.jl.decoder.Decoder;
 import javazoom.jl.decoder.Header;
-import javazoom.jl.decoder.Obuffer;
 import javazoom.jl.decoder.SampleBuffer;
 import audioplayer.player.codec.AudioProcessingLayer;
 import audioplayer.player.codec.AudioType;
@@ -24,10 +23,10 @@ import audioplayer.player.listener.PlayerListener;
  * Audio processing layer for the MPEG 1-2.5 Layer I-III audio file format 
  * 
  * @author Oliver
- * @version 1.1
- * 
+ * @version 1.2
+ *
  */
-public class MPEGAudioProcessingLayer extends AudioProcessingLayer  implements Runnable{
+public class MPEGAudioProcessingLayer extends AudioProcessingLayer implements Runnable{
 		
 	protected Bitstream bitstream;					//The MPEG audio bitstream
 	protected Decoder decoder;						//The MPEG audio decoder
@@ -94,7 +93,7 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer  implements R
 
 						if (audioDevice.isOpen()) {
 							audioDevice.setVolume(volume);
-							audioDevice.writeImpl(output.getBuffer(), 0, output.getBufferLength());
+							audioDevice.write(output.getBuffer(), 0, output.getBufferLength());
 						}
 					}
 

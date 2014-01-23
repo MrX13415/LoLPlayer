@@ -299,14 +299,16 @@ public class PlayerControlInterface extends JPanel{
 		
 		String state = String.format("%s", ppl.getState());
 
-		String vol = String.format("%6s", String.format("%5.1f%%", volume));
+		String volPc = String.format("%6s", String.format("%5.1f%% ", volume, ppl.getAudioDevice().getVolume()));
+		String volDb = String.format("%6s", String.format("%5.3f dB", ppl.getAudioDevice().getVolume()));
 		String pperc = String.format("%6s", String.format("%5.1f%%", posperc));
 
 		Display d = getDisplay();
 
 		d.setTimeText(ppl.getTimePosition());
 		d.setInfo1Text(state);
-		d.setInfo2Text(vol);
+		d.setInfo2Text(volPc);
+		d.setInfo3Text(volDb);
 		d.setStatusBar1Text(pperc);
 		if (ppl.getAudioFile() != null)d.setStatusBar2Text(ppl.getAudioFile().getName());
 

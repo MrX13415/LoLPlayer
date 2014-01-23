@@ -164,6 +164,9 @@ public class AudioPlaylist {
     
     public void remove(int index){
         content.remove(index);
+        if (history.contains(index))
+        	history.Remove(index);
+        
         for (PlayerListener l : listener)
             l.onPlaylistFileRemove(new PlaylistEvent(this));
     }
@@ -236,6 +239,18 @@ public class AudioPlaylist {
         private ArrayList<Integer> history = new ArrayList<Integer>();
         
         private int index;
+        
+        public boolean contains(int index){
+        	return history.contains((Object)index);
+        }
+        
+        public boolean Remove(int index){
+        	return history.remove((Object)index);
+        }
+        
+        public int RemoveAt(int index){
+        	return history.remove(index);
+        }
         
         public boolean hasNext(){
         	return !isEmpty() && index < (history.size()-1);

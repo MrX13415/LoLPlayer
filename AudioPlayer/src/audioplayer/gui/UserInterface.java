@@ -1,8 +1,10 @@
 package audioplayer.gui;
 
+import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
@@ -18,6 +20,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
+import java.awt.event.WindowStateListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -170,6 +173,19 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 			@Override
 			public void windowClosing(WindowEvent e) {
 				Application.exit();
+			}
+		});
+		
+		this.addWindowStateListener(new WindowStateListener() {
+			
+			@Override
+			public void windowStateChanged(WindowEvent e) {
+				if (e.getNewState() == Frame.MAXIMIZED_BOTH) {
+					Dimension fs = getSize();
+					pta.showComponente();
+					setSize(fs);
+					setState(Frame.MAXIMIZED_BOTH);
+				}
 			}
 		});
 		

@@ -10,7 +10,10 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import com.sun.deploy.security.NTLMFactory;
+
 import javazoom.jl.decoder.BitstreamException;
+import javazoom.jl.decoder.JavaLayerException;
 import audioplayer.player.codec.AudioProcessingLayer;
 import audioplayer.player.codec.AudioType;
 import audioplayer.player.device.AudioDeviceLayer;
@@ -46,7 +49,11 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 	public void initializeAudioDevice() throws FileNotFoundException, UnsupportedAudioFileException, IOException{
 		bitstream = AudioSystem.getAudioInputStream(new BufferedInputStream(new FileInputStream(file.getFile())));
 		audioDevice = new AudioDeviceLayer();
-		audioDevice.open(bitstream.getFormat());
+		try {
+			audioDevice.open(bitstream.getFormat());
+		} catch (JavaLayerException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/** Frame decoding and audio playing routine
@@ -81,7 +88,7 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 					int btr = 4096;
 					byte[] b = new byte[btr];
 					int r = bitstream.read(b, 0, btr);
-					
+
 					if (r == -1) hasMoreFrames = false;
 					
 					if (r > -1 && !skipFrames){
@@ -143,9 +150,10 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 //		} catch (Exception ex) {}
 	}
 	
-	protected void determineTimePerFrame(){		
-		long length = (long) ((bitstream.getFrameLength() / bitstream.getFormat().getFrameRate()) * 1000); 
-		timePerFrame = (double)length / (double)bitstream.getFrameLength() * 1000d;
+	protected void determineTimePerFrame(){
+		long length = (long) Math.round((bitstream.getFrameLength() / (double)bitstream.getFormat().getFrameRate()) * 1000); 
+		long frames = (long) Math.round(bitstream.getFrameLength() / 4096d * bitstream.getFormat().getFrameSize());
+		timePerFrame = length / (double)frames;
 	}
 	
 	/** Return the length of a given file in milliseconds

@@ -22,12 +22,12 @@ import java.awt.Color;
  *  LoLPlayer II - Audio-Player Project
  * 
  * @author Oliver Daus
- * @version 0.1.5.7
+ * @version 0.1.5.8
  */
 public class Application {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.5.7 beta";
+	public static String App_Version = "0.1.5.8 beta";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
 	public static String App_Author = "Oliver Daus";	
 	public static String App_License = "CC BY-NC-SA 3.0";
@@ -40,7 +40,7 @@ public class Application {
         
 	private LoLPlayerDB database;
 	
-    private Control control;
+    private PlayerControl control;
                 
 	/**
 	 * @param args
@@ -122,7 +122,7 @@ public class Application {
 		AboutDialog.loadAboutText();
                 
 		try {
-			control = new Control();
+			control = new PlayerControl();
 		} catch (Exception e) {
 			System.out.println("Unexpected Error");
 			e.printStackTrace();
@@ -178,7 +178,7 @@ public class Application {
             return database;
         }
 
-        public Control getControl() {
+        public PlayerControl getControl() {
             return control;
         }
         

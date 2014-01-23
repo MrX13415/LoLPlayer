@@ -1,6 +1,5 @@
 package audioplayer.gui.components.playlist;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -188,7 +187,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 
 		final int sizeToremove = Math.abs(targetHeightOffset);
 		
-		frame.setMinimumSize(new Dimension(frame.getWidth(), frameHeight - sizeToremove));
+		frame.setMinimumSize(new Dimension(frame.getMinimumSize().width, frame.getMinimumSize().height - sizeToremove));;
 		frame.setSize(frame.getWidth(), frameHeight - sizeToremove);
 		setPreferredSize(new Dimension(getPreferredSize().width, insets.bottom));
 		
@@ -204,7 +203,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 
 		setPreferredSize(new Dimension(getPreferredSize().width, size));
 		frame.setSize(frame.getWidth(), frameHeight + sizeToadd);
-		frame.setMinimumSize(new Dimension(frame.getWidth(), frameHeight + sizeToadd));
+		frame.setMinimumSize(new Dimension(frame.getMinimumSize().width, frame.getMinimumSize().height + sizeToadd));
 		frame.repaint();
 		frame.validate();
 	}
@@ -255,9 +254,9 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
                                                     if (show) {
                                                     	setPreferredSize(new Dimension(thisWidth, thisHeight + sizeToadd));
                                                         frame.setSize(frame.getWidth(), frameHeight + sizeToadd);
-                                                        frame.setMinimumSize(new Dimension(frame.getWidth(), frameHeight + sizeToadd));
+//                                                        frame.setMinimumSize(new Dimension(frame.getMinimumSize().width, frame.getMinimumSize().height + sizeToadd));
                                                     } else {
-                                                    	frame.setMinimumSize(new Dimension(frame.getWidth(), frameHeight - sizeToremove));
+//                                                    	frame.setMinimumSize(new Dimension(frame.getMinimumSize().width, frame.getMinimumSize().height - sizeToremove));
                                                         frame.setSize(frame.getWidth(), frameHeight - sizeToremove);
                                                         setPreferredSize(new Dimension(thisWidth, thisHeight - sizeToremove));
                                                     }

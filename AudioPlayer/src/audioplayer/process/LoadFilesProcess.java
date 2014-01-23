@@ -4,7 +4,7 @@
  */
 package audioplayer.process;
 
-import audioplayer.Control;
+import audioplayer.PlayerControl;
 import java.io.File;
 
 /**
@@ -17,7 +17,7 @@ public class LoadFilesProcess extends Process {
 
 	private File[] file;
 
-	public LoadFilesProcess(Control control, File[] file) {
+	public LoadFilesProcess(PlayerControl control, File[] file) {
 		super(control);
 		this.file = file;
 	}

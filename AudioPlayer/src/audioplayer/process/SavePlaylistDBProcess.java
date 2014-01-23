@@ -5,7 +5,7 @@
 package audioplayer.process;
 
 import audioplayer.Application;
-import audioplayer.Control;
+import audioplayer.PlayerControl;
 import audioplayer.player.AudioFile;
 
 import java.sql.SQLException;
@@ -16,7 +16,7 @@ import java.sql.SQLException;
  */
 public class SavePlaylistDBProcess extends Process{
 
-    public SavePlaylistDBProcess(Control control) {
+    public SavePlaylistDBProcess(PlayerControl control) {
         super(control);
     }
         

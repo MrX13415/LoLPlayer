@@ -89,10 +89,10 @@ public class JGraph extends JPanel implements Graph{
 		super();
 
         initGraphRepaintThread();
-		
+        	
 //		test();
 	}
-
+	
     public void paintComponent(Graphics g ) {
     	super.paintComponent(g);
     	
@@ -134,8 +134,12 @@ public class JGraph extends JPanel implements Graph{
 				
 				if (graphs.size() > 1){
 					int index = graphs.indexOf(ag);
-					if (index == 0) ag.setYOffset( this.getHeight() / 4 );
-					if (index == 1) ag.setYOffset( (this.getHeight() / 4) * -1 );
+					if (index == 0){
+						ag.setYOffset( this.getHeight() / 4 );
+					}
+					if (index == 1){
+						ag.setYOffset( (this.getHeight() / 4) * -1 );
+					}
 				}
 				
 				paintGraph(ag);
@@ -169,9 +173,10 @@ public class JGraph extends JPanel implements Graph{
 		
 		//draw center Line
 		g.setColor(Color.darkGray);
-		g.setStroke(new BasicStroke(1f));
-		g.drawLine(0, graphcenterY, this.getWidth(), graphcenterY);	
-		
+		g.setStroke(new BasicStroke(1f));	
+		g.drawLine(0, graphcenterY, this.getWidth(), graphcenterY);
+		g.drawString(graph.getName(), 0, graphcenterY - 3);
+
 		//define first point ...
 		int lastPoint_x = 0;
 		int lastPoint_y = Math.round((graph.getValue(minIndex) * (float)(h * heightLevel)) + h) + graph.getYOffset();
