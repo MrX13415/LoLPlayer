@@ -41,6 +41,7 @@ import audioplayer.gui.components.PlayerControler.PlayerControlInterface;
 import audioplayer.gui.components.frame.TitleFrameBorder;
 import audioplayer.gui.components.frame.TitleFramePane;
 import audioplayer.gui.components.frame.TitleFrameResizeHandler;
+import audioplayer.gui.components.frame.TitleFrameResizeHandler.Direction;
 import audioplayer.gui.components.playlist.PlaylistInterface;
 import audioplayer.gui.components.playlist.PlaylistToggleArea;
 import audioplayer.player.analyzer.components.JGraph.DrawMode;
@@ -147,9 +148,9 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 		titleFrame.setBorder(BorderFactory.createRaisedBevelBorder());
 		
 		TitleFrameResizeHandler resizeHandler = new TitleFrameResizeHandler(this);
-		resizeHandler.addResizeableComponent(pta.getToggleComponent());
-		resizeHandler.addResizeableComponent(titleFrame);
-		resizeHandler.addResizeableComponent(contentPane);
+		resizeHandler.addInputComponent(pta.getToggleComponent(), Direction.W, Direction.S, Direction.E);
+		resizeHandler.addInputComponent(titleFrame, Direction.N, Direction.W);
+		resizeHandler.addInputComponent(contentPane);
 
 		titleFrame.setResizehandler(resizeHandler);
 		
