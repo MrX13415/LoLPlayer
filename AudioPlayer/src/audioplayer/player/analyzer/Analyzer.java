@@ -89,11 +89,15 @@ public class Analyzer {
 			AudioGraph ag = new AudioGraph(yOffset, color);
 			ag.clear();
 			ag.addValue(Float.MAX_VALUE);
-			ag.setName(i == 0 ? "L" : i == 1 ? "R" : "");
+			ag.setName(getDefaulltGraphName(i, count));
 			g.addGraph(ag);
 		}
 	}
 	
+	public String getDefaulltGraphName(int index, int count){
+		return count == 1 ? "MONO" : index == 0 ? "L" : index == 1 ? "R" : "" ;
+	}
+
 	/**
 	 * Set the default color for each graph by index (usualy there are two
 	 * graphs).<br>
@@ -367,17 +371,16 @@ public class Analyzer {
 	public void setDetailLevel(int detailLevel) {
 		this.detailLevel = detailLevel;
 	}
-
+	
 	private void initChannelGraphs() {
 		synchronized (channelGraphs) {
 //			g.clearGraphs();
 			
-			while (channelGraphs.size() < device.getFmt().getChannels()) {
+			int channels = device.getFmt().getChannels();
+			while (channelGraphs.size() < channels) {
 
 				int index = channelGraphs.size();
-
-				String name = index == 0 ? "R" : index == 1 ? "L" : "" ;
-											
+							
 				Color color = getDefaultChannelGraphColor(index);
 				if (color == null)
 					color = new Color(new Random().nextInt(256),
@@ -387,7 +390,7 @@ public class Analyzer {
 				Integer yOffset = getDefaultChannelGraphYOffset(index);
 
 				AudioGraph ag = new AudioGraph(yOffset, color);
-				ag.setName(name);
+				ag.setName(getDefaulltGraphName(index, channels));
 				
 				channelGraphs.add(ag);
 				g.addGraph(ag);

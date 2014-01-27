@@ -4,6 +4,9 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.font.LineMetrics;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -156,6 +159,8 @@ public class JGraph extends JPanel implements Graph{
 	private void paintGraph(final AudioGraph graph){	
 		Graphics2D g = image.createGraphics();
 		
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		
 		if(graph.getValues().size() < 1) return;
 		
 		//define height ...
@@ -173,10 +178,21 @@ public class JGraph extends JPanel implements Graph{
 		
 		//draw center Line
 		g.setColor(Color.darkGray);
-		g.setStroke(new BasicStroke(1f));	
-		g.drawLine(0, graphcenterY, this.getWidth(), graphcenterY);
-		g.drawString(graph.getName(), 0, graphcenterY - 3);
+		g.setStroke(new BasicStroke(1f));
+		
+		LineMetrics metrics = g.getFontMetrics().getLineMetrics(graph.getName(), g);
+		Rectangle2D bounds = g.getFontMetrics().getStringBounds(graph.getName(), g);
+		
+		g.drawLine(0, graphcenterY, (int) (this.getWidth() - bounds.getWidth() - (graph.getName().length() > 0 ? 10 : 0)), graphcenterY);
 
+		
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+
+		g.drawString(graph.getName(), (int) (this.getWidth() - bounds.getWidth() - 5), (int) (graphcenterY + metrics.getAscent() / 2));
+
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				
 		//define first point ...
 		int lastPoint_x = 0;
 		int lastPoint_y = Math.round((graph.getValue(minIndex) * (float)(h * heightLevel)) + h) + graph.getYOffset();

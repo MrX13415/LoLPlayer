@@ -47,7 +47,7 @@ public abstract class AudioProcessingLayer implements Runnable{
 	protected volatile float volume = 25f; 					//default: 80% (25f)
 	
 	protected long timePerLoop = 0;
-	
+
 	public AudioProcessingLayer() {
 		audioDevice = new AudioDeviceLayer();
 	}
@@ -274,7 +274,7 @@ public abstract class AudioProcessingLayer implements Runnable{
 	}
 	
 	public boolean reachedEnd(){
-		return getStreamLength() - timePosition < 10000;
+		return getStreamLength() - timePosition < 5000;
 	}
 	
 	/** Set the position of the current file to play from
@@ -387,11 +387,14 @@ public abstract class AudioProcessingLayer implements Runnable{
 	protected abstract void closeStream();
 	
 	protected void closeAudioDevice(){
-		if (audioDevice != null) audioDevice.close();
+		if (audioDevice != null){
+			audioDevice.flush();
+			audioDevice.close();
+		}
         
 		closed = true;
 		internaltimePosition = 0;
-		timePosition = 0;
+//		timePosition = 0;
 		newTimePosition = 0;
 		skipFrames = false;
 		skipedFrames = 0;

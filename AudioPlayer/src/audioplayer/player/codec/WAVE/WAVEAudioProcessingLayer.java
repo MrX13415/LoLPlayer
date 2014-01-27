@@ -10,8 +10,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import com.sun.deploy.security.NTLMFactory;
-
 import javazoom.jl.decoder.BitstreamException;
 import javazoom.jl.decoder.JavaLayerException;
 import audioplayer.player.codec.AudioProcessingLayer;
@@ -89,7 +87,8 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 					byte[] b = new byte[btr];
 					int r = bitstream.read(b, 0, btr);
 
-					if (r == -1) hasMoreFrames = false;
+					if (r == -1)
+						hasMoreFrames = false;
 					
 					if (r > -1 && !skipFrames){
 						try {	
@@ -128,9 +127,12 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 		} catch (Exception e) {
 			e.printStackTrace();
 		}finally{
+			System.out.println("A:"+timePosition);
 			boolean nextSong = isPlaying();
 			
 			stop();
+			
+			System.out.println("B:"+timePosition);
 			
 			if (nextSong && reachedEnd()){
 				//Listener

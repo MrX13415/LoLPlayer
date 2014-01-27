@@ -79,6 +79,7 @@ public abstract class UserInterface extends JFrame implements ActionListener,
     private StatusBar statusbar;
     
     boolean cursoSet = false;
+
     
 	public UserInterface() {
 
@@ -145,7 +146,7 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 		this.setTitle(Application.App_Name_Version);
 		this.setUndecorated(true);
 
-		titleFrame = new TitleFrameBorder(this);
+		titleFrame = new TitleFrameBorder(this, pta);
 		titleFrame.setName("TitleFrame");
 		titleFrame.setBackground(new Color(235, 65, 65));
 		titleFrame.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -175,20 +176,7 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 				Application.exit();
 			}
 		});
-		
-		this.addWindowStateListener(new WindowStateListener() {
-			
-			@Override
-			public void windowStateChanged(WindowEvent e) {
-				if (e.getNewState() == Frame.MAXIMIZED_BOTH) {
-					Dimension fs = getSize();
-					pta.showComponente();
-					setSize(fs);
-					setState(Frame.MAXIMIZED_BOTH);
-				}
-			}
-		});
-		
+				
 		// this.setPreferredSize(framePane.getPreferredSize());
 		// this.setMinimumSize(new Dimension(430, 475));
 		this.pack();

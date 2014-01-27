@@ -4,10 +4,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -33,14 +35,17 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	private JButton toggleButton;
 	private JPanel toggleComponent;
 	
-	private boolean toggleState = false;
-	private boolean lastState = toggleState;
+	private boolean shownState = false;
+	private boolean lastState = shownState;
 	private boolean runAnimation = false;
 	
 	private PlaylistInterface playlistInterface;
 	private JFrame frame;
-	private int frameHeight;
-	private int thisHeight;
+
+	Dimension fSize = new Dimension();
+    Dimension fMSize = new Dimension();
+    Dimension thisSize = new Dimension();
+
 	private Insets insets = new Insets(10, 15, 25, 15);
 
 	private Thread animationThread;
@@ -57,7 +62,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	public PlaylistToggleArea(PlaylistInterface pli, JFrame frame, boolean defaultState) {
 		this.playlistInterface = pli;
 		this.frame = frame;
-		this.toggleState = lastState = defaultState;
+		this.shownState = lastState = defaultState;
 
 		// ** init componentes **
 
@@ -80,7 +85,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 			
 			@Override
 			public Dimension preferredLayoutSize(Container p) {
-				return new Dimension(0, toggleState
+				return new Dimension(0, shownState
 						? playlistInterface.getPreferredSize().height + insets.top + insets.bottom
 				        : insets.bottom);
 			}
@@ -173,39 +178,41 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(toggleButton)) {
-			toggleState = !toggleState;
+			shownState = !shownState;
 			onToggle();
 		}
 	}
 
 	private void onToggle() {
-		doComponenteAnimation(toggleState);
+		doComponenteAnimation(shownState);
 	}
 
 	public void hideComponente() {
-		final int targetHeightOffset = (playlistInterface.getSize().height + insets.top) * -1;
-
-		final int sizeToremove = Math.abs(targetHeightOffset);
+		int cDelta = getPreferredSize().height - insets.bottom;
 		
-		frame.setMinimumSize(new Dimension(frame.getMinimumSize().width, frame.getMinimumSize().height - sizeToremove));;
-		frame.setSize(frame.getWidth(), frameHeight - sizeToremove);
-		setPreferredSize(new Dimension(getPreferredSize().width, insets.bottom));
+		int delta = cDelta * -1;
 		
-		frame.repaint();
-		frame.validate();
+		fSize = frame.getSize();
+	    fMSize = frame.getMinimumSize();
+	    thisSize = getPreferredSize();
+	    
+		setDelta(delta);
+		shownState = false;
 	}
 
 	public void showComponente() {
-		final int targetHeightOffset = (playlistInterface.getSize().height + insets.top) * -1;
+		int targetHeightOffset = (playlistInterface.getSize().height + insets.top);
 		
-		final int sizeToadd = Math.abs(targetHeightOffset);
-		final int size = playlistInterface.getPreferredSize().height + insets.top + insets.bottom;
-
-		setPreferredSize(new Dimension(getPreferredSize().width, size));
-		frame.setSize(frame.getWidth(), frameHeight + sizeToadd);
-		frame.setMinimumSize(new Dimension(frame.getMinimumSize().width, frame.getMinimumSize().height + sizeToadd));
-		frame.repaint();
-		frame.validate();
+		int cDelta = getPreferredSize().height - insets.bottom;
+		
+		int delta = targetHeightOffset - cDelta;
+		
+		fSize = frame.getSize();
+	    fMSize = frame.getMinimumSize();
+	    thisSize = getPreferredSize();
+	    
+		setDelta(delta);
+		shownState = true;
 	}
 
 	/**
@@ -214,90 +221,122 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	 * @param show
 	 *            true for show animation, false for hide animation
 	 **/
-	public synchronized void doComponenteAnimation(final boolean show) {
-		if (animationThread != null)
-			return;
+	private synchronized void doComponenteAnimation(final boolean show) {
+		if (animationThread != null) return;
 
 		// prevent double show / hide animation ...
-		if (lastState == show) {
-			return;
-		}
+		if (lastState == show)  return;
 
 		lastState = show;
 		runAnimation = true;
-		
-		final int targetHeightOffset = playlistInterface.getSize().height * -1;
-
-		frameHeight = frame.getHeight();
-		thisHeight = this.getPreferredSize().height;
-		final int thisWidth = this.getPreferredSize().width;
 
 		animationThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				
-                            int yIndex = (show ? targetHeightOffset : 0);
-			
-                            while(show ? yIndex <= 0: yIndex >= targetHeightOffset){
-          
-                                    if (cancleAnimation) {
-                                            cancleAnimation = false;
-                                            return;
-                                    }
+				final int targetHeightOffset = playlistInterface.getSize().height * -1;
+				
+				fSize = frame.getSize();
+			    fMSize = frame.getMinimumSize();
+			    thisSize = getPreferredSize();
+			    
+                int yIndex = (show ? targetHeightOffset : 0);
+                int showYMax = insets.top;
+                int hideYMin = targetHeightOffset - insets.top;
+                int delta = 0;
+                
+				while (show ? yIndex <= showYMax
+						    : yIndex >= hideYMin)
+				{
 
-                                    final int sizeToadd = yIndex + Math.abs(targetHeightOffset);
-                                    final int sizeToremove = Math.abs(yIndex);
+	                if (cancleAnimation) {
+                        cancleAnimation = false;
+                        return;
+	                }
+	
+	                delta = show ? yIndex + Math.abs(targetHeightOffset)
+	                		: Math.abs(yIndex) * -1;
 
-                                    SwingUtilities.invokeLater(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                    if (show) {
-                                                    	setPreferredSize(new Dimension(thisWidth, thisHeight + sizeToadd));
-                                                        frame.setSize(frame.getWidth(), frameHeight + sizeToadd);
-//                                                        frame.setMinimumSize(new Dimension(frame.getMinimumSize().width, frame.getMinimumSize().height + sizeToadd));
-                                                    } else {
-//                                                    	frame.setMinimumSize(new Dimension(frame.getMinimumSize().width, frame.getMinimumSize().height - sizeToremove));
-                                                        frame.setSize(frame.getWidth(), frameHeight - sizeToremove);
-                                                        setPreferredSize(new Dimension(thisWidth, thisHeight - sizeToremove));
-                                                    }
-                                                    
-                                                    frame.validate();
-//                                                  frame.repaint();
-                                                                                                   
-                                            }
-                                    });
+	                setDelta(delta);
+	                
+	                try {
+	                    Thread.sleep(10);
+	                } catch (InterruptedException ex) {
+	                }
 
-                                    try {
-                                        Thread.sleep(10);
-                                    } catch (InterruptedException ex) {
-                                    }
-                                                                        
-                                 yIndex = (show ? yIndex + showAnimationSpeed : yIndex - hideAnimationSpeed);
-                            }
-
-                            
-                            SwingUtilities.invokeLater(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                          if (show)
-                                            showComponente();
-                                          else
-                                            hideComponente();
-                                    }
-                            });
-                                    
-                          
-                            runAnimation = false;
-                            animationThread = null;
+                    if (show && yIndex >= showYMax || !show && yIndex <= hideYMin) break;
+                    
+	                int nextYIndex = (show ? yIndex + showAnimationSpeed : yIndex - hideAnimationSpeed);
+					yIndex = show ?
+							 	nextYIndex > showYMax ?
+							 		yIndex + Math.abs(showYMax - yIndex)
+									: nextYIndex
+							 : nextYIndex < hideYMin ?
+									yIndex - Math.abs(yIndex - hideYMin)
+									: nextYIndex;
+									System.out.println("DOING");
+                }
+								
+				SwingUtilities.invokeLater(new Runnable() {
+	                @Override
+	                public void run() {
+	                	if (show)
+	                		showComponente();
+	                	else
+	                		hideComponente();
+	                }
+		        });
+		        
+		        runAnimation = false;
+		        animationThread = null;
+		        System.out.println("OK");
 			}
 
 		});
 
 		animationThread.start();
 	}
+	
+	/**
+	 * set delta value
+	 * 
+	 * @param delta
+	 */
+	private synchronized void setDelta(int delta){
+		
+		final Dimension nfSize = new Dimension(fSize.width, fSize.height + delta);
+		final Dimension nfMSize = new Dimension(fMSize.width, fMSize.height + delta);
+		final Dimension nthisSize = new Dimension(thisSize.width, thisSize.height + delta);
+		
+		if (SwingUtilities.isEventDispatchThread()){
+			frame.setMinimumSize(new Dimension(nfMSize));
+			frame.setSize(nfSize);
+			setPreferredSize(nthisSize);
 
+			frame.validate();
+		}else{
+			try {
+				SwingUtilities.invokeAndWait(new Runnable() {
+					@Override
+					public void run() {
+//						if (frame.getState() != Frame.MAXIMIZED_BOTH){
+							frame.setMinimumSize(new Dimension(nfMSize));
+							frame.setSize(nfSize);
+//						}
+
+						setPreferredSize(nthisSize);
+
+						frame.validate();
+					}
+				});
+			} catch (Exception e) {
+				//TODO:
+			}
+		}
+	}
+	
 	public boolean isShowPlaylist() {
-		return toggleState;
+		return shownState;
 	}
 
 	public JButton getToggleButton() {
@@ -333,7 +372,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	}
 
 	public void setToggleState(boolean toggleState) {
-		this.toggleState = toggleState;
+		this.shownState = toggleState;
 		onToggle();
 
 	}

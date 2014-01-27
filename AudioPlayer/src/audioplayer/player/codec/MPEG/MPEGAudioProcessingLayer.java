@@ -128,6 +128,8 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer implements Ru
 		}finally{
 			boolean nextSong = isPlaying();
 			
+			stop();
+			
 			if (nextSong && reachedEnd()){
 				//Listener
 				synchronized (listener) {
@@ -137,8 +139,6 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer implements Ru
 					}	
 				}				
 			}
-
-			stop();
 		}
 	}
 

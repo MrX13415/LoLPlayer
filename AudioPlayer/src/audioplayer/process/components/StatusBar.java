@@ -37,9 +37,11 @@ public class StatusBar extends JPanel {
 
 	public StatusBar() {
 		
-		cancle = new JLabel("\u274c");
+		cancle = new JLabel("\u0072");
 		cancle.setForeground(new Color(130, 130, 130));
-		cancle.setFont(FontLoader.fontSymbola_16p);
+		cancle.setFont(FontLoader.fontMarlett_16p);
+		cancle.setBorder(BorderFactory.createEmptyBorder(3, 0, 0, 0 )); //correct position
+
 		cancle.addMouseListener(new MouseListener() {
 			
 			@Override
