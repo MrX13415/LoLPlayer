@@ -12,6 +12,8 @@ import java.util.ArrayList;
  */
 public abstract class DirSearcher implements Runnable {
 
+	private static int threadno = 0;
+	
 	private Thread searcherTh = new Thread();
 	private ArrayList<String> dirsToSearch = new ArrayList<String>();
 	private FilenameFilter filenameFilter;
@@ -49,14 +51,15 @@ public abstract class DirSearcher implements Runnable {
 	public void startSearcher() {
 		running = true;
 		searcherTh = new Thread(this);
-		searcherTh.setName("dirSearcher");
+		searcherTh.setName("Dir-Searcher-" + threadno);
 		searcherTh.start();
+		threadno++;
 	}
 
 	public void stopSearcher() {
 		running = false;
 	}
-
+	
 	public FilenameFilter getFilenameFilter() {
 		return filenameFilter;
 	}
@@ -99,6 +102,7 @@ public abstract class DirSearcher implements Runnable {
 				dirsToSearch.remove(dir);
 		}
 		running = false;
+		threadno--;
 	}
 
 	public abstract void processFile(File f);

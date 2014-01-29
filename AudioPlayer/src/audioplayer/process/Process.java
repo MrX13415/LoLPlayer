@@ -23,7 +23,7 @@ public abstract class Process implements Runnable{
     private void initThread(){
          if (thread == null){
             thread = new Thread(this);
-            String name = this.getClass().getSimpleName();
+            String name = "Process-" + this.getClass().getSimpleName();
             thread.setName(name);
         }
     }

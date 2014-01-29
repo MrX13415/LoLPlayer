@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * SearchCircle Daus/Bellmann (c) 2013
  * 
  * @author Oliver Daus / Jens Bellmann
- * @version 1.9.5
+ * @version 1.9.6
  * 
  *          Description: A round search and progress bar
  * 
@@ -25,7 +25,9 @@ import java.util.ArrayList;
  *             For more Informations:
  *             http://creativecommons.org/licenses/by-nc-sa/3.0/
  * 
- * 
+ * 			Version: 1.9.6
+ * 			 - FIX: About 50% less CPU usage
+ *  
  *          Version: 1.9.5
  *           - FIX: Button is not fully dragable at the bar ends
  * 
@@ -294,8 +296,7 @@ public class SearchCircle extends JButton implements MouseListener,
 		angle += startAngle; // startpos ...
 
 		if (debug) {
-			BufferedImage debug = new BufferedImage(this.getSize().width,
-					this.getSize().height, BufferedImage.TYPE_INT_ARGB);
+			BufferedImage debug = getNewCompatibleBufferedImage();
 			Graphics2D g = debug.createGraphics();
 
 			// set start angle
@@ -396,8 +397,7 @@ public class SearchCircle extends JButton implements MouseListener,
 
 		// create an Image and an Graphics Object from the Image to draw on it
 		// ...
-		BufferedImage bar = new BufferedImage(this.getSize().width,
-				this.getSize().height, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage bar = getNewCompatibleBufferedImage();
 		Graphics2D g = bar.createGraphics();
 		g.setRenderingHints(getRenderingHints());
 
@@ -408,8 +408,7 @@ public class SearchCircle extends JButton implements MouseListener,
 		// rotate 180?
 		BufferedImage imgBarRotated = null;
 		if (barRotated180) {
-			imgBarRotated = new BufferedImage(imgBar.getWidth(null),
-					imgBar.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+			imgBarRotated = getNewCompatibleBufferedImage();
 			Graphics2D gg = imgBarRotated.createGraphics();
 			gg.setRenderingHints(getRenderingHints());
 			int ix = imgBarRotated.getWidth() / 2;
@@ -441,8 +440,7 @@ public class SearchCircle extends JButton implements MouseListener,
 
 	private Image rotateImage180(Image image) {
 		if (barRotated180) {
-			BufferedImage img = new BufferedImage(image.getWidth(null),
-					image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+			BufferedImage img = getNewCompatibleBufferedImage();
 			Graphics2D g = img.createGraphics();
 			g.setRenderingHints(getRenderingHints());
 
@@ -510,8 +508,7 @@ public class SearchCircle extends JButton implements MouseListener,
 
 		// create an Image and an Graphics Object from the Image to draw on it
 		// ...
-		BufferedImage button = new BufferedImage(this.getSize().width,
-				this.getSize().height, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage button = getNewCompatibleBufferedImage();
 		Graphics2D g = button.createGraphics();
 		g.setRenderingHints(getRenderingHints());
 
@@ -547,24 +544,22 @@ public class SearchCircle extends JButton implements MouseListener,
 	private Image drawBackground() {
 
 		recalcPovit();
+		
 		int lowValue = this.getSize().height;
 		if (this.getSize().width < this.getSize().height) {
 			lowValue = this.getSize().width;
 		}
-		double backgroundPartSpaceAngle = barPartSpaceAngleFixVaule / lowValue
-				* STYLE_SMOOTH_barPartSpaceAngleStyleValue;
+		
+		double backgroundPartSpaceAngle = barPartSpaceAngleFixVaule / lowValue * STYLE_SMOOTH_barPartSpaceAngleStyleValue;
 
 		// create an Image and an Graphics Object from the Image to draw on it
 		// ...
-		BufferedImage bar = new BufferedImage(this.getSize().width,
-				this.getSize().height, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage bar = getNewCompatibleBufferedImage();
 		Graphics2D g = bar.createGraphics();
 		g.setRenderingHints(getRenderingHints());
 
 		// set start angle
-		g.rotate(
-				Math.toRadians(startAngle - backgroundPartSpaceAngle
-						* barDirection), searchCirclePivotX, searchCirclePivotY); // rotate
+		g.rotate(Math.toRadians(startAngle - backgroundPartSpaceAngle * barDirection), searchCirclePivotX, searchCirclePivotY); // rotate
 
 		// draws the Bar to the specified value
 		for (double index = getAngle(minimum) - (startAngle * barDirection); index <= (getAngle(maximum) - (startAngle * barDirection))
@@ -578,26 +573,56 @@ public class SearchCircle extends JButton implements MouseListener,
 		g.dispose();
 		return bar;
 	}
+	
+	private BufferedImage getNewCompatibleBufferedImage()
+	{	
+		return createNewCompatibleBufferedImage(this.getSize().width, this.getSize().height, BufferedImage.TYPE_INT_ARGB);
+	}
+	
+	private static BufferedImage createNewCompatibleBufferedImage(int width, int height, int transp)
+	{
+		BufferedImage image = new BufferedImage(width, height, transp);
+		
+		// obtain the current system graphical settings
+		GraphicsConfiguration gfx_config = GraphicsEnvironment.
+			getLocalGraphicsEnvironment().getDefaultScreenDevice().
+			getDefaultConfiguration();
+
+		/*
+		 * if image is already compatible and optimized for current system 
+		 * settings, simply return it
+		 */
+		if (image.getColorModel().equals(gfx_config.getColorModel()))
+			return image;
+
+		// image is not optimized, so create a new image that is
+		BufferedImage new_image = gfx_config.createCompatibleImage(
+				image.getWidth(), image.getHeight(), image.getTransparency());
+
+		return new_image;
+	}
 
 	/**
 	 * repaints the search circle image
 	 * 
 	 * @param image
 	 */
-	public void repaintImages() {
+	public void repaintImages(Graphics2D g) {
 
 		setBarValue(barValue);
 		setButtonValue(buttonValue);
 
 		// create an Image and an Graphics Object from the Image to draw on it
 		// ...
-		BufferedImage img = new BufferedImage(this.getSize().width,
-				this.getSize().height, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = img.createGraphics();
+//		BufferedImage img = getNewCompatibleBufferedImage();
+//		Graphics2D g = img.createGraphics();
 		g.setRenderingHints(getRenderingHints());
 
 		recalcPovit();
 
+		int w = this.getSize().width;
+		int h = this.getSize().height;
+		
 		// //background
 		// g.setColor(Color.LIGHT_GRAY);
 		// g.drawOval((searchCirclePivotX - this.getSize().height / 2) +
@@ -609,30 +634,24 @@ public class SearchCircle extends JButton implements MouseListener,
 		// img.getHeight() - 2 * barBoundsX - 2 * barPartHeight - 1,
 		// img.getHeight() - 2 * barBoundsX - 2 * barPartHeight - 1);
 		//
-		g.drawImage(drawBackground(), 0, 0, img.getWidth(), img.getHeight(),
-				this); // draw bar
+		g.drawImage(drawBackground(), 0, 0, w, h, this); // draw bar
 
 		// bar
-		g.drawImage(currentBar, 0, 0, img.getWidth(), img.getHeight(), this); // draw
+		g.drawImage(currentBar, 0, 0, w, h, this); // draw
 																				// bar
-
 		if (showButton) {
 			// button
-			g.drawImage(currentButton, 0, 0, img.getWidth(), img.getHeight(),
-					this); // draw button
+			g.drawImage(currentButton, 0, 0, w, h, this); // draw button
 		}
 
 		if (debug) {
-			// debug
-			g.drawImage(debugScreen, 0, 0, img.getWidth(), img.getHeight(), this); // draw
-																				// debug
-																				// ...
+			g.drawImage(debugScreen, 0, 0, w, h, this); // draw debug
 		}
 
-		g.dispose();
+//		g.dispose();
 
 		// add to JLabel
-		this.setIcon(new ImageIcon(img));
+//		this.setIcon(new ImageIcon(img));
 	}
 
 	public RenderingHints getRenderingHints() {
@@ -837,7 +856,7 @@ public class SearchCircle extends JButton implements MouseListener,
 		}
 
 		super.paintComponent(g);
-		repaintImages();
+		repaintImages((Graphics2D) g);
 	}
 
 	private void processSCKeyEvent(final KeyEvent e) {
@@ -867,7 +886,7 @@ public class SearchCircle extends JButton implements MouseListener,
 						if (!keyEvent)
 							break;
 						try {
-							Thread.sleep(1);
+							Thread.sleep(10);
 						} catch (InterruptedException e) {
 						}
 					}
@@ -1255,7 +1274,7 @@ public class SearchCircle extends JButton implements MouseListener,
 		boolean modBrightness = false;
 
 		public ImageModifier(Image image) {
-			this.image = new BufferedImage(image.getWidth(null),
+			this.image = createNewCompatibleBufferedImage(image.getWidth(null),
 					image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 			this.image.getGraphics().drawImage(image, 0, 0, null);
 			this.image.getGraphics().dispose();

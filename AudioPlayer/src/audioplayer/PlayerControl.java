@@ -263,7 +263,7 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 							Application.isDebug());
 
 					try {
-						Thread.sleep(20);
+						Thread.sleep(10);
 					} catch (InterruptedException e) {
 					}
                                         
@@ -283,10 +283,10 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 						} catch (Exception e) {}					
 					}
 					
-					SwingUtilities.invokeLater(new Runnable() {
-
-						@Override
-						public void run() {
+//					SwingUtilities.invokeLater(new Runnable() {
+//
+//						@Override
+//						public void run() {
 
 							if (audioProcessingLayer.isNew())
 								getPlayerControlInterface().getSearchBar()
@@ -310,8 +310,8 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 										.setButtonValueButEvent(
 												audioProcessingLayer
 														.getTimePosition());
-						}
-					});
+//						}
+//					});
 				}
 			}
 		};

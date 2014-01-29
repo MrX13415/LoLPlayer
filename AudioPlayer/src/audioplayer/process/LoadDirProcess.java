@@ -6,6 +6,7 @@ package audioplayer.process;
 
 import audioplayer.PlayerControl;
 import audioplayer.player.codec.AudioType;
+
 import java.io.File;
 
 /**
@@ -46,6 +47,10 @@ public class LoadDirProcess extends Process {
 		ds.startSearcher();
 
 		while (ds.isRunning()) {
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {}
+			
 			control.getStatusbar().getBar().setMaximum(ds.getDirsCount());
 			control.getStatusbar().getBar().setValue(ds.getDirsDoneSearched());
 			control.getStatusbar().setMessageText(

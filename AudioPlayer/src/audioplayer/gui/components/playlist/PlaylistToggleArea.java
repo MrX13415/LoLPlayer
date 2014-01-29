@@ -9,7 +9,6 @@ import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -36,12 +35,13 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	private JPanel toggleComponent;
 	
 	private boolean shownState = false;
-	private boolean lastState = shownState;
+//	private boolean lastState = shownState;
 	private boolean runAnimation = false;
 	
 	private PlaylistInterface playlistInterface;
 	private JFrame frame;
-
+	private Component resizeTarget;
+	
 	Dimension fSize = new Dimension();
     Dimension fMSize = new Dimension();
     Dimension thisSize = new Dimension();
@@ -56,14 +56,19 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	private int hideAnimationSpeed = 15;
 
 	public PlaylistToggleArea(PlaylistInterface pli, JFrame frame) {
-		this(pli, frame, false);
+		this(null, pli, frame, false);
 	}
 
-	public PlaylistToggleArea(PlaylistInterface pli, JFrame frame, boolean defaultState) {
+	public PlaylistToggleArea(Component resizeTargetComp, PlaylistInterface pli, JFrame frame) {
+		this(resizeTargetComp, pli, frame, false);
+	}
+	
+	public PlaylistToggleArea(Component resizeTargetComp, PlaylistInterface pli, JFrame frame, boolean defaultState) {
 		this.playlistInterface = pli;
 		this.frame = frame;
-		this.shownState = lastState = defaultState;
-
+//		this.shownState = lastState = defaultState;
+		this.resizeTarget = resizeTargetComp;
+		
 		// ** init componentes **
 
 		toggleButton = new JButton("Playlist");
@@ -72,7 +77,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 		toggleButton.setSize(new Dimension(400, insets.bottom));
 		toggleButton.setPreferredSize(new Dimension(400, insets.bottom));
 		toggleButton.setContentAreaFilled(false);
-				
+						
 		pli.setSize(new Dimension(400, 200));
 
 		this.setLayout(new LayoutManager() {
@@ -157,11 +162,13 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 					}
 					
 					if (c.equals(playlistInterface)){
-						int h = c.getPreferredSize().height;
+						//TODO: buggy ... x y loc wrong!
+						int h = resizeTarget != null ? resizeTarget.getSize().height / 2 : c.getPreferredSize().height;
 						int w = p.getWidth() - (insets.left + insets.right);
 						int x = insets.left;
 						int y = insets.top * 2;
 						
+						c.setPreferredSize(new Dimension(c.getPreferredSize().width, h));
 						c.setBounds(x, y, w, h);
 					}
 				}
@@ -178,6 +185,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(toggleButton)) {
+			if (frame.getExtendedState() == Frame.MAXIMIZED_BOTH) return;
 			shownState = !shownState;
 			onToggle();
 		}
@@ -221,19 +229,19 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	 * @param show
 	 *            true for show animation, false for hide animation
 	 **/
-	private synchronized void doComponenteAnimation(final boolean show) {
+	private synchronized void doComponenteAnimation(final boolean show) {		
 		if (animationThread != null) return;
 
 		// prevent double show / hide animation ...
-		if (lastState == show)  return;
+//		if (lastState == show)  return;
 
-		lastState = show;
+//		lastState = show;
 		runAnimation = true;
 
 		animationThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				
+
 				final int targetHeightOffset = playlistInterface.getSize().height * -1;
 				
 				fSize = frame.getSize();
@@ -260,7 +268,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	                setDelta(delta);
 	                
 	                try {
-	                    Thread.sleep(10);
+	                    Thread.sleep(1);
 	                } catch (InterruptedException ex) {
 	                }
 
@@ -274,7 +282,6 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 							 : nextYIndex < hideYMin ?
 									yIndex - Math.abs(yIndex - hideYMin)
 									: nextYIndex;
-									System.out.println("DOING");
                 }
 								
 				SwingUtilities.invokeLater(new Runnable() {
@@ -289,7 +296,6 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 		        
 		        runAnimation = false;
 		        animationThread = null;
-		        System.out.println("OK");
 			}
 
 		});
@@ -303,7 +309,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	 * @param delta
 	 */
 	private synchronized void setDelta(int delta){
-		
+				
 		final Dimension nfSize = new Dimension(fSize.width, fSize.height + delta);
 		final Dimension nfMSize = new Dimension(fMSize.width, fMSize.height + delta);
 		final Dimension nthisSize = new Dimension(thisSize.width, thisSize.height + delta);

@@ -350,7 +350,7 @@ public class TitleFrameResizeHandler extends JComponent implements MouseListener
         	frame.setBounds(x, y, w, h);
 
         	//refresh ...
-        	frame.repaint();
+//        	frame.repaint();
         	
         	return;
 		}

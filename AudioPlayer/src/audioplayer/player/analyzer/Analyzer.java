@@ -46,7 +46,7 @@ public class Analyzer {
 	private volatile float[] channelsValueSum;
 	private volatile int[] chennalsDetailIndex;
 
-	private int sleepTime = 10; // in ms ; must be around 10 ms, otherwise the
+	private int sleepTime = 8; // in ms ; must be around 10 ms, otherwise the
 								// Graph on the GUI will start lagging
 								
 	private long duractionTime; // in ns
@@ -316,6 +316,11 @@ public class Analyzer {
 				public void run() {
 					initNormalizerActive = true;
 					while (normalizer == null && initNormalizerActive) {
+						
+						try {
+							Thread.sleep(10);
+						} catch (InterruptedException e1) {}
+						
 						try {
 							normalizer = new Normalizer(device.getSource()
 									.getFormat());
@@ -413,6 +418,7 @@ public class Analyzer {
 
 					try {
 						try {
+//							System.out.println("wait: " + sleepTime + "s");
 							Thread.sleep(sleepTime);
 						} catch (InterruptedException e1) {
 						}
@@ -505,8 +511,7 @@ public class Analyzer {
 										(10000 - toAnalyze.remainingCapacity()),
 										speed);
 				}
-				System.err
-						.println("WARNING: The thread \"AnalyzerThread\" has stopped!");
+				System.err.println("WARNING: The thread \"AnalyzerThread\" has stopped!");
 			}
 		});
 		analyzerThread.setName("AnalyzerThread");

@@ -1,26 +1,24 @@
 package audioplayer.gui;
 
-import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsDevice.WindowTranslucency;
 import java.awt.GraphicsEnvironment;
+import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
-import java.awt.event.WindowStateListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -78,8 +76,8 @@ public abstract class UserInterface extends JFrame implements ActionListener,
     private JPanel contentPane;
     private StatusBar statusbar;
     
-    boolean cursoSet = false;
-
+    private boolean cursoSet = false;
+    private boolean ptaStateExtend = false;
     
 	public UserInterface() {
 
@@ -102,10 +100,6 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 
 		pli = new PlaylistInterface(this);
 
-		pta = new PlaylistToggleArea(pli, this);
-		pta.setName("PlaylistToggleArea");
-		pta.getToggleComponent().setName("PlaylistToggleComponent");
-		
 		statusbar = new StatusBar();
 		statusbar.setName("Statusbar");
 
@@ -134,14 +128,18 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 		contentPane.add(menu, BorderLayout.NORTH);
 		contentPane.add(pci, BorderLayout.CENTER);
 		contentPane.setBackground(new Color(50, 50, 50));
-
+		contentPane.setPreferredSize(new Dimension(400, 400));
+		
+		pta = new PlaylistToggleArea(pli, this);
+		pta.setName("PlaylistToggleArea");
+		pta.getToggleComponent().setName("PlaylistToggleComponent");
+		
 		mainPane = new JPanel();
 		mainPane.setName("MainPane");
 		mainPane.setLayout(new BorderLayout());
 		mainPane.add(contentPane, BorderLayout.CENTER);
 		mainPane.add(pta, BorderLayout.SOUTH);
 		mainPane.setBackground(new Color(128, 128, 128, 0));
-		mainPane.setPreferredSize(new Dimension(430, 430));
 
 		this.setTitle(Application.App_Name_Version);
 		this.setUndecorated(true);
@@ -200,8 +198,30 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 
 		this.requestFocusInWindow();
 		this.setVisible(true);
-
+		
 		defineKeyBindings();
+	}
+	
+	public synchronized void setExtendedState(int state)
+	{       
+	    if ((state & JFrame.MAXIMIZED_BOTH) == JFrame.MAXIMIZED_BOTH)
+	    {
+	    	ptaStateExtend = pta.isShowPlaylist();
+	    	pta.showComponente();
+	    	
+	        Insets screenInsets = getToolkit().getScreenInsets(getGraphicsConfiguration());         
+	        Rectangle screenSize = getGraphicsConfiguration().getBounds();
+	        Rectangle maxBounds = new Rectangle(screenInsets.left + screenSize.x, 
+	                                    screenInsets.top + screenSize.y, 
+	                                    screenSize.x + screenSize.width - screenInsets.right - screenInsets.left,
+	                                    screenSize.y + screenSize.height - screenInsets.bottom - screenInsets.top);
+	        super.setMaximizedBounds(maxBounds);
+	    }else{
+	    	if (!ptaStateExtend)
+	    		pta.hideComponente();
+	    }
+
+	    super.setExtendedState(state);
 	}
 	        
     private void defineKeyBindings(){
