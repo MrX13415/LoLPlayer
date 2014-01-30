@@ -321,8 +321,9 @@ public abstract class AudioProcessingLayer implements Runnable{
 			
 			if (audioDevice != null) audioDevice.close();
 			
+			//give a little time ...
 			try {
-				Thread.sleep(100);
+				Thread.sleep(50);
 			} catch (InterruptedException e) {}
 			
 			initializeAudioDevice();

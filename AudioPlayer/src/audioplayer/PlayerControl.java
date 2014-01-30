@@ -263,7 +263,7 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 							Application.isDebug());
 
 					try {
-						Thread.sleep(10);
+						Thread.sleep(16); //60 FPS
 					} catch (InterruptedException e) {
 					}
                                         
@@ -271,7 +271,8 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 						continue;
 
 					// Synchronize the audio device and the analyzer ...
-					audioProcessingLayer.getAudioDevice().setAnalyzer(analyzer);
+					if (audioProcessingLayer.getAudioDevice().getAnalyzer() != analyzer)
+						audioProcessingLayer.getAudioDevice().setAnalyzer(analyzer);
 
 					// Update the song frequency in the statistic ...
 					long time = audioProcessingLayer.getTimePosition();
@@ -333,15 +334,18 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	@Override
 	public void onButtonStop() {
 		audioProcessingLayer.stop();
+		analyzer.clearData();
 	}
 
 	@Override
 	public void onButtonFrw() {
+		analyzer.clearData();
 		audioPlaylist.nextIndex();
 	}
 
 	@Override
 	public void onButtonRev() {
+		analyzer.clearData();
 		audioPlaylist.priorIndex();
 	}
 

@@ -268,7 +268,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	                setDelta(delta);
 	                
 	                try {
-	                    Thread.sleep(1);
+	                    Thread.sleep(33); //30 FPS
 	                } catch (InterruptedException ex) {
 	                }
 

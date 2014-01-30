@@ -272,7 +272,7 @@ public class JGraph extends JPanel implements Graph{
 			public void run() {
 				while (true) {
 					try {
-						Thread.sleep(10);
+						Thread.sleep(25); //40 FPS
 					} catch (InterruptedException e) {}	
 					try{
 						repaintGraphs();

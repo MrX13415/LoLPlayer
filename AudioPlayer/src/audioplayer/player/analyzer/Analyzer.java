@@ -46,7 +46,7 @@ public class Analyzer {
 	private volatile float[] channelsValueSum;
 	private volatile int[] chennalsDetailIndex;
 
-	private int sleepTime = 8; // in ms ; must be around 10 ms, otherwise the
+	private int sleepTime = 20; // (50 FPS) in ms ; must be max 25 ms, otherwise the
 								// Graph on the GUI will start lagging
 								
 	private long duractionTime; // in ns
@@ -192,7 +192,7 @@ public class Analyzer {
 			return;
 		}
 	}
-
+	
 	/**
 	 * Resets the color settings used on graph generating to the class defaults.
 	 * 
@@ -318,7 +318,7 @@ public class Analyzer {
 					while (normalizer == null && initNormalizerActive) {
 						
 						try {
-							Thread.sleep(10);
+							Thread.sleep(16);
 						} catch (InterruptedException e1) {}
 						
 						try {
@@ -354,6 +354,10 @@ public class Analyzer {
 			toAnalyze.put(abb);
 		} catch (InterruptedException e) {
 		}
+	}
+	
+	public void clearData() {
+		toAnalyze.clear();
 	}
 
 	// public ArrayList<AudioBytesBlock> getToAnalyze() {
@@ -416,6 +420,7 @@ public class Analyzer {
 
 					long s = System.nanoTime();
 
+					
 					try {
 						try {
 //							System.out.println("wait: " + sleepTime + "s");
@@ -504,6 +509,7 @@ public class Analyzer {
 
 					duractionTime = System.nanoTime() - s;
 					speed = 1000000000 / duractionTime; // 1000000000ns == 1s
+ 					
 					if (DEBUG)
 						System.out
 								.printf("Duraction: %9s ns  Buffer: %4s  Speed: %4s AudioByteBlocks/s\n",

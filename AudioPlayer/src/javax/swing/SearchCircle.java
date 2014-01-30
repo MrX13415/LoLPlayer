@@ -8,12 +8,17 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import com.sun.deploy.util.ArrayUtil;
 
 /**
  * SearchCircle Daus/Bellmann (c) 2013
  * 
  * @author Oliver Daus / Jens Bellmann
- * @version 1.9.6
+ * @version 1.9.7
  * 
  *          Description: A round search and progress bar
  * 
@@ -24,12 +29,15 @@ import java.util.ArrayList;
  * 
  *             For more Informations:
  *             http://creativecommons.org/licenses/by-nc-sa/3.0/
- * 
+ *
+ * 			Version: 1.9.7
+ * 			 - FIX: More performance improvements
+ *  
  * 			Version: 1.9.6
  * 			 - FIX: About 50% less CPU usage
  *  
  *          Version: 1.9.5
- *           - FIX: Button is not fully dragable at the bar ends
+ *           - FIX: Button is not fully drag able at the bar ends
  * 
  *          Version: 1.9.4
  *           - FIX: Button dragging sometimes drags other
@@ -163,7 +171,7 @@ public class SearchCircle extends JButton implements MouseListener,
 		this.addKeyListener(this);
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
-
+		
 		// init
 		reloadDefaultImages();
 
@@ -541,7 +549,7 @@ public class SearchCircle extends JButton implements MouseListener,
 		return mouseEvent;
 	}
 
-	private Image drawBackground() {
+	private void drawBackground(Graphics2D g) {
 
 		recalcPovit();
 		
@@ -554,9 +562,9 @@ public class SearchCircle extends JButton implements MouseListener,
 
 		// create an Image and an Graphics Object from the Image to draw on it
 		// ...
-		BufferedImage bar = getNewCompatibleBufferedImage();
-		Graphics2D g = bar.createGraphics();
-		g.setRenderingHints(getRenderingHints());
+//		BufferedImage bar = getNewCompatibleBufferedImage();
+//		Graphics2D g = bar.createGraphics();
+//		g.setRenderingHints(getRenderingHints());
 
 		// set start angle
 		g.rotate(Math.toRadians(startAngle - backgroundPartSpaceAngle * barDirection), searchCirclePivotX, searchCirclePivotY); // rotate
@@ -564,14 +572,16 @@ public class SearchCircle extends JButton implements MouseListener,
 		// draws the Bar to the specified value
 		for (double index = getAngle(minimum) - (startAngle * barDirection); index <= (getAngle(maximum) - (startAngle * barDirection))
 				/ backgroundPartSpaceAngle; index++) {
-			g.rotate(Math.toRadians(backgroundPartSpaceAngle * barDirection),
-					searchCirclePivotX, searchCirclePivotY); // rotate
+
+			g.rotate(Math.toRadians(backgroundPartSpaceAngle * barDirection), searchCirclePivotX, searchCirclePivotY); // rotate
 			g.drawImage(imgBarBackground, searchCirclePivotX, barBoundsX,
 					STYLE_SMOOTH_barPartWidth, barPartHeight, this); // draw
 		}
 
-		g.dispose();
-		return bar;
+		g.rotate(Math.toRadians((viewAngle/2 + 180) * barDirection * -1), searchCirclePivotX, searchCirclePivotY); // rotate
+		
+//		g.dispose();
+//		return bar;
 	}
 	
 	private BufferedImage getNewCompatibleBufferedImage()
@@ -634,7 +644,7 @@ public class SearchCircle extends JButton implements MouseListener,
 		// img.getHeight() - 2 * barBoundsX - 2 * barPartHeight - 1,
 		// img.getHeight() - 2 * barBoundsX - 2 * barPartHeight - 1);
 		//
-		g.drawImage(drawBackground(), 0, 0, w, h, this); // draw bar
+		drawBackground(g);
 
 		// bar
 		g.drawImage(currentBar, 0, 0, w, h, this); // draw
@@ -885,10 +895,11 @@ public class SearchCircle extends JButton implements MouseListener,
 					for (int i = 0; i < 250; i++) {
 						if (!keyEvent)
 							break;
-						try {
-							Thread.sleep(10);
-						} catch (InterruptedException e) {
-						}
+						
+//						try {
+//							Thread.sleep(5);
+//						} catch (InterruptedException e) {
+//						}
 					}
 				}
 			}

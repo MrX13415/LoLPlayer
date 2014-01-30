@@ -73,10 +73,17 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer implements Ru
 			boolean hasMoreFrames = true;
 			
 			while (hasMoreFrames && !decoderThread.isInterrupted()) {
+				
 				long tplStart = System.currentTimeMillis();
 				
 				boolean notPaused = !isPaused();
 				boolean skip = skipFrames;
+				
+				if (!notPaused){
+					try {
+						Thread.sleep(20);
+					} catch (Exception e) {}
+				}
 				
 				if (!audioDevice.isOpen()) hasMoreFrames = false;
 

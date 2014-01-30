@@ -48,7 +48,7 @@ public class LoadDirProcess extends Process {
 
 		while (ds.isRunning()) {
 			try {
-				Thread.sleep(10);
+				Thread.sleep(33); //30 FPS
 			} catch (InterruptedException e) {}
 			
 			control.getStatusbar().getBar().setMaximum(ds.getDirsCount());
