@@ -5,6 +5,8 @@
 package audioplayer.process;
 
 import audioplayer.PlayerControl;
+import audioplayer.player.AudioFile;
+
 import java.io.File;
 
 /**
@@ -32,12 +34,11 @@ public class LoadFilesProcess extends Process {
 		control.getStatusbar().setVisible(true);
 
 		for (int i = 0; i < file.length; i++) {
-			control.getStatusbar().setMessageText(
-					String.format("Loading file ... (%s/%s)", i, file.length));
+			control.getStatusbar().setMessageText(String.format("Loading file ... (%s/%s)", i, file.length));
 
 			control.getStatusbar().getBar().setValue(i);
 
-			control.addFile(file[i]);
+			control.getAudioPlaylist().add(new AudioFile(file[i]));
 		}
 
 		control.getStatusbar().setVisible(false);

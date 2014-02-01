@@ -5,6 +5,7 @@
 package audioplayer.process;
 
 import audioplayer.PlayerControl;
+import audioplayer.player.AudioFile;
 import audioplayer.player.codec.AudioType;
 
 import java.io.File;
@@ -36,7 +37,7 @@ public class LoadDirProcess extends Process {
 		DirSearcher ds = new DirSearcher() {
 			@Override
 			public void processFile(File f) {
-				control.addFile(f, false);
+				control.getAudioPlaylist().add(new AudioFile(f));
 			}
 		};
 

@@ -1,5 +1,6 @@
 package audioplayer.player.listener;
 
+import audioplayer.player.AudioFile;
 import audioplayer.player.AudioPlaylist;
 
 /**
@@ -11,13 +12,19 @@ import audioplayer.player.AudioPlaylist;
 public class PlaylistEvent {
 
     protected AudioPlaylist source;
+    protected AudioFile audioFile;
 
-    public PlaylistEvent(AudioPlaylist source) {
+    public PlaylistEvent(AudioPlaylist source, AudioFile audioFile) {
         this.source = source;
+        this.audioFile = audioFile;
     }
 
     public AudioPlaylist getSource() {
         return source;
     }
+
+	public AudioFile getAudioFile() {
+		return audioFile;
+	}
 
 }

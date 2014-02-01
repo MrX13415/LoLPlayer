@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
 
+import audioplayer.player.AudioFile;
 import audioplayer.player.AudioPlaylist;
 
 import javax.swing.table.AbstractTableModel;
@@ -40,18 +41,39 @@ public class PlaylistTableModel extends AbstractTableModel{
         return null;
     }
     
+    public void update(int index, AudioFile file){
+    	if (data.length <= 0)
+    		data = new Object[1][3];
+
+    	if (index >= data.length){
+    		 Object[][] ndata = new Object[data.length + 1][3];
+    	        
+    		for (int i = 0; i < data.length; i++) {
+            	ndata[i] = data[i];
+            }
+    		ndata[data.length] = createDataObject(data.length, file);
+    		data = ndata;
+    	}else
+    		data[index] = createDataObject(index, file);
+    	fireTableDataChanged();
+    }
+    
+    private Object[] createDataObject(int index, AudioFile af){
+    	return new Object[] {index + 1, 
+    			af.isTitleEmpty() ? 
+				af.getName() :
+				af.isAuthorEmpty() ?
+				af.getTitle() :
+				String.format("%s - %s", af.getAuthor(), af.getTitle()),
+				af.getFormatedLength()};
+    }
+    
     public void setContent(AudioPlaylist apl){
         Object[][] ndata = new Object[apl.size()][3];
         
         for (int i = 0; i < apl.size(); i++) {
         	try {
-        		ndata[i] = new Object[] {i + 1, 
-                		apl.get(i).isTitleEmpty() ? 
-                		apl.get(i).getName() :
-                		apl.get(i).isAuthorEmpty() ?
-                		apl.get(i).getTitle() :
-        				String.format("%s - %s", apl.get(i).getAuthor(), apl.get(i).getTitle()),
-        				apl.get(i).getFormatedLength()};
+        		ndata[i] = createDataObject(i, apl.get(i));
 			} catch (Exception e) {
 				System.out.println(e);
 			}

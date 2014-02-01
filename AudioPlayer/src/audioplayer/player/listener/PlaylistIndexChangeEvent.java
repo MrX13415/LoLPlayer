@@ -14,7 +14,7 @@ public class PlaylistIndexChangeEvent extends PlaylistEvent{
     protected int newIndex;
 
     public PlaylistIndexChangeEvent(AudioPlaylist source, int previousIndex, int newIndex) {
-        super(source);
+        super(source, null);
         this.previousIndex = previousIndex;
         this.newIndex = newIndex;
     }

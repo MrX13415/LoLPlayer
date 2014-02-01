@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.io.File;
 
 import javax.activity.InvalidActivityException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -32,11 +33,14 @@ import audioplayer.player.listener.PlayerEvent;
 import audioplayer.player.listener.PlayerListener;
 import audioplayer.player.listener.PlaylistEvent;
 import audioplayer.player.listener.PlaylistIndexChangeEvent;
+import audioplayer.process.GetherAudioFileInfoProcess;
 import audioplayer.process.LoadDirProcess;
 import audioplayer.process.LoadFilesProcess;
 import audioplayer.process.LoadPlaylistDBProcess;
+import audioplayer.process.LoadPlaylistProcess;
 import audioplayer.process.Process;
 import audioplayer.process.SavePlaylistDBProcess;
+import audioplayer.process.SavePlaylistProcess;
 import javazoom.jl.decoder.JavaLayerException;
 
 /**
@@ -69,7 +73,9 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 
 		audioPlaylist.addPlayerListener(this);
 		loadPlaylistFromDB();
-
+		new LoadPlaylistProcess(this);
+		new GetherAudioFileInfoProcess(this);
+		
 		analyzer = new Analyzer(getPlayerControlInterface()
 				.getPlayerInterfaceGraph());
 		analyzer.setDefaultChannelGraphColor(1, new Color(255, 80, 0));
@@ -126,14 +132,17 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 
 	public void addDirs(File[] dir) {
 		new LoadDirProcess(this, dir);
+		new GetherAudioFileInfoProcess(this);
 	}
 
 	public void addFiles(File[] file) {
 		new LoadFilesProcess(this, file);
+		new GetherAudioFileInfoProcess(this);
 	}
 
 	public void loadPlaylistFromDB() {
 		new LoadPlaylistDBProcess(this);
+		new GetherAudioFileInfoProcess(this);
 	}
 
 	public SavePlaylistDBProcess savePlaylistToDB() {
@@ -145,28 +154,15 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 			return (SavePlaylistDBProcess) p;
 		return null;
 	}
-
-	public void addFile(File file) {
-		addFile(file, true);
-	}
-
-	public void addFile(File file, boolean provideErrorMsg) {
-		boolean aplwasEmpty = audioPlaylist.isEmpty();
-
-		AudioFile af = new AudioFile(file);
-		try {
-			af.initAudioFile();
-			audioPlaylist.add(af);
-			System.out.println("Added to playlist: "
-					+ af.getFile().getAbsolutePath());
-		} catch (UnsupportedFileFormatException e) {
-			raiseNotSupportedFileFormatError(af, provideErrorMsg);
-		}
-
-		if (aplwasEmpty) {
-			audioPlaylist.resetToFirstIndex();
-			initAudioFileAutoPlay();
-		}
+	
+	public SavePlaylistProcess savePlaylistToDataFile() {
+		Process p = getStatusbar().getProcess();
+		if (p == null || !(p instanceof SavePlaylistProcess)) {
+			getStatusbar().stopAllProcess();
+			return new SavePlaylistProcess(this);
+		} else if (p instanceof SavePlaylistProcess)
+			return (SavePlaylistProcess) p;
+		return null;
 	}
 
 	public synchronized void initAudioFileAutoPlay() {
@@ -182,19 +178,28 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 		if (!audioPlaylist.isEmpty()) {
 			AudioFile af = audioPlaylist.get();
 
-			initAudioProcessingLayer(af);
+			try {
+				if (!af.isInitialized()){
+					af.initialize();
+					updatePlaylist(af);
+				}
+								
+				initAudioProcessingLayer(af);
 
-			System.out.println("Playing type: " + af.getType().getName()
-					+ " file: " + af.getFile().getAbsolutePath());
+				System.out.println("Playing type: " + af.getType().getName()
+						+ " file: " + af.getFile().getAbsolutePath());
 
-			this.getPlayerControlInterface().getSearchBar()
-					.setMaximum(audioProcessingLayer.getStreamLength());
+				this.getPlayerControlInterface().getSearchBar()
+						.setMaximum(audioProcessingLayer.getStreamLength());
+				
+				analyzer.init(audioProcessingLayer.getAudioDevice());
+				
+				if (!af.isSupported())
+					throw new UnsupportedFileFormatException(af);
+				
+			} catch (UnsupportedFileFormatException e) {
+				raiseNotSupportedFileFormatError(af, e, false);
 
-			analyzer.init(audioProcessingLayer.getAudioDevice());
-
-			if (!af.isSupported()) {
-				raiseNotSupportedFileFormatError(af, true);
-				audioPlaylist.remove(af);
 				if (!audioPlaylist.isEmpty())
 					initAudioFile();
 			}
@@ -204,9 +209,10 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 		return false;
 	}
 
-	public void raiseNotSupportedFileFormatError(AudioFile af,
-			boolean provideErrorMsg) {
-		System.err.println("Error: File format not supported!");
+	public void raiseNotSupportedFileFormatError(AudioFile af, Exception e, boolean provideErrorMsg) {		
+		audioPlaylist.remove(af);
+		
+		System.err.println("Error: File format not supported!:" + e);
 		System.err.printf("Type: %s File: %s\n", af.getType().getName(), af
 				.getFile().getAbsolutePath());
 
@@ -640,28 +646,32 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	}
 
 	@Override
-	public void onPlaylistFileAdd(PlaylistEvent event) {
-		getPlaylistInterface().getPlaylistTableModel()
-				.setContent(audioPlaylist);
+	public void onPlaylistFileAdd(PlaylistEvent event) {		
+		boolean aplwasEmpty = audioPlaylist.isEmpty();
+
+		updatePlaylist(event.getAudioFile());
+		
+		System.out.println("Added to playlist: " + event.getAudioFile().getFile().getAbsolutePath());
+
+		if (aplwasEmpty) {
+			audioPlaylist.resetToFirstIndex();
+			initAudioFileAutoPlay();
+		}		
 	}
 
 	@Override
 	public void onPlaylistFileRemove(PlaylistEvent event) {
-		getPlaylistInterface().getPlaylistTableModel()
-				.setContent(audioPlaylist);
+		updatePlaylist(event.getAudioFile());
 	}
 
 	@Override
 	public void onPlaylistMoveUp(PlaylistIndexChangeEvent event) {
-		getPlaylistInterface().getPlaylistTableModel()
-				.setContent(audioPlaylist);
-
+		updatePlaylist(event.getAudioFile());
 	}
 
 	@Override
 	public void onPlaylistMoveDown(PlaylistIndexChangeEvent event) {
-		getPlaylistInterface().getPlaylistTableModel()
-				.setContent(audioPlaylist);
+		updatePlaylist(event.getAudioFile());
 	}
 
 	@Override
@@ -681,10 +691,19 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 
 	@Override
 	public void onPlaylistClear(PlaylistEvent event) {
-		getPlaylistInterface().getPlaylistTableModel()
-				.setContent(audioPlaylist);
+		setPlaylist();
 	}
 
+	public void setPlaylist(){
+		getPlaylistInterface().getPlaylistTableModel().setContent(audioPlaylist);
+	}
+	
+	public void updatePlaylist(AudioFile file){
+		int index = audioPlaylist.indexOf(file);
+		if (index >= 0)
+			getPlaylistInterface().getPlaylistTableModel().update(index, file);
+	}
+	
 	@Override
 	public void onPlaylistIndexSet(PlaylistIndexChangeEvent event) {
 		initAudioFileAutoPlay();

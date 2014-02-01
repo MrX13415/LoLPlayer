@@ -75,8 +75,7 @@ public abstract class UserInterface extends JFrame implements ActionListener,
     private JPanel mainPane;
     private JPanel contentPane;
     private StatusBar statusbar;
-    
-    private boolean cursoSet = false;
+
     private boolean ptaStateExtend = false;
     
 	public UserInterface() {
@@ -128,7 +127,7 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 		contentPane.add(menu, BorderLayout.NORTH);
 		contentPane.add(pci, BorderLayout.CENTER);
 		contentPane.setBackground(new Color(50, 50, 50));
-		contentPane.setPreferredSize(new Dimension(400, 400));
+		contentPane.setPreferredSize(new Dimension(430, 420));
 		
 		pta = new PlaylistToggleArea(pli, this);
 		pta.setName("PlaylistToggleArea");

@@ -40,6 +40,10 @@ public class AudioPlaylist {
         return index;
     }
     
+    public int indexOf(AudioFile file){
+    	return content.indexOf(file);
+    }
+    
     public void resetToFirstIndex(){
         index = 0;
     }
@@ -151,7 +155,7 @@ public class AudioPlaylist {
     public void add(AudioFile af){
         content.add(af);
         for (PlayerListener l : listener)
-            l.onPlaylistFileAdd(new PlaylistEvent(this));
+            l.onPlaylistFileAdd(new PlaylistEvent(this, af));
     }
     
     public void remove(AudioFile af){
@@ -159,22 +163,23 @@ public class AudioPlaylist {
         if(index >= content.size()) resetToFirstIndex();
         
         for (PlayerListener l : listener)
-            l.onPlaylistFileRemove(new PlaylistEvent(this));
+            l.onPlaylistFileRemove(new PlaylistEvent(this, af));
     }
     
     public void remove(int index){
+    	AudioFile af = content.get(index);
         content.remove(index);
         if (history.contains(index))
         	history.Remove(index);
         
         for (PlayerListener l : listener)
-            l.onPlaylistFileRemove(new PlaylistEvent(this));
+            l.onPlaylistFileRemove(new PlaylistEvent(this, af));
     }
     
     public void clear(){
         content.clear();
         for (PlayerListener l : listener)
-            l.onPlaylistClear(new PlaylistEvent(this));
+            l.onPlaylistClear(new PlaylistEvent(this, null));
     }
     
     public boolean isEmpty(){

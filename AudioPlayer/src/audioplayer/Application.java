@@ -6,8 +6,10 @@ import audioplayer.database.NDataBase;
 import audioplayer.database.sql.LoLPlayerDB;
 import audioplayer.font.FontLoader;
 import audioplayer.gui.AboutDialog;
+import audioplayer.gui.UIFrame;
 import audioplayer.images.ImageLoader;
 import audioplayer.process.SavePlaylistDBProcess;
+import audioplayer.process.SavePlaylistProcess;
 import audioplayer.test.TestLoader;
 
 import java.awt.Color;
@@ -16,12 +18,12 @@ import java.awt.Color;
  *  LoLPlayer II - Audio-Player Project
  * 
  * @author Oliver Daus
- * @version 0.1.5.10
+ * @version 0.1.5.11
  */ 
 public class Application {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.5.10 beta";
+	public static String App_Version = "0.1.5.11 beta";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
 	public static String App_Author = "Oliver Daus";	
 	public static String App_License = "CC BY-NC-SA 3.0";
@@ -42,6 +44,8 @@ public class Application {
 	 */
 	public static void main(String[] args) {
 		System.out.println(App_Name_Version);
+		
+//		UIFrame uif = new UIFrame();
 		
 		proccessCommands(args);
 		
@@ -141,13 +145,13 @@ public class Application {
 	public static void exit() {
 		if (waitForExit) return;
 		
-		SavePlaylistDBProcess spdbp = null;
+		SavePlaylistProcess spdbp = null;
 		
 		try {
-			spdbp = getApplication().control.savePlaylistToDB();
+			spdbp = getApplication().control.savePlaylistToDataFile();
 		} catch (Exception e) {}
 		
-		final SavePlaylistDBProcess fspdbp = spdbp;
+		final SavePlaylistProcess fspdbp = spdbp;
         new Thread(new Runnable() {
 			@Override
 			public void run() {

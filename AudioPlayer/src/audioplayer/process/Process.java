@@ -63,6 +63,8 @@ public abstract class Process implements Runnable{
     	running = false;
         reachedEnd = true;
         if (Application.isDebug()) System.out.println("Process '" + this.getClass().getName() + "' ended ...");
+     
+        control.getStatusbar().setVisible(false);
         
         control.getStatusbar().prepareNextProcess();
     }

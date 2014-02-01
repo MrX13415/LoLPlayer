@@ -29,13 +29,14 @@ public class AudioFile {
  
     private int rating = 0;
     private int frequency = 0;
-
+    private boolean initialized;
+    
     public AudioFile(File file){
         this.file = file;
         
         type = AudioType.getAudioType(file);
         
-        readID3Tags();
+//        readID3Tags();
     }
     
     public AudioFile(File file, String title, String author) {
@@ -44,13 +45,23 @@ public class AudioFile {
 		this.author = author;
 	}
 
-	public void initAudioFile() throws UnsupportedFileFormatException{
+	public boolean isInitialized() {
+		return initialized;
+	}
+
+	public void initialize() throws UnsupportedFileFormatException{
+		System.out.printf("init audioFile %-100s\t\t", file.getName() + " ...");
     	 try{
-         	length = type.getAudioProcessingLayerInstance().calculateStreamLength(file);	
+    		readID3Tags();
+         	length = type.getAudioProcessingLayerInstance().calculateStreamLength(file);
+         	initialized = true;
+         	
+         	System.out.println("OK");
          }catch(Exception e){
-         	throw new UnsupportedFileFormatException();
+        	 System.out.println("ERROR");
+         	throw new UnsupportedFileFormatException(this);
          }
-    	 if (!isSupported()) throw new UnsupportedFileFormatException();
+    	 if (!isSupported()) throw new UnsupportedFileFormatException(this);
     }
 	
 	public void readID3Tags(){
@@ -165,15 +176,16 @@ public class AudioFile {
 		return type.getAudioProcessingLayerInstance();
 	}
 	
-	public class UnsupportedFileFormatException extends Exception{
+	public static class UnsupportedFileFormatException extends Exception{
 
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = -4674198784666823006L;
 
-		public UnsupportedFileFormatException() {
+		public UnsupportedFileFormatException(AudioFile file) {
 			super("file format not supported");
+			this.file = file;
 		}
 		
 		private AudioFile file;

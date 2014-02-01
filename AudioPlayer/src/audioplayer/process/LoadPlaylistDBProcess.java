@@ -48,7 +48,7 @@ public class LoadPlaylistDBProcess extends Process{
 						String.format("Loading playlist ... (%s/%s)", i, keys.size()));
 				try {
 					AudioFile af = playlist.get(key);
-					af.initAudioFile();
+					af.initialize();
 					control.getAudioPlaylist().add(af);
 				} catch (UnsupportedFileFormatException e) {}
 				control.getStatusbar().getBar().setValue(i);
