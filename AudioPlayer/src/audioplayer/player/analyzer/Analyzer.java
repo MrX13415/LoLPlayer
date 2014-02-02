@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 
+import audioplayer.desing.Colors;
 import audioplayer.player.device.AudioDeviceLayer;
 
 /**
@@ -173,22 +174,22 @@ public class Analyzer {
 	public void resetDefaultChannelGraphColor(int channelIndex) {
 		switch (channelIndex) {
 		case 0:
-			setDefaultChannelGraphColor(channelIndex, Color.red);
+			setDefaultChannelGraphColor(channelIndex, Colors.color_graph_defaultChannelGraphColor1);
 			return;
 		case 1:
-			setDefaultChannelGraphColor(channelIndex, Color.blue);
+			setDefaultChannelGraphColor(channelIndex, Colors.color_graph_defaultChannelGraphColor2);
 			return;
 		case 2:
-			setDefaultChannelGraphColor(channelIndex, Color.yellow);
+			setDefaultChannelGraphColor(channelIndex, Colors.color_graph_defaultChannelGraphColor3);
 			return;
 		case 3:
-			setDefaultChannelGraphColor(channelIndex, Color.green);
+			setDefaultChannelGraphColor(channelIndex, Colors.color_graph_defaultChannelGraphColor4);
 			return;
 		case 4:
-			setDefaultChannelGraphColor(channelIndex, Color.magenta);
+			setDefaultChannelGraphColor(channelIndex, Colors.color_graph_defaultChannelGraphColor5);
 			return;
 		case 5:
-			setDefaultChannelGraphColor(channelIndex, Color.orange);
+			setDefaultChannelGraphColor(channelIndex, Colors.color_graph_defaultChannelGraphColor6);
 			return;
 		}
 	}

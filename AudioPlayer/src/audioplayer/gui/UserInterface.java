@@ -37,6 +37,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import audioplayer.Application;
+import audioplayer.desing.Colors;
 import audioplayer.gui.components.MenuBar;
 import audioplayer.gui.components.PlayerControler.PlayerControlInterface;
 import audioplayer.gui.components.frame.TitleFrameBorder;
@@ -116,8 +117,8 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 				g2d.fillRect(0, 0, getWidth(), getHeight());
 			}
 		};
-		menu.setBackground(new Color(50, 50, 50));
-		menu.setForeground(new Color(255, 255, 255));
+		menu.setBackground(Colors.color_menu_background1);
+		menu.setForeground(Colors.color_menu_forground1);
 		menu.setBorder(BorderFactory.createRaisedBevelBorder());
 
 		contentPane = new JPanel();
@@ -126,7 +127,7 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 		contentPane.add(statusbar, BorderLayout.SOUTH);
 		contentPane.add(menu, BorderLayout.NORTH);
 		contentPane.add(pci, BorderLayout.CENTER);
-		contentPane.setBackground(new Color(50, 50, 50));
+//		contentPane.setBackground(new Color(50, 50, 50));
 		contentPane.setPreferredSize(new Dimension(430, 420));
 		
 		pta = new PlaylistToggleArea(pli, this);
@@ -138,14 +139,14 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 		mainPane.setLayout(new BorderLayout());
 		mainPane.add(contentPane, BorderLayout.CENTER);
 		mainPane.add(pta, BorderLayout.SOUTH);
-		mainPane.setBackground(new Color(128, 128, 128, 0));
+		mainPane.setBackground(Colors.color_background2);
 
 		this.setTitle(Application.App_Name_Version);
 		this.setUndecorated(true);
 
 		titleFrame = new TitleFrameBorder(this, pta);
 		titleFrame.setName("TitleFrame");
-		titleFrame.setBackground(new Color(235, 65, 65));
+		titleFrame.setBackground(Colors.color_background3);
 		titleFrame.setBorder(BorderFactory.createRaisedBevelBorder());
 		
 		TitleFrameResizeHandler resizeHandler = new TitleFrameResizeHandler(this);
@@ -156,7 +157,7 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 		titleFrame.setResizehandler(resizeHandler);
 		
 		framePane = new TitleFramePane(titleFrame, mainPane);
-		framePane.setBackground(new Color(128, 128, 128, 0));
+		framePane.setBackground(Colors.color_background4);
 		framePane.setName("FramePane");
 		
 		this.getContentPane().setLayout(new BorderLayout());

@@ -155,25 +155,32 @@ public class AudioPlaylist {
     public void add(AudioFile af){
         content.add(af);
         for (PlayerListener l : listener)
-            l.onPlaylistFileAdd(new PlaylistEvent(this, af));
+            l.onPlaylistFileAdd(new PlaylistEvent(this, af, content.size() - 1));
     }
     
     public void remove(AudioFile af){
+    	int i = content.indexOf(af);
         content.remove(af);
-        if(index >= content.size()) resetToFirstIndex();
+        
+        if (index >= i) index--;
+        if (index >= content.size()) resetToFirstIndex();        
         
         for (PlayerListener l : listener)
-            l.onPlaylistFileRemove(new PlaylistEvent(this, af));
+            l.onPlaylistFileRemove(new PlaylistEvent(this, af, i));
     }
     
     public void remove(int index){
     	AudioFile af = content.get(index);
         content.remove(index);
+        
+        if (this.index >= index) this.index--;
+        if (this.index >= content.size()) resetToFirstIndex();        
+        
         if (history.contains(index))
         	history.Remove(index);
         
         for (PlayerListener l : listener)
-            l.onPlaylistFileRemove(new PlaylistEvent(this, af));
+            l.onPlaylistFileRemove(new PlaylistEvent(this, af, index));
     }
     
     public void clear(){
@@ -215,14 +222,17 @@ public class AudioPlaylist {
     
     public void moveDown(AudioFile af){
     	int index = content.indexOf(af) + 2;
-    	index = (index >= content.size() ? content.size() - 1 : index);
-    	content.add(index, af);
+    	if (index >= content.size())
+    		content.add(af);
+    	else
+    		content.add(index, af);
+    	
     	if (index - 2 >= 0) content.remove(index - 2);
     	
     	if (getIndex() == index - 2) this.index += 1;
     	
     	for (PlayerListener l : listener)
-    		l.onPlaylistMoveDown(new PlaylistIndexChangeEvent(this, index - 2, index));
+    		l.onPlaylistMoveDown(new PlaylistIndexChangeEvent(this, index - 2, index - 1));
     }
     
     public int getRandomIndex() { 

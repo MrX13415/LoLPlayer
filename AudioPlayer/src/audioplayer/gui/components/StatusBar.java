@@ -12,6 +12,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import audioplayer.desing.Colors;
+
 /**
  *  LoLPlayer II - Audio-Player Project
  * 
@@ -31,7 +33,7 @@ public class StatusBar extends JPanel{
 		bar = new JProgressBar();
 		
 		message = new JLabel("Loading files ... (1000/24214)");
-		message.setForeground(new Color(255,255,255));
+		message.setForeground(Colors.color_statusbar_forground1);
 		message.setHorizontalTextPosition(JLabel.LEFT);
 		message.setHorizontalAlignment(JLabel.LEFT);
 
@@ -57,7 +59,7 @@ public class StatusBar extends JPanel{
 				
 		this.add(bar, c);
 		
-		this.setBackground(new Color(50, 50, 50));
+		this.setBackground(Colors.color_statusbar_background1);
 		this.setBorder(BorderFactory.createRaisedBevelBorder());
                 this.setPreferredSize(new Dimension(0, 20));
 		setVisible(false);

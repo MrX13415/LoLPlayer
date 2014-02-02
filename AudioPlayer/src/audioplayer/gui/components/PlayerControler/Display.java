@@ -9,6 +9,8 @@ import java.awt.GridLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import audioplayer.desing.Colors;
+
 /**
  *  LoLPlayer II - Audio-Player Project
  * 
@@ -39,25 +41,25 @@ public class Display extends JPanel {
 		time.setHorizontalAlignment(JLabel.CENTER);
 
 		info1 = new JLabel("PLAYING");
-		info1.setForeground(new Color(255, 128 ,0));
+		info1.setForeground(Colors.color_display_forground1);
 		
 		info2 = new JLabel("80.0%");
-		info2.setForeground(new Color(255, 128 ,0));
+		info2.setForeground(Colors.color_display_forground1);
 		info2.setPreferredSize(new Dimension(60, info2.getPreferredSize().height));
 		info2.setHorizontalAlignment(JLabel.RIGHT);
 		
 		info3 = new JLabel("0.0 dB");
-		info3.setForeground(new Color(255, 128 ,0));
+		info3.setForeground(Colors.color_display_forground1);
 		info3.setPreferredSize(new Dimension(60, info2.getPreferredSize().height));
 		info3.setHorizontalAlignment(JLabel.RIGHT);
 
 		statusbar1 = new JLabel("50.0%");
 		statusbar1.setPreferredSize(new Dimension(45, statusbar1.getPreferredSize().height));
 		statusbar1.setHorizontalAlignment(JLabel.RIGHT);
-		statusbar1.setForeground(Color.gray);
+		statusbar1.setForeground(Colors.color_display_forground2);
 		
 		statusbar2 = new JLabel("My Song Title");
-		statusbar2.setForeground(Color.gray);
+		statusbar2.setForeground(Colors.color_display_forground2);
 	}
 
 	private void addComponents() {

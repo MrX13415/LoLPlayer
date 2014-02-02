@@ -1,16 +1,21 @@
 package audioplayer.gui;
 
 import audioplayer.Application;
+import audioplayer.desing.Colors;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.IOException;
+
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
 import javax.swing.BorderFactory;
 
 /**
@@ -34,13 +39,13 @@ public class AboutDialog extends JDialog{
         super(parent);
         
         text = new JLabel(aboutHTMLPage);
-        text.setForeground(new Color(255 ,255, 255));
+        text.setForeground(Colors.color_aboutPage_forground);
         text.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         
         //okButton = new JButton();
          
         this.getContentPane().add(text);
-        this.getContentPane().setBackground(new Color(20, 20, 20));
+        this.getContentPane().setBackground(Colors.color_aboutpage_background1);
         this.pack();
         
          //Center the frame window

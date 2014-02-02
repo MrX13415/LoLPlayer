@@ -19,7 +19,7 @@ public class PlaylistIndexChangeEvent extends PlaylistEvent{
         this.newIndex = newIndex;
     }
 
-    public int getPreviousIndex() {
+    public int getPriorIndex() {
         return previousIndex;
     }
 

@@ -45,7 +45,11 @@ public class ImageLoader {
 	public static String resName_image_rev = "rev.png";
 	public static String resName_image_rev_hover = "rev_hover.png";
 	public static String resName_image_rev_pressed_hover = "rev_pressed_hover.png";
-
+	
+	public static String resName_image_search = "search.png";
+	public static String resName_image_search_hover = "search_hover.png";
+	public static String resName_image_search_pressed_hover = "search_pressed_hover.png";
+	
 	//--------------------------------------------------------------------------
 	//-- image holder fields ---------------------------------------------------
 	//--------------------------------------------------------------------------
@@ -69,6 +73,10 @@ public class ImageLoader {
 	public static ImageIcon image_rev = new ImageIcon(Altrnative_Image_Path + resName_image_rev);
 	public static ImageIcon image_rev_hover = new ImageIcon(Altrnative_Image_Path + resName_image_rev_hover);
 	public static ImageIcon image_rev_pressed_hover = new ImageIcon(Altrnative_Image_Path + resName_image_rev_pressed_hover);
+	
+	public static ImageIcon image_search = new ImageIcon(Altrnative_Image_Path + resName_image_search);
+	public static ImageIcon image_search_hover = new ImageIcon(Altrnative_Image_Path + resName_image_search_hover);
+	public static ImageIcon image_search_pressed_hover = new ImageIcon(Altrnative_Image_Path + resName_image_search_pressed_hover);
 	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
@@ -101,6 +109,10 @@ public class ImageLoader {
 		images.add(new ImageLoaderData("image_rev", resName_image_rev, size, size));
 		images.add(new ImageLoaderData("image_rev_hover", resName_image_rev_hover, size, size));
 		images.add(new ImageLoaderData("image_rev_pressed_hover", resName_image_rev_pressed_hover, size, size));
+		
+		images.add(new ImageLoaderData("image_search", resName_image_search, 20, 20));
+		images.add(new ImageLoaderData("image_search_hover", resName_image_search_hover, size, size));
+		images.add(new ImageLoaderData("image_search_pressed_hover", resName_image_search_pressed_hover, size, size));
 	}
 	
 	

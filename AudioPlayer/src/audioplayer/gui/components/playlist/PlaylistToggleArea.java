@@ -18,6 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 
+import audioplayer.desing.Colors;
+
 /**
  *  LoLPlayer II - Audio-Player Project
  * 
@@ -46,7 +48,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
     Dimension fMSize = new Dimension();
     Dimension thisSize = new Dimension();
 
-	private Insets insets = new Insets(10, 15, 25, 15);
+	private Insets insets = new Insets(5, 15, 25, 15);
 
 	private Thread animationThread;
 	private boolean cancleAnimation = false;
@@ -72,7 +74,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 		// ** init componentes **
 
 		toggleButton = new JButton("Playlist");
-		toggleButton.setForeground(new Color(130, 38, 38));
+		toggleButton.setForeground(Colors.color_playlist_background5);
 		toggleButton.addActionListener(this);
 		toggleButton.setSize(new Dimension(400, insets.bottom));
 		toggleButton.setPreferredSize(new Dimension(400, insets.bottom));
@@ -122,7 +124,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 		toggleComponent = new JPanel();
 		toggleComponent.add(toggleButton);
 		toggleComponent.add(pli);
-		toggleComponent.setBackground(new Color(235, 65, 65));
+		toggleComponent.setBackground(Colors.color_playlist_background6);
 		toggleComponent.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		toggleComponent.setLayout(new LayoutManager() {
 			

@@ -41,21 +41,42 @@ public class PlaylistTableModel extends AbstractTableModel{
         return null;
     }
     
-    public void update(int index, AudioFile file){
+    public void insertData(AudioFile file){
+		Object[][] ndata = new Object[data.length + 1][3];		
+		
+		if (data.length > 0)
+			System.arraycopy(data, 0, ndata, 0, data.length);
+		
+		ndata[data.length] = createDataObject(data.length, file);		
+		
+		data = ndata; //apply changes ...
+		fireTableRowsInserted(data.length - 1, data.length - 1);
+    }
+    
+    public void removeData(int index){
     	if (data.length <= 0)
     		data = new Object[1][3];
 
-    	if (index >= data.length){
-    		 Object[][] ndata = new Object[data.length + 1][3];
-    	        
-    		for (int i = 0; i < data.length; i++) {
-            	ndata[i] = data[i];
-            }
-    		ndata[data.length] = createDataObject(data.length, file);
-    		data = ndata;
-    	}else
-    		data[index] = createDataObject(index, file);
-    	fireTableDataChanged();
+		Object[][] ndata = new Object[data.length - 1][3];		
+		System.arraycopy(data, 0, ndata, 0, index);
+		System.arraycopy(data, index+1, ndata, index, data.length - index - 1);
+		data = ndata; //apply changes ...
+		fireTableRowsDeleted(index, index);
+		updateIndexCol(index, data.length);
+    }
+    
+    public void updateIndexCol(int index, int length){
+    	for (int i = index; i < length; i++) {
+			data[i][0] = i + 1;
+			fireTableCellUpdated(i, 0);
+    	}    	
+    }
+    
+    public void updateData(int index, AudioFile file){
+    	if (index >= data.length) insertData(file);
+    	
+    	data[index] = createDataObject(index, file);
+    	fireTableRowsUpdated(index, index);
     }
     
     private Object[] createDataObject(int index, AudioFile af){
