@@ -2,12 +2,13 @@ package audioplayer.gui.components.PlayerControler;
 
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import audioplayer.Application;
 
 import audioplayer.desing.Colors;
 
@@ -41,25 +42,35 @@ public class Display extends JPanel {
 		time.setHorizontalAlignment(JLabel.CENTER);
 
 		info1 = new JLabel("PLAYING");
-		info1.setForeground(Colors.color_display_forground1);
+
+		info1.setForeground(Application.getColors().color_display_forground1);
+
 		
 		info2 = new JLabel("80.0%");
-		info2.setForeground(Colors.color_display_forground1);
+
+		info2.setForeground(Application.getColors().color_display_forground1);
+
 		info2.setPreferredSize(new Dimension(60, info2.getPreferredSize().height));
 		info2.setHorizontalAlignment(JLabel.RIGHT);
 		
 		info3 = new JLabel("0.0 dB");
-		info3.setForeground(Colors.color_display_forground1);
+
+		info3.setForeground(Application.getColors().color_display_forground1);
+
 		info3.setPreferredSize(new Dimension(60, info2.getPreferredSize().height));
 		info3.setHorizontalAlignment(JLabel.RIGHT);
 
 		statusbar1 = new JLabel("50.0%");
 		statusbar1.setPreferredSize(new Dimension(45, statusbar1.getPreferredSize().height));
 		statusbar1.setHorizontalAlignment(JLabel.RIGHT);
-		statusbar1.setForeground(Colors.color_display_forground2);
+
+		statusbar1.setForeground(Application.getColors().color_display_forground2);
+
 		
 		statusbar2 = new JLabel("My Song Title");
-		statusbar2.setForeground(Colors.color_display_forground2);
+
+		statusbar2.setForeground(Application.getColors().color_display_forground2);
+
 	}
 
 	private void addComponents() {

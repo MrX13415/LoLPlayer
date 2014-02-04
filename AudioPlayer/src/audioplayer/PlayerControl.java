@@ -1,35 +1,31 @@
 package audioplayer;
 
-import audioplayer.desing.Colors;
-import audioplayer.gui.AboutDialog;
-import audioplayer.gui.AudioFilePropertiesDialog;
-
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.File;
 
 import javax.activity.InvalidActivityException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JSlider;
-import javax.swing.SearchCircle;
 import javax.swing.SwingUtilities;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.filechooser.FileFilter;
 
+import javazoom.jl.decoder.JavaLayerException;
+import net.mrx13415.searchcircle.swing.JSearchCircle;
+import audioplayer.gui.AboutDialog;
+import audioplayer.gui.AudioFilePropertiesDialog;
 import audioplayer.gui.UserInterface;
 import audioplayer.medialibary.DesignMedienPlayer;
 import audioplayer.medialibary.DesignMedienPlayerDB;
 import audioplayer.medialibary.DesignerMedienPlayerSortby;
 import audioplayer.player.AudioFile;
-import audioplayer.player.AudioPlaylist;
 import audioplayer.player.AudioFile.UnsupportedFileFormatException;
+import audioplayer.player.AudioPlaylist;
 import audioplayer.player.analyzer.Analyzer;
 import audioplayer.player.analyzer.components.JGraph.DrawMode;
 import audioplayer.player.codec.AudioProcessingLayer;
@@ -47,7 +43,6 @@ import audioplayer.process.LoadPlaylistProcess;
 import audioplayer.process.Process;
 import audioplayer.process.SavePlaylistDBProcess;
 import audioplayer.process.SavePlaylistProcess;
-import javazoom.jl.decoder.JavaLayerException;
 
 /**
  * LoLPlayer II - Audio-Player Project
@@ -62,8 +57,7 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private AudioProcessingLayer audioProcessingLayer = AudioProcessingLayer
-			.getEmptyInstance();
+	private AudioProcessingLayer audioProcessingLayer = AudioProcessingLayer.getEmptyInstance();
 	private AudioPlaylist audioPlaylist = new AudioPlaylist();
 
 	private Thread uiUpdaterThread;
@@ -71,19 +65,19 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	private boolean wasPausedOnSearchBarMousePressed;
 
 	private Analyzer analyzer;
-
+	private boolean autoPlay = false;
+	
 	/**
 	 * Start a new Instance of the AudioPlayer ...
 	 */
 	public PlayerControl() {
-
+		
 		audioPlaylist.addPlayerListener(this);
 		loadPlaylistFromDB();
 		new LoadPlaylistProcess(this);
 		new GetherAudioFileInfoProcess(this);
 		
-		analyzer = new Analyzer(getPlayerControlInterface()
-				.getPlayerInterfaceGraph());
+		analyzer = new Analyzer(getPlayerControlInterface().getPlayerInterfaceGraph());
 //		analyzer.setDefaultChannelGraphColor(1, Colors.color_graph_defaultChannelGraphColor5);
 		analyzer.setMergedChannels(false);
 
@@ -147,7 +141,7 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 				}
 			}
 		});
-		
+
 	}
 
 	public AudioProcessingLayer getAudioProcessingLayer() {
@@ -173,21 +167,32 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	public void openFiles(File[] file) {
 		audioProcessingLayer.stop();
 		audioPlaylist.clear();
-		addFiles(file);
+		addFiles(file, true);
+		autoPlay = true;
 	}
 
 	public void openDirs(File[] dir) {
 		audioProcessingLayer.stop();
 		audioPlaylist.clear();
-		addDirs(dir);
+		addDirs(dir, true);
 	}
-
+	
 	public void addDirs(File[] dir) {
-		new LoadDirProcess(this, dir);
-		new GetherAudioFileInfoProcess(this);
+		addDirs(dir, false);
 	}
 
 	public void addFiles(File[] file) {
+		addFiles(file, false);
+	}
+
+	public void addDirs(File[] dir, boolean autoPlay) {
+		this.autoPlay = autoPlay;
+		new LoadDirProcess(this, dir);
+		new GetherAudioFileInfoProcess(this);;
+	}
+
+	public void addFiles(File[] file, boolean autoPlay) {
+		this.autoPlay = autoPlay;
 		new LoadFilesProcess(this, file);
 		new GetherAudioFileInfoProcess(this);
 	}
@@ -420,13 +425,13 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	}
 
 	@Override
-	public void onSearchBarButtonMove(SearchCircle s) {
+	public void onSearchBarButtonMove(JSearchCircle s) {
 		if (audioProcessingLayer != null)
 			audioProcessingLayer.setPostion((long) s.getButtonValue());
 	}
 
 	@Override
-	public void onVolumeButtonMove(final SearchCircle v) {
+	public void onVolumeButtonMove(final JSearchCircle v) {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -439,7 +444,7 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	}
 
 	@Override
-	public void onSearchBarMousePressed(SearchCircle s) {
+	public void onSearchBarMousePressed(JSearchCircle s) {
 		wasPausedOnSearchBarMousePressed = audioProcessingLayer.isPaused();
 		if (audioProcessingLayer.isInitialized()
 				|| audioProcessingLayer.isStopped()) {
@@ -453,7 +458,7 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	}
 
 	@Override
-	public void onSearchBarMouseReleased(SearchCircle s) {
+	public void onSearchBarMouseReleased(JSearchCircle s) {
 		if (!wasPausedOnSearchBarMousePressed) {
 			audioProcessingLayer.setPause(false);
 		} else {
@@ -699,15 +704,17 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 
 	@Override
 	public void onPlaylistFileAdd(PlaylistEvent event) {		
-		boolean aplwasEmpty = audioPlaylist.isEmpty();
+		boolean aplwasEmpty = audioPlaylist.size() == 1 && audioPlaylist.get(0).equals(event.getAudioFile());
 
 		getPlaylistInterface().getPlaylistTableModel().insertData(event.getAudioFile());
 		
 		System.out.println("Added to playlist: " + event.getAudioFile().getFile().getAbsolutePath());
 
+		//TODO: öalskdö
 		if (aplwasEmpty) {
 			audioPlaylist.resetToFirstIndex();
-			initAudioFileAutoPlay();
+			if (autoPlay) initAudioFileAutoPlay();
+			else initAudioFile();
 		}		
 	}
 

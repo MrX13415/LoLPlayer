@@ -1,6 +1,5 @@
 package audioplayer.gui.components.playlist;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -17,6 +16,8 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
+
+import audioplayer.Application;
 
 import audioplayer.desing.Colors;
 
@@ -74,7 +75,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 		// ** init componentes **
 
 		toggleButton = new JButton("Playlist");
-		toggleButton.setForeground(Colors.color_playlist_background5);
+		toggleButton.setForeground(Application.getColors().color_playlist_background5);
 		toggleButton.addActionListener(this);
 		toggleButton.setSize(new Dimension(400, insets.bottom));
 		toggleButton.setPreferredSize(new Dimension(400, insets.bottom));
@@ -124,7 +125,7 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 		toggleComponent = new JPanel();
 		toggleComponent.add(toggleButton);
 		toggleComponent.add(pli);
-		toggleComponent.setBackground(Colors.color_playlist_background6);
+		toggleComponent.setBackground(Application.getColors().color_playlist_background6);
 		toggleComponent.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		toggleComponent.setLayout(new LayoutManager() {
 			

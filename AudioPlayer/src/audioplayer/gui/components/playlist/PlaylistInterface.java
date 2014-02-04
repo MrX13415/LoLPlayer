@@ -10,7 +10,6 @@ import java.awt.Dimension;
 import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -18,7 +17,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import audioplayer.desing.Colors;
+import audioplayer.Application;
+
 import audioplayer.font.FontLoader;
 import audioplayer.images.ImageLoader;
 
@@ -48,17 +48,18 @@ public class PlaylistInterface extends JPanel{
         playlistTable.addMouseListener(ml);
         playlistTable.getColumnModel().getColumn(0).setMaxWidth(50);
         playlistTable.getColumnModel().getColumn(2).setMaxWidth(80);
-        playlistTable.setBackground(Colors.color_playlist_background1);
-        playlistTable.setForeground(Colors.color_playlist_forground1);
-        playlistTable.setSelectionBackground(Colors.color_playlist_selection_background1);
-        playlistTable.setSelectionForeground(Colors.color_playlist_selection_forground1);
-        playlistTable.setGridColor(Colors.color_playlist_background2);
-        playlistTable.getTableHeader().setBackground(Colors.color_playlist_background3);
+        playlistTable.setBackground(Application.getColors().color_playlist_background1);
+        playlistTable.setForeground(Application.getColors().color_playlist_forground1);
+        playlistTable.setSelectionBackground(Application.getColors().color_playlist_selection_background1);
+        playlistTable.setSelectionForeground(Application.getColors().color_playlist_selection_forground1);
+        playlistTable.setGridColor(Application.getColors().color_playlist_background2);
+        playlistTable.getTableHeader().setBackground(Application.getColors().color_playlist_background3);
+
         playlistTable.getTableHeader().setBorder(BorderFactory.createRaisedBevelBorder());
         playlistTable.setDefaultRenderer(Object.class, new PlaylistTableCellRenderer());
         
     	DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer();
-    	headerRenderer.setBackground(Colors.color_playlist_background3);
+    	headerRenderer.setBackground(Application.getColors().color_playlist_background3);
 
     	for (int i = 0; i < playlistTable.getModel().getColumnCount(); i++) {
             playlistTable.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
@@ -67,10 +68,14 @@ public class PlaylistInterface extends JPanel{
         playlistTable.setOpaque(false);
         	
         playlistScrollPane = new JScrollPane(playlistTable);
-        playlistScrollPane.getViewport().setBackground(Colors.color_playlist_background4);
-        playlistScrollPane.setBackground(Colors.color_playlist_background4);
+
+        playlistScrollPane.getViewport().setBackground(Application.getColors().color_playlist_background4);
+        playlistScrollPane.setBackground(Application.getColors().color_playlist_background4);
+
         playlistScrollPane.setBorder(BorderFactory.createLoweredBevelBorder());
-        playlistScrollPane.getVerticalScrollBar().setBackground(Colors.color_playlist_background4);
+
+        playlistScrollPane.getVerticalScrollBar().setBackground(Application.getColors().color_playlist_background4);
+
 
         searchField = new JTextField();
         

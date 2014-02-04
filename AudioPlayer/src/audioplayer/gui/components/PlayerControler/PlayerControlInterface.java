@@ -6,18 +6,24 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.LayoutManager;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.SearchCircle;
-import javax.swing.SearchCircle.Anchor;
-import javax.swing.SearchCircle.SearchCricleListener;
 import javax.swing.event.ChangeListener;
 
+import net.mrx13415.searchcircle.event.SearchCircleListener;
+import net.mrx13415.searchcircle.imageutil.ImageModifier;
+import net.mrx13415.searchcircle.imageutil.color.HSB;
+import net.mrx13415.searchcircle.swing.JSearchCircle;
+import net.mrx13415.searchcircle.swing.JSearchCircle.Anchor;
+import audioplayer.Application;
 import audioplayer.font.FontLoader;
 import audioplayer.images.ImageLoader;
 import audioplayer.player.analyzer.components.JGraph;
@@ -48,15 +54,22 @@ public class PlayerControlInterface extends JPanel{
 	private JButton frw;
 	private JButton rev;
 
-	private SearchCircle searchBar;
-	private SearchCircle volume;
+	private JSearchCircle searchBar;
+	private JSearchCircle volume;
 
 	private JSlider graphdetail;
 	private JSlider heightlevel;
 	private JSlider zoomlevel;
 
+	private ImageIcon imgPlay = ImageLoader.image_play;
+	private ImageIcon imgPause = ImageLoader.image_pause;
+	private ImageIcon imgStop = ImageLoader.image_stop;
+	private ImageIcon imgFrw = ImageLoader.image_frw;
+	private ImageIcon imgRev = ImageLoader.image_rev;
+	
+	
 	public PlayerControlInterface(ActionListener actionListener,
-			SearchCricleListener searchCricleListener, ChangeListener changeListener) {
+			SearchCircleListener searchCircleListener, ChangeListener changeListener) {
 
             display = new Display();
 
@@ -66,7 +79,7 @@ public class PlayerControlInterface extends JPanel{
             play.setBackground(new Color(50,50,50));
             play.setContentAreaFilled(false);
             play.setForeground(new Color(255,0,0));
-            play.setIcon(ImageLoader.image_play);
+            play.setIcon(imgPlay);
             play.setPressedIcon(ImageLoader.image_play_pressed_hover);            
             play.setRolloverIcon(ImageLoader.image_play_hover);
             
@@ -76,7 +89,7 @@ public class PlayerControlInterface extends JPanel{
             stop.setBackground(new Color(50,50,50));
             stop.setContentAreaFilled(false);
             stop.setForeground(new Color(255,0,0));
-            stop.setIcon(ImageLoader.image_stop);
+            stop.setIcon(imgStop);
             stop.setPressedIcon(ImageLoader.image_stop_pressed_hover);            
             stop.setRolloverIcon(ImageLoader.image_stop_hover);
             
@@ -86,7 +99,7 @@ public class PlayerControlInterface extends JPanel{
             frw.setBackground(new Color(50,50,50));
             frw.setContentAreaFilled(false);
             frw.setForeground(new Color(255,0,0));
-            frw.setIcon(ImageLoader.image_frw);
+            frw.setIcon(imgFrw);
             frw.setPressedIcon(ImageLoader.image_frw_pressed_hover);            
             frw.setRolloverIcon(ImageLoader.image_frw_hover);
             
@@ -96,10 +109,9 @@ public class PlayerControlInterface extends JPanel{
             rev.setBackground(new Color(50,50,50));
             rev.setContentAreaFilled(false);
             rev.setForeground(new Color(255,0,0));
-            rev.setIcon(ImageLoader.image_rev);
+            rev.setIcon(imgRev);
             rev.setPressedIcon(ImageLoader.image_rev_pressed_hover);            
             rev.setRolloverIcon(ImageLoader.image_rev_hover);
-            
             
             playerButtons = new JPanel();
             playerButtons.setBackground(new Color(50,50,50));
@@ -119,15 +131,15 @@ public class PlayerControlInterface extends JPanel{
             playerControls.add(playerButtons);
             playerControls.setBackground(new Color(50,50,50));
 
-            volume = new SearchCircle();
+            volume = new JSearchCircle();
             volume.setName("volume");
             volume.setBarThickness(10);
-            volume.setDirection(SearchCircle.BAR_DIRECTION_LEFT);
+            volume.setDirection(JSearchCircle.BAR_DIRECTION_LEFT);
             volume.setStartAngle(270 - 45);
             volume.setViewAngle(90);
             volume.setMinimum(0d);
             volume.setMaximum(100d);
-            volume.addSearchCricleListener(searchCricleListener);
+            volume.addSearchCircleListener(searchCircleListener);
             volume.addActionListener(actionListener);
             volume.setButtonValue(25);
             volume.setBarValue(25);
@@ -171,16 +183,17 @@ public class PlayerControlInterface extends JPanel{
             volume.setKeyScrollamount(0.1d);
             volume.setFocusPainted(false);
             volume.setOpaque(false);
+            volume.setBarHSB(Application.getColors().color_controls_volume_bar);
             volume.add(playerControls);
 
 //		ImageModifier im = new ImageModifier(volume.getBarImage());
 //		im.setHue(0.5f);
 //		volume.setBarImage(im.modify());
 
-            searchBar = new SearchCircle();
+            searchBar = new JSearchCircle();
             searchBar.setName("searchBar");
             searchBar.setKeyScrollamount(1000);
-            searchBar.addSearchCricleListener(searchCricleListener);
+            searchBar.addSearchCircleListener(searchCircleListener);
             searchBar.addActionListener(actionListener);
             searchBar.setLayout(new LayoutManager() {
 			
@@ -229,6 +242,7 @@ public class PlayerControlInterface extends JPanel{
             searchBar.setFocusPainted(false);
             searchBar.setOpaque(false);
             searchBar.setAnchor(Anchor.LEFT);
+            searchBar.setBarHSB(Application.getColors().color_controls_searchbar_bar);
             searchBar.add(volume);
 
             //register searchBar as mouse event source from volume 
@@ -273,21 +287,98 @@ public class PlayerControlInterface extends JPanel{
             this.add(sliderPanel, BorderLayout.WEST);
             this.setPreferredSize(new Dimension(400, 400));
             this.setBackground(new Color(30, 30, 30));
-            this.setBorder(BorderFactory.createRaisedBevelBorder());
 	}
 
 	public void setPlayPause(boolean isPlaying) {
 		if (isPlaying){
 //			 play.setText("\u2759\u2759");
-			 play.setIcon(ImageLoader.image_pause);
+			 play.setIcon(imgPause);
 	         play.setPressedIcon(ImageLoader.image_pause_pressed_hover);            
 	         play.setRolloverIcon(ImageLoader.image_pause_hover);
 		}else{
 //			 play.setText("\u25BA");
-	         play.setIcon(ImageLoader.image_play);
+	         play.setIcon(imgPlay);
 	         play.setPressedIcon(ImageLoader.image_play_pressed_hover);            
 	         play.setRolloverIcon(ImageLoader.image_play_hover);
 		}
+	}
+	
+	public void setPlayHSB(HSB hsb){
+
+		ImageModifier im = new ImageModifier(ImageLoader.image_play.getImage());
+		
+		im.setHue(hsb.getHue());
+		im.setSaturation(hsb.getSaturation());
+		im.setBrightness(hsb.getBrightness());
+
+		ImageIcon ni = new ImageIcon(im.modify());
+		if (play.getIcon().equals(imgPlay)){
+			imgPlay = ni;
+			play.setIcon(imgPlay);
+		}else
+			imgPlay = ni;
+		
+		repaint();
+	}
+
+	public void setPauseHSB(HSB hsb){
+
+		ImageModifier im = new ImageModifier(ImageLoader.image_pause.getImage());
+		
+		im.setHue(hsb.getHue());
+		im.setSaturation(hsb.getSaturation());
+		im.setBrightness(hsb.getBrightness());
+
+		ImageIcon ni = new ImageIcon(im.modify());
+		if (play.getIcon().equals(imgPause)){
+			imgPause = ni;
+			play.setIcon(imgPause);
+		}else
+			imgPause = ni;
+		
+		repaint();
+	}
+	
+	public void setStopHSB(HSB hsb){
+
+		ImageModifier im = new ImageModifier(ImageLoader.image_stop.getImage());
+		
+		im.setHue(hsb.getHue());
+		im.setSaturation(hsb.getSaturation());
+		im.setBrightness(hsb.getBrightness());
+
+		imgStop = new ImageIcon(im.modify());
+		stop.setIcon(imgStop);
+		
+		repaint();
+	}
+	
+	public void setFrwHSB(HSB hsb){
+
+		ImageModifier im = new ImageModifier(ImageLoader.image_frw.getImage());
+		
+		im.setHue(hsb.getHue());
+		im.setSaturation(hsb.getSaturation());
+		im.setBrightness(hsb.getBrightness());
+
+		imgFrw = new ImageIcon(im.modify());
+		frw.setIcon(imgFrw);
+		
+		repaint();
+	}
+	
+	public void setRevHSB(HSB hsb){
+
+		ImageModifier im = new ImageModifier(ImageLoader.image_rev.getImage());
+		
+		im.setHue(hsb.getHue());
+		im.setSaturation(hsb.getSaturation());
+		im.setBrightness(hsb.getBrightness());
+
+		imgRev = new ImageIcon(im.modify());
+		rev.setIcon(imgRev);
+		
+		repaint();
 	}
 	
 	public void setDisplay(AudioProcessingLayer ppl) {
@@ -338,11 +429,11 @@ public class PlayerControlInterface extends JPanel{
 		return rev;
 	}
 
-	public SearchCircle getSearchBar() {
+	public JSearchCircle getSearchBar() {
 		return searchBar;
 	}
 
-	public SearchCircle getVolume() {
+	public JSearchCircle getVolume() {
 		return volume;
 	}
 

@@ -5,8 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
-
-import audioplayer.desing.Colors;
+import audioplayer.Application;
 import audioplayer.player.device.AudioDeviceLayer;
 
 /**
@@ -47,13 +46,15 @@ public class Analyzer {
 	private volatile float[] channelsValueSum;
 	private volatile int[] chennalsDetailIndex;
 
-	private int sleepTime = 20; // (50 FPS) in ms ; must be max 25 ms, otherwise the
+	private int sleepTime = 20; // (50 FPS) in ms ; must be max 25 ms, otherwise
+								// the
 								// Graph on the GUI will start lagging
-								
+
 	private long duractionTime; // in ns
 	private long speed; // in AudioByteBlock/s
 
 	private boolean DEBUG = false;
+	private boolean defaultGraphsSet;
 
 	public Analyzer(Graph g) {
 		super();
@@ -68,7 +69,7 @@ public class Analyzer {
 		this.g = g;
 
 		initAnalyzerThread();
-		
+
 		setDefaultGraphs(2);
 	}
 
@@ -77,13 +78,12 @@ public class Analyzer {
 		init(device);
 	}
 
-	public void setDefaultGraphs(int count){
+	public void setDefaultGraphs(int count) {
 		for (int i = 0; i < count; i++) {
-	        Color color = getDefaultChannelGraphColor(count);
+			Color color = getDefaultChannelGraphColor(count);
 			if (color == null)
 				color = new Color(new Random().nextInt(256),
-						new Random().nextInt(256),
-						new Random().nextInt(256));
+						new Random().nextInt(256), new Random().nextInt(256));
 
 			Integer yOffset = getDefaultChannelGraphYOffset(count);
 
@@ -92,11 +92,12 @@ public class Analyzer {
 			ag.addValue(Float.MAX_VALUE);
 			ag.setName(getDefaulltGraphName(i, count));
 			g.addGraph(ag);
+			defaultGraphsSet = true;
 		}
 	}
-	
-	public String getDefaulltGraphName(int index, int count){
-		return count == 1 ? "MONO" : index == 0 ? "L" : index == 1 ? "R" : "" ;
+
+	public String getDefaulltGraphName(int index, int count) {
+		return count == 1 ? "MONO" : index == 0 ? "L" : index == 1 ? "R" : "";
 	}
 
 	/**
@@ -174,26 +175,39 @@ public class Analyzer {
 	public void resetDefaultChannelGraphColor(int channelIndex) {
 		switch (channelIndex) {
 		case 0:
-			setDefaultChannelGraphColor(channelIndex, Colors.color_graph_defaultChannelGraphColor1);
+			setDefaultChannelGraphColor(
+					channelIndex,
+					Application.getColors().color_graph_defaultChannelGraphColor1);
 			return;
 		case 1:
-			setDefaultChannelGraphColor(channelIndex, Colors.color_graph_defaultChannelGraphColor2);
+			setDefaultChannelGraphColor(
+					channelIndex,
+					Application.getColors().color_graph_defaultChannelGraphColor2);
 			return;
 		case 2:
-			setDefaultChannelGraphColor(channelIndex, Colors.color_graph_defaultChannelGraphColor3);
+			setDefaultChannelGraphColor(
+					channelIndex,
+					Application.getColors().color_graph_defaultChannelGraphColor3);
 			return;
 		case 3:
-			setDefaultChannelGraphColor(channelIndex, Colors.color_graph_defaultChannelGraphColor4);
+			setDefaultChannelGraphColor(
+					channelIndex,
+					Application.getColors().color_graph_defaultChannelGraphColor4);
+
 			return;
 		case 4:
-			setDefaultChannelGraphColor(channelIndex, Colors.color_graph_defaultChannelGraphColor5);
+			setDefaultChannelGraphColor(
+					channelIndex,
+					Application.getColors().color_graph_defaultChannelGraphColor5);
 			return;
 		case 5:
-			setDefaultChannelGraphColor(channelIndex, Colors.color_graph_defaultChannelGraphColor6);
+			setDefaultChannelGraphColor(
+					channelIndex,
+					Application.getColors().color_graph_defaultChannelGraphColor6);
 			return;
 		}
 	}
-	
+
 	/**
 	 * Resets the color settings used on graph generating to the class defaults.
 	 * 
@@ -252,7 +266,7 @@ public class Analyzer {
 		return speed;
 	}
 
-	public Graph getG() {
+	public Graph getGraph() {
 		return g;
 	}
 
@@ -298,11 +312,13 @@ public class Analyzer {
 			g.clearGraphs();
 			channelGraphs.clear();
 			normalizer = null;
+			defaultGraphsSet = false;
 		}
 	}
 
 	public void init(AudioDeviceLayer device) {
 		clearGraphs();
+		setDefaultGraphs(2);
 
 		this.device = device;
 		device.setAnalyzer(this);
@@ -317,11 +333,12 @@ public class Analyzer {
 				public void run() {
 					initNormalizerActive = true;
 					while (normalizer == null && initNormalizerActive) {
-						
+
 						try {
 							Thread.sleep(16);
-						} catch (InterruptedException e1) {}
-						
+						} catch (InterruptedException e1) {
+						}
+
 						try {
 							normalizer = new Normalizer(device.getSource()
 									.getFormat());
@@ -356,19 +373,16 @@ public class Analyzer {
 		} catch (InterruptedException e) {
 		}
 	}
-	
+
 	public void clearData() {
 		toAnalyze.clear();
 	}
 
-	// public ArrayList<AudioBytesBlock> getToAnalyze() {
-	// return toAnalyze;
-	// }
-
 	private void initMergedChannelGraph() {
 		synchronized (channelGraphs) {
 			g.clearGraphs();
-			AudioGraph ag = new AudioGraph(mergedGraphSettingsColor, mergedGraphSettingsYOffset);
+			AudioGraph ag = new AudioGraph(mergedGraphSettingsColor,
+					mergedGraphSettingsYOffset);
 			channelGraphs.add(ag);
 			g.addGraph(ag);
 		}
@@ -381,16 +395,17 @@ public class Analyzer {
 	public void setDetailLevel(int detailLevel) {
 		this.detailLevel = detailLevel;
 	}
-	
+
 	private void initChannelGraphs() {
 		synchronized (channelGraphs) {
-//			g.clearGraphs();
-			
+			if (defaultGraphsSet)
+				g.clearGraphs();
+
 			int channels = device.getFmt().getChannels();
 			while (channelGraphs.size() < channels) {
 
 				int index = channelGraphs.size();
-							
+
 				Color color = getDefaultChannelGraphColor(index);
 				if (color == null)
 					color = new Color(new Random().nextInt(256),
@@ -401,7 +416,7 @@ public class Analyzer {
 
 				AudioGraph ag = new AudioGraph(yOffset, color);
 				ag.setName(getDefaulltGraphName(index, channels));
-				
+
 				channelGraphs.add(ag);
 				g.addGraph(ag);
 			}
@@ -421,10 +436,9 @@ public class Analyzer {
 
 					long s = System.nanoTime();
 
-					
 					try {
 						try {
-//							System.out.println("wait: " + sleepTime + "s");
+							// System.out.println("wait: " + sleepTime + "s");
 							Thread.sleep(sleepTime);
 						} catch (InterruptedException e1) {
 						}
@@ -510,7 +524,7 @@ public class Analyzer {
 
 					duractionTime = System.nanoTime() - s;
 					speed = 1000000000 / duractionTime; // 1000000000ns == 1s
- 					
+
 					if (DEBUG)
 						System.out
 								.printf("Duraction: %9s ns  Buffer: %4s  Speed: %4s AudioByteBlocks/s\n",
@@ -518,7 +532,8 @@ public class Analyzer {
 										(10000 - toAnalyze.remainingCapacity()),
 										speed);
 				}
-				System.err.println("WARNING: The thread \"AnalyzerThread\" has stopped!");
+				System.err
+						.println("WARNING: The thread \"AnalyzerThread\" has stopped!");
 			}
 		});
 		analyzerThread.setName("AnalyzerThread");

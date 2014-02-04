@@ -21,7 +21,7 @@ public class DBConnectionLayer {
         	System.out.print("Start DataBase Server ...\t\t\t");
             
 //        	server = new DB4OServer(DataBase_FileName);
-        	server.startServer();
+//        	server.startServer();
 
             System.out.println("OK");
             return true;
@@ -36,8 +36,8 @@ public class DBConnectionLayer {
         try {
         	System.out.print("Connect to DataBase Server ...\t\t");
              
-        	client = new DB4OClient();
-        	client.connectClient();
+//        	client = new DB4OClient();
+//        	client.connectClient();
 
             System.out.println("OK");
             return true;

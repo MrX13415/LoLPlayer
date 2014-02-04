@@ -2,7 +2,7 @@ package audioplayer.gui;
 
 import audioplayer.Application;
 import audioplayer.desing.Colors;
-
+import audioplayer.gui.ui.UIFrame;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -24,7 +24,7 @@ import javax.swing.BorderFactory;
  * @author Oliver Daus
  * 
  */
-public class AboutDialog extends JDialog{
+public class AboutDialog extends UIFrame{
 
 	/**
 	 * 
@@ -39,13 +39,15 @@ public class AboutDialog extends JDialog{
         super(parent);
         
         text = new JLabel(aboutHTMLPage);
-        text.setForeground(Colors.color_aboutPage_forground);
+        
+        text.setForeground(Application.getColors().color_aboutPage_forground);
+
         text.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         
         //okButton = new JButton();
          
-        this.getContentPane().add(text);
-        this.getContentPane().setBackground(Colors.color_aboutpage_background1);
+        this.getContentPanePanel().add(text);
+
         this.pack();
         
          //Center the frame window
@@ -60,6 +62,7 @@ public class AboutDialog extends JDialog{
             frameSize.width = screenSize.width;
         }
 
+        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.setLocation((screenSize.width - frameSize.width) / 2,
                 (screenSize.height - frameSize.height) / 2);
         

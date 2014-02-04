@@ -5,9 +5,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsDevice.WindowTranslucency;
-import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -16,36 +13,31 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 
 import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.KeyStroke;
-import javax.swing.SearchCircle;
-import javax.swing.SearchCircle.SearchCircleChangeEvent;
-import javax.swing.SearchCircle.SearchCircleKeyEvent;
-import javax.swing.SearchCircle.SearchCircleMouseEvent;
-import javax.swing.SearchCircle.SearchCricleListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import net.mrx13415.searchcircle.event.SearchCircleChangeEvent;
+import net.mrx13415.searchcircle.event.SearchCircleKeyEvent;
+import net.mrx13415.searchcircle.event.SearchCircleListener;
+import net.mrx13415.searchcircle.event.SearchCircleMouseEvent;
+import net.mrx13415.searchcircle.swing.JSearchCircle;
 import audioplayer.Application;
 import audioplayer.desing.Colors;
 import audioplayer.gui.components.MenuBar;
 import audioplayer.gui.components.PlayerControler.PlayerControlInterface;
-import audioplayer.gui.components.frame.TitleFrameBorder;
-import audioplayer.gui.components.frame.TitleFramePane;
-import audioplayer.gui.components.frame.TitleFrameResizeHandler;
 import audioplayer.gui.components.frame.TitleFrameResizeHandler.Direction;
 import audioplayer.gui.components.playlist.PlaylistInterface;
 import audioplayer.gui.components.playlist.PlaylistToggleArea;
+import audioplayer.gui.ui.UIFrame;
 import audioplayer.player.analyzer.components.JGraph.DrawMode;
 import audioplayer.process.components.StatusBar;
 
@@ -55,8 +47,8 @@ import audioplayer.process.components.StatusBar;
  * @author Oliver Daus
  * 
  */
-public abstract class UserInterface extends JFrame implements ActionListener,
-															  SearchCricleListener,
+public abstract class UserInterface extends UIFrame implements ActionListener,
+															  SearchCircleListener,
 															  MouseListener,
 															  WindowFocusListener,
 															  ChangeListener{
@@ -71,30 +63,11 @@ public abstract class UserInterface extends JFrame implements ActionListener,
     private PlaylistInterface pli;
         
     private MenuBar menu;
-    private TitleFrameBorder titleFrame;
-    private TitleFramePane framePane;
-    private JPanel mainPane;
-    private JPanel contentPane;
     private StatusBar statusbar;
 
     private boolean ptaStateExtend = false;
     
 	public UserInterface() {
-
-		GraphicsEnvironment ge = GraphicsEnvironment
-				.getLocalGraphicsEnvironment();
-		GraphicsDevice gd = ge.getDefaultScreenDevice();
-
-		boolean isPerPixelTranslucencySupported = gd
-				.isWindowTranslucencySupported(WindowTranslucency.PERPIXEL_TRANSLUCENT);
-
-		System.out.print("Per-pixel translucency ...\t\t");
-
-		// If translucent windows aren't supported, exit.
-		if (!isPerPixelTranslucencySupported) {
-			System.out.println("NOT SUPPORTED");
-		} else
-			System.out.println("SUPPORTED");
 
 		pci = new PlayerControlInterface(this, this, this);
 
@@ -117,69 +90,29 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 				g2d.fillRect(0, 0, getWidth(), getHeight());
 			}
 		};
-		menu.setBackground(Colors.color_menu_background1);
-		menu.setForeground(Colors.color_menu_forground1);
-		menu.setBorder(BorderFactory.createRaisedBevelBorder());
 
-		contentPane = new JPanel();
-		contentPane.setName("ContentPane");
-		contentPane.setLayout(new BorderLayout());
-		contentPane.add(statusbar, BorderLayout.SOUTH);
-		contentPane.add(menu, BorderLayout.NORTH);
-		contentPane.add(pci, BorderLayout.CENTER);
-//		contentPane.setBackground(new Color(50, 50, 50));
-		contentPane.setPreferredSize(new Dimension(430, 420));
+
+
+		setStatusPane(statusbar);
+		setJMenuBar(menu);
+		getContentPanePanel().add(pci, BorderLayout.CENTER);
+		getContentPanePanel().setPreferredSize(new Dimension(430, 375));
+
 		
 		pta = new PlaylistToggleArea(pli, this);
 		pta.setName("PlaylistToggleArea");
 		pta.getToggleComponent().setName("PlaylistToggleComponent");
 		
-		mainPane = new JPanel();
-		mainPane.setName("MainPane");
-		mainPane.setLayout(new BorderLayout());
-		mainPane.add(contentPane, BorderLayout.CENTER);
-		mainPane.add(pta, BorderLayout.SOUTH);
-		mainPane.setBackground(Colors.color_background2);
 
+		getMainPane().add(pta, BorderLayout.SOUTH);
+		
+		getResizeHandler().addInputComponent(pta.getToggleComponent(), Direction.W, Direction.S, Direction.E);
+
+
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle(Application.App_Name_Version);
-		this.setUndecorated(true);
-
-		titleFrame = new TitleFrameBorder(this, pta);
-		titleFrame.setName("TitleFrame");
-		titleFrame.setBackground(Colors.color_background3);
-		titleFrame.setBorder(BorderFactory.createRaisedBevelBorder());
-		
-		TitleFrameResizeHandler resizeHandler = new TitleFrameResizeHandler(this);
-		resizeHandler.addInputComponent(pta.getToggleComponent(), Direction.W, Direction.S, Direction.E);
-		resizeHandler.addInputComponent(titleFrame, Direction.N, Direction.W);
-		resizeHandler.addInputComponent(contentPane);
-
-		titleFrame.setResizehandler(resizeHandler);
-		
-		framePane = new TitleFramePane(titleFrame, mainPane);
-		framePane.setBackground(Colors.color_background4);
-		framePane.setName("FramePane");
-		
-		this.getContentPane().setLayout(new BorderLayout());
-		this.getContentPane().add(framePane);
-
-		this.setBackground(new Color(0, 0, 0, 0));
-		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		this.setResizable(false);
-
-		this.addWindowFocusListener(this);
-		this.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				Application.exit();
-			}
-		});
-				
-		// this.setPreferredSize(framePane.getPreferredSize());
-		// this.setMinimumSize(new Dimension(430, 475));
-		this.pack();
-
 		this.setLocationRelativeTo(null);
+		this.pack();
 
 		// Center the frame window
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -195,7 +128,7 @@ public abstract class UserInterface extends JFrame implements ActionListener,
 
 		this.setLocation((screenSize.width - frameSize.width) / 2,
 				(screenSize.height - frameSize.height) / 2 - 100);
-
+		
 		this.requestFocusInWindow();
 		this.setVisible(true);
 		
@@ -440,10 +373,10 @@ public abstract class UserInterface extends JFrame implements ActionListener,
         Object s = event.getSearchCircle();
 
         if (s.equals(pci.getSearchBar()))
-                onSearchBarButtonMove((SearchCircle) s);
+                onSearchBarButtonMove((JSearchCircle) s);
 
         if (s.equals(pci.getVolume()))
-                onVolumeButtonMove((SearchCircle) s);
+                onVolumeButtonMove((JSearchCircle) s);
     }
 
     @Override
@@ -577,11 +510,11 @@ public abstract class UserInterface extends JFrame implements ActionListener,
     public abstract void onPlaylistDoubleClick(int index);
     public abstract void onPlaylistRightClick(int index);
     
-    public abstract void onSearchBarButtonMove(SearchCircle s);
-    public abstract void onSearchBarMousePressed(SearchCircle s);
-    public abstract void onSearchBarMouseReleased(SearchCircle s);
+    public abstract void onSearchBarButtonMove(JSearchCircle s);
+    public abstract void onSearchBarMousePressed(JSearchCircle s);
+    public abstract void onSearchBarMouseReleased(JSearchCircle s);
 
-    public abstract void onVolumeButtonMove(SearchCircle v);
+    public abstract void onVolumeButtonMove(JSearchCircle v);
 
     public abstract void onGraphDetailBarChange(JSlider detailBar);
     public abstract void onHeightLevelBarChange(JSlider heightLevelBar);
@@ -607,11 +540,23 @@ public abstract class UserInterface extends JFrame implements ActionListener,
         return menu;
     }
 
-    public JPanel getMainPane() {
-        return contentPane;
-    }
+//    public JPanel getMainPane() {
+//        return contentPane;
+//    }
     
-    @Override
+//    public TitleFrameBorder getTitleFrame() {
+//		return titleFrame;
+//	}
+
+//	public TitleFramePane getFramePane() {
+//		return framePane;
+//	}
+
+//	public JPanel getContentPanePanel() {
+//		return contentPane;
+//	}
+
+	@Override
     public void windowGainedFocus(WindowEvent arg0) {
 
     }

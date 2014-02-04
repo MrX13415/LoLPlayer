@@ -2,28 +2,27 @@ package audioplayer;
 
 import javax.swing.UIManager;
 
-import audioplayer.database.NDataBase;
 import audioplayer.database.sql.LoLPlayerDB;
+import audioplayer.desing.Colors;
 import audioplayer.font.FontLoader;
 import audioplayer.gui.AboutDialog;
-import audioplayer.gui.UIFrame;
+import audioplayer.gui.ui.UIFrame;
 import audioplayer.images.ImageLoader;
-import audioplayer.process.SavePlaylistDBProcess;
 import audioplayer.process.SavePlaylistProcess;
-import audioplayer.test.TestLoader;
 
 import java.awt.Color;
+import java.util.ArrayList;
 
 /**
  *  LoLPlayer II - Audio-Player Project
  * 
  * @author Oliver Daus
- * @version 0.1.5.12
+ * @version 0.1.6
  */ 
 public class Application {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.5.12 beta";
+	public static String App_Version = "0.1.6.1 beta - Rainbow Edition";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
 	public static String App_Author = "Oliver Daus";	
 	public static String App_License = "CC BY-NC-SA 3.0";
@@ -37,22 +36,23 @@ public class Application {
 	private LoLPlayerDB database;
 	
     private PlayerControl control;
-                
+
+    
+    private static Colors colors = new Colors();
+            
+    
 	/**
 	 * @param args
 	 *            the command line arguments
 	 */
 	public static void main(String[] args) {
 		System.out.println(App_Name_Version);
-		
-//		UIFrame uif = new UIFrame();
-		
+	
 		proccessCommands(args);
 		
 		application = new Application();
 		application.initialize();
-		
-		TestLoader.load();
+
 	}
 
 	public static void proccessCommands(String[] args){
@@ -117,10 +117,13 @@ public class Application {
 
 		FontLoader.loadFonts();
 		ImageLoader.loadImages();
+		colors.importData();
+		colors.exportData();
 		AboutDialog.loadAboutText();
                 
 		try {
 			control = new PlayerControl();
+			colors.initRainbowColorThread();
 		} catch (Exception e) {
 			System.out.println("Unexpected Error");
 			e.printStackTrace();
@@ -128,7 +131,10 @@ public class Application {
 
 	}
 
-	
+	public static Colors getColors() {
+		return colors;
+	}
+
 	public static boolean isDebug() {
 		return debug;
 	}
@@ -168,16 +174,16 @@ public class Application {
 		}).start();
 	}
 
-        public static Application getApplication() {
-            return application;
-        }
+    public static Application getApplication() {
+        return application;
+    }
 
-        public LoLPlayerDB getDatabase() {
-            return database;
-        }
+    public LoLPlayerDB getDatabase() {
+        return database;
+    }
 
-        public PlayerControl getControl() {
-            return control;
-        }
+    public PlayerControl getControl() {
+        return control;
+    }
         
 }
