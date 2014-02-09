@@ -39,9 +39,7 @@ public class AboutDialog extends UIFrame{
         super(parent);
         
         text = new JLabel(aboutHTMLPage);
-        
         text.setForeground(Application.getColors().color_aboutPage_forground);
-
         text.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         
         //okButton = new JButton();

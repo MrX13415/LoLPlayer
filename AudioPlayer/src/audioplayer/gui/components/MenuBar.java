@@ -47,6 +47,9 @@ public class MenuBar extends JMenuBar {
 	private JMenu menu_media;
 	private JMenuItem menu_media_library;
 	
+	private JMenu menu_desing;
+	private JMenuItem menu_desing_color;
+	
 	private JMenu menu_graph;
 	private JMenuItem menu_graph_merge;
 	private JMenuItem menu_graph_gfilter;
@@ -193,27 +196,38 @@ public class MenuBar extends JMenuBar {
 		menu_playlist.add(menu_playlist_shuffle);
 
 		menu_playlist.getPopupMenu().setBackground(Application.getColors().color_menu_background1);
-
 		menu_playlist.getPopupMenu().setBorder(BorderFactory.createRaisedBevelBorder());
 		
-		menu_media_library = new MenuItem();
-		menu_media_library.setText("Library");
-		menu_media_library.addActionListener(actionListener);
-		menu_media_library.setBackground(Application.getColors().color_menu_background1);
-		menu_media_library.setForeground(Application.getColors().color_menu_forground1);
+//		menu_media_library = new MenuItem();
+//		menu_media_library.setText("Library");
+//		menu_media_library.addActionListener(actionListener);
+//		menu_media_library.setBackground(Application.getColors().color_menu_background1);
+//		menu_media_library.setForeground(Application.getColors().color_menu_forground1);
+//		
+//		menu_media = new Menu();
+//		menu_media.setText("Media");
+//		menu_media.setBackground(Application.getColors().color_menu_background1);
+//		menu_media.setForeground(Application.getColors().color_menu_forground1);
+//		menu_media.getPopupMenu().setBackground(Application.getColors().color_menu_background1);
+//		menu_media.getPopupMenu().setBorder(BorderFactory.createRaisedBevelBorder());
+//		
+		menu_desing_color = new MenuItem();
+		menu_desing_color .setText("Color");
+		menu_desing_color .addActionListener(actionListener);
+		menu_desing_color.setBackground(Application.getColors().color_menu_background1);
+		menu_desing_color.setForeground(Application.getColors().color_menu_forground1);
 
-		
-		menu_media = new Menu();
-		menu_media.setText("Media");
-		menu_media.setBackground(Application.getColors().color_menu_background1);
-		menu_media.setForeground(Application.getColors().color_menu_forground1);
-		menu_media.getPopupMenu().setBackground(Application.getColors().color_menu_background1);
-		menu_media.getPopupMenu().setBorder(BorderFactory.createRaisedBevelBorder());
+		menu_desing = new Menu();
+		menu_desing.setText("Design");
+		menu_desing.setBackground(Application.getColors().color_menu_background1);
+		menu_desing.setForeground(Application.getColors().color_menu_forground1);
+		menu_desing.getPopupMenu().setBackground(Application.getColors().color_menu_background1);
+		menu_desing.getPopupMenu().setBorder(BorderFactory.createRaisedBevelBorder());
+		menu_desing.add(menu_desing_color);
 		
 		menu_graph_merge = new MenuItem();
 		menu_graph_merge.setText("Toggle merged graphs");
 		menu_graph_merge.addActionListener(actionListener);
-
 		menu_graph_merge.setBackground(Application.getColors().color_menu_background1);
 		menu_graph_merge.setForeground(Application.getColors().color_menu_forground1);
 
@@ -221,7 +235,6 @@ public class MenuBar extends JMenuBar {
 		menu_graph_gfilter = new MenuItem();
 		menu_graph_gfilter.setText("Toggle Gaussian filter");
 		menu_graph_gfilter.addActionListener(actionListener);
-
 		menu_graph_gfilter.setBackground(Application.getColors().color_menu_background1);
 		menu_graph_gfilter.setForeground(Application.getColors().color_menu_forground1);
 
@@ -229,7 +242,6 @@ public class MenuBar extends JMenuBar {
 		menu_graph_dmode = new Menu();
 		menu_graph_dmode.setText("Drawing mode");
 		menu_graph_dmode.addActionListener(actionListener);
-
 		menu_graph_dmode.setBackground(Application.getColors().color_menu_background1);
 		menu_graph_dmode.setForeground(Application.getColors().color_menu_forground1);
 
@@ -285,7 +297,8 @@ public class MenuBar extends JMenuBar {
 		
 		add(menu_file);
 		add(menu_playlist);
-		add(menu_media);
+//		add(menu_media);
+		add(menu_desing);
 		add(menu_graph);
 		add(menu_help);
 	}
@@ -352,6 +365,14 @@ public class MenuBar extends JMenuBar {
 
 	public JMenuItem getMenu_media_library() {
 		return menu_media_library;
+	}
+
+	public JMenu getMenu_desing() {
+		return menu_desing;
+	}
+
+	public JMenuItem getMenu_desing_color() {
+		return menu_desing_color;
 	}
 
 }

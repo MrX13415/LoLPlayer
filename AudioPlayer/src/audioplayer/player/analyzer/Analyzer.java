@@ -405,7 +405,9 @@ public class Analyzer {
 			while (channelGraphs.size() < channels) {
 
 				int index = channelGraphs.size();
-
+				
+				resetDefaultChannelGraphColor(index);
+				
 				Color color = getDefaultChannelGraphColor(index);
 				if (color == null)
 					color = new Color(new Random().nextInt(256),

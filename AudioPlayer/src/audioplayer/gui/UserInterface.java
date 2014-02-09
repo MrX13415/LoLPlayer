@@ -91,13 +91,10 @@ public abstract class UserInterface extends UIFrame implements ActionListener,
 			}
 		};
 
-
-
 		setStatusPane(statusbar);
 		setJMenuBar(menu);
 		getContentPanePanel().add(pci, BorderLayout.CENTER);
 		getContentPanePanel().setPreferredSize(new Dimension(430, 375));
-
 		
 		pta = new PlaylistToggleArea(pli, this);
 		pta.setName("PlaylistToggleArea");
@@ -327,8 +324,11 @@ public abstract class UserInterface extends UIFrame implements ActionListener,
         if (s.equals(menu.getMenu_playlist_shuffle()))
             onMenu_playlist_shuffle();
     
-        if (s.equals(menu.getMenu_media_library()))
-            onMenu_media_library();
+//        if (s.equals(menu.getMenu_media_library()))
+//            onMenu_media_library();
+        
+        if (s.equals(menu.getMenu_desing_color()))
+            onMenu_desing_color();
         
         if (s.equals(menu.getMenu_graph_merge()))
             onMenu_graph_merge();
@@ -495,6 +495,8 @@ public abstract class UserInterface extends UIFrame implements ActionListener,
     public abstract void onMenu_playlist_shuffle();
     
     public abstract void onMenu_media_library();
+    
+    public abstract void onMenu_desing_color();
     
     public abstract void onMenu_graph_merge();
     public abstract void onMenu_graph_gfilter();

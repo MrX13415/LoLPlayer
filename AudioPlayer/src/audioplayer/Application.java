@@ -17,12 +17,12 @@ import java.util.ArrayList;
  *  LoLPlayer II - Audio-Player Project
  * 
  * @author Oliver Daus
- * @version 0.1.6
+ * @version 0.1.6.2
  */ 
 public class Application {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.6.1 beta - Rainbow Edition";
+	public static String App_Version = "0.1.6.2 beta - Rainbow Edition";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
 	public static String App_Author = "Oliver Daus";	
 	public static String App_License = "CC BY-NC-SA 3.0";

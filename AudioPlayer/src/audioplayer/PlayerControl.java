@@ -14,11 +14,13 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.plaf.ColorUIResource;
 
 import javazoom.jl.decoder.JavaLayerException;
 import net.mrx13415.searchcircle.swing.JSearchCircle;
 import audioplayer.gui.AboutDialog;
 import audioplayer.gui.AudioFilePropertiesDialog;
+import audioplayer.gui.ColorDialog;
 import audioplayer.gui.UserInterface;
 import audioplayer.medialibary.DesignMedienPlayer;
 import audioplayer.medialibary.DesignMedienPlayerDB;
@@ -615,6 +617,11 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 		mlibf.pack();
 		mlibf.setVisible(true);
 		
+	}
+	
+	@Override
+	public void onMenu_desing_color() {
+		ColorDialog cd = new ColorDialog(this);		
 	}
 	
 	@Override
