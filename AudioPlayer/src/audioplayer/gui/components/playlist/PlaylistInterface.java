@@ -119,15 +119,20 @@ public class PlaylistInterface extends JPanel{
     public void setSearchButtonHSB(HSB hsb){
         
 		ImageModifier im = new ImageModifier(ImageLoader.image_search.getImage());
-		
 		im.setHue(hsb.getHue());
 		im.setSaturation(hsb.getSaturation());
 		im.setBrightness(hsb.getBrightness());
 
+		ImageModifier im2 = new ImageModifier(ImageLoader.image_search_pressed.getImage());
+		im2.setHue(hsb.getHue());
+		im2.setSaturation(hsb.getSaturation());
+		im2.setBrightness(hsb.getBrightness());
+
 		imgSearch = new ImageIcon(im.modify());
-		imgSearch_pressed = ImageLoader.image_search_pressed;
-        imgSearch_hover = ImageLoader.setHoverImgHSB(ImageLoader.image_search);
-        imgSearch_pressed_hover = ImageLoader.setPressedHoverImgHSB(ImageLoader.image_search_pressed);
+		imgSearch_pressed = new ImageIcon(im2.modify());
+		
+        imgSearch_hover = ImageLoader.setHoverImgHSB(imgSearch);
+        imgSearch_pressed_hover = ImageLoader.setPressedHoverImgHSB(imgSearch_pressed);
         
         searchIcon.setIcon(imgSearch);
         searchIcon.setPressedIcon(imgSearch_pressed); 
