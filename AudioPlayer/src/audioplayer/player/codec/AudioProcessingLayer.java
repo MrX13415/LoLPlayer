@@ -43,6 +43,7 @@ public abstract class AudioProcessingLayer implements Runnable{
 	protected volatile boolean skipFrames;					
 	protected volatile double skipedFrames;				
 	protected volatile double timePerFrame;					//in milliseconds
+	protected volatile boolean reachedEnd;
 	
 	protected volatile float volume = 25f; 					//default: 80% (25f)
 	
@@ -274,7 +275,7 @@ public abstract class AudioProcessingLayer implements Runnable{
 	}
 	
 	public boolean reachedEnd(){
-		return getStreamLength() - timePosition < 5000;
+		return reachedEnd || getStreamLength() - timePosition < 5000;
 	}
 	
 	/** Set the position of the current file to play from

@@ -67,6 +67,18 @@ public class PlayerControlInterface extends JPanel{
 	private ImageIcon imgFrw = ImageLoader.image_frw;
 	private ImageIcon imgRev = ImageLoader.image_rev;
 	
+	private ImageIcon imgPlayHover = ImageLoader.setHoverImgHSB(imgPlay);
+	private ImageIcon imgPauseHover = ImageLoader.setHoverImgHSB(imgPause);
+	private ImageIcon imgStopHover = ImageLoader.setHoverImgHSB(imgStop);
+	private ImageIcon imgFrwHover = ImageLoader.setHoverImgHSB(imgFrw);
+	private ImageIcon imgRevHover = ImageLoader.setHoverImgHSB(imgRev);
+	
+	private ImageIcon imgPlayPressedHover = ImageLoader.setPressedHoverImgHSB(imgPlay);
+	private ImageIcon imgPausePressedHover = ImageLoader.setPressedHoverImgHSB(imgPause);
+	private ImageIcon imgStopPressedHover = ImageLoader.setPressedHoverImgHSB(imgStop);
+	private ImageIcon imgFrwPressedHover = ImageLoader.setPressedHoverImgHSB(imgFrw);
+	private ImageIcon imgRevPressedHover = ImageLoader.setPressedHoverImgHSB(imgRev);
+	
 	
 	public PlayerControlInterface(ActionListener actionListener,
 			SearchCircleListener searchCircleListener, ChangeListener changeListener) {
@@ -80,8 +92,8 @@ public class PlayerControlInterface extends JPanel{
             play.setContentAreaFilled(false);
             play.setForeground(new Color(255,0,0));
             play.setIcon(imgPlay);
-            play.setPressedIcon(ImageLoader.image_play_pressed_hover);            
-            play.setRolloverIcon(ImageLoader.image_play_hover);
+            play.setPressedIcon(imgPlayPressedHover);            
+            play.setRolloverIcon(imgPlayHover);
             
             stop = new JButton("");	// [ ]  \u25FC
             stop.setFont(FontLoader.fontSymbola);
@@ -90,8 +102,8 @@ public class PlayerControlInterface extends JPanel{
             stop.setContentAreaFilled(false);
             stop.setForeground(new Color(255,0,0));
             stop.setIcon(imgStop);
-            stop.setPressedIcon(ImageLoader.image_stop_pressed_hover);            
-            stop.setRolloverIcon(ImageLoader.image_stop_hover);
+            stop.setPressedIcon(imgStopPressedHover);            
+            stop.setRolloverIcon(imgStopHover);
             
             frw = new JButton(""); // >>|  \u23ed 
             frw.setFont(FontLoader.fontSymbola);
@@ -100,8 +112,8 @@ public class PlayerControlInterface extends JPanel{
             frw.setContentAreaFilled(false);
             frw.setForeground(new Color(255,0,0));
             frw.setIcon(imgFrw);
-            frw.setPressedIcon(ImageLoader.image_frw_pressed_hover);            
-            frw.setRolloverIcon(ImageLoader.image_frw_hover);
+            frw.setPressedIcon(imgFrwPressedHover);            
+            frw.setRolloverIcon(imgFrwHover);
             
             rev = new JButton(""); // |<<  \u23ee
             rev.setFont(FontLoader.fontSymbola);
@@ -110,8 +122,8 @@ public class PlayerControlInterface extends JPanel{
             rev.setContentAreaFilled(false);
             rev.setForeground(new Color(255,0,0));
             rev.setIcon(imgRev);
-            rev.setPressedIcon(ImageLoader.image_rev_pressed_hover);            
-            rev.setRolloverIcon(ImageLoader.image_rev_hover);
+            rev.setPressedIcon(imgRevPressedHover);            
+            rev.setRolloverIcon(imgRevHover);
             
             playerButtons = new JPanel();
             playerButtons.setBackground(new Color(50,50,50));
@@ -293,15 +305,17 @@ public class PlayerControlInterface extends JPanel{
 		if (isPlaying){
 //			 play.setText("\u2759\u2759");
 			 play.setIcon(imgPause);
-	         play.setPressedIcon(ImageLoader.image_pause_pressed_hover);            
-	         play.setRolloverIcon(ImageLoader.image_pause_hover);
+	         play.setPressedIcon(imgPausePressedHover);            
+	         play.setRolloverIcon(imgPauseHover);
 		}else{
 //			 play.setText("\u25BA");
 	         play.setIcon(imgPlay);
-	         play.setPressedIcon(ImageLoader.image_play_pressed_hover);            
-	         play.setRolloverIcon(ImageLoader.image_play_hover);
+	         play.setPressedIcon(imgPlayPressedHover);            
+	         play.setRolloverIcon(imgPlayHover);
 		}
 	}
+	
+	
 	
 	public void setPlayHSB(HSB hsb){
 
@@ -314,9 +328,16 @@ public class PlayerControlInterface extends JPanel{
 		ImageIcon ni = new ImageIcon(im.modify());
 		if (play.getIcon().equals(imgPlay)){
 			imgPlay = ni;
+			imgPlayPressedHover = ImageLoader.setPressedHoverImgHSB(imgPlay);
+			imgPlayHover = ImageLoader.setHoverImgHSB(imgPlay);
 			play.setIcon(imgPlay);
-		}else
+            play.setPressedIcon(imgPlayPressedHover);            
+            play.setRolloverIcon(imgPlayHover);
+		}else{
 			imgPlay = ni;
+			imgPlayPressedHover = ImageLoader.setPressedHoverImgHSB(imgPlay);
+			imgPlayHover = ImageLoader.setHoverImgHSB(imgPlay);
+		}
 		
 		repaint();
 	}
@@ -332,10 +353,18 @@ public class PlayerControlInterface extends JPanel{
 		ImageIcon ni = new ImageIcon(im.modify());
 		if (play.getIcon().equals(imgPause)){
 			imgPause = ni;
+			imgPausePressedHover = ImageLoader.setPressedHoverImgHSB(imgPause);
+			imgPauseHover = ImageLoader.setHoverImgHSB(imgPause);
+			
 			play.setIcon(imgPause);
-		}else
+            play.setPressedIcon(imgPausePressedHover);            
+            play.setRolloverIcon(imgPauseHover);
+		}else{
 			imgPause = ni;
-		
+			imgPausePressedHover = ImageLoader.setPressedHoverImgHSB(imgPause);
+			imgPauseHover = ImageLoader.setHoverImgHSB(imgPause);
+		}
+	
 		repaint();
 	}
 	
@@ -348,8 +377,13 @@ public class PlayerControlInterface extends JPanel{
 		im.setBrightness(hsb.getBrightness());
 
 		imgStop = new ImageIcon(im.modify());
-		stop.setIcon(imgStop);
+		imgStopPressedHover = ImageLoader.setPressedHoverImgHSB(imgStop);
+		imgStopHover = ImageLoader.setHoverImgHSB(imgStop);
 		
+		stop.setIcon(imgStop);
+		stop.setPressedIcon(imgStopPressedHover);            
+        stop.setRolloverIcon(imgStopHover);
+
 		repaint();
 	}
 	
@@ -362,8 +396,13 @@ public class PlayerControlInterface extends JPanel{
 		im.setBrightness(hsb.getBrightness());
 
 		imgFrw = new ImageIcon(im.modify());
-		frw.setIcon(imgFrw);
+		imgFrwPressedHover = ImageLoader.setPressedHoverImgHSB(imgFrw);
+		imgFrwHover = ImageLoader.setHoverImgHSB(imgFrw);
 		
+		frw.setIcon(imgFrw);
+        frw.setPressedIcon(imgFrwPressedHover);            
+        frw.setRolloverIcon(imgFrwHover);
+
 		repaint();
 	}
 	
@@ -376,8 +415,13 @@ public class PlayerControlInterface extends JPanel{
 		im.setBrightness(hsb.getBrightness());
 
 		imgRev = new ImageIcon(im.modify());
+		imgRevPressedHover = ImageLoader.setPressedHoverImgHSB(imgRev);
+		imgRevHover = ImageLoader.setHoverImgHSB(imgRev);
+				
 		rev.setIcon(imgRev);
-		
+        rev.setPressedIcon(imgRevPressedHover);            
+        rev.setRolloverIcon(imgRevHover);
+        
 		repaint();
 	}
 	

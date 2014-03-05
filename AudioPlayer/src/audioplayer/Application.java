@@ -17,12 +17,12 @@ import java.util.ArrayList;
  *  LoLPlayer II - Audio-Player Project
  * 
  * @author Oliver Daus
- * @version 0.1.6.2
+ * @version 0.1.6.4
  */ 
 public class Application {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.6.2 beta - Rainbow Edition";
+	public static String App_Version = "0.1.6.5 beta - Rainbow Edition";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
 	public static String App_Author = "Oliver Daus";	
 	public static String App_License = "CC BY-NC-SA 3.0";
@@ -96,14 +96,14 @@ public class Application {
 	 */
 	public void initialize() {
 
-        UIManager.put("TabbedPane.selected", Color.GREEN);
-		UIManager.put("MenuItem.selectionBackground", Color.GREEN);
-		UIManager.put("MenuItem.selectionForeground", Color.BLUE);
-		UIManager.put("Menu.selectionBackground", Color.GREEN);
-		UIManager.put("Menu.selectionForeground", Color.BLUE);
-		UIManager.put("MenuBar.selectionBackground", Color.GREEN);
-		UIManager.put("MenuBar.selectionForeground", Color.BLUE);
-                
+//      UIManager.put("TabbedPane.selected", Color.GREEN);
+//		UIManager.put("MenuItem.selectionBackground", Color.GREEN);
+//		UIManager.put("MenuItem.selectionForeground", Color.BLUE);
+//		UIManager.put("Menu.selectionBackground", Color.GREEN);
+//		UIManager.put("Menu.selectionForeground", Color.BLUE);
+//		UIManager.put("MenuBar.selectionBackground", Color.GREEN);
+//		UIManager.put("MenuBar.selectionForeground", Color.BLUE);
+               
 		try {
 			System.out.print("Load Nimubs Look and Feel (L&F) ...\t");
 			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");

@@ -72,6 +72,7 @@ public abstract class UserInterface extends UIFrame implements ActionListener,
 		pci = new PlayerControlInterface(this, this, this);
 
 		pli = new PlaylistInterface(this);
+		pli.getPlaylistViewModeButton().addActionListener(this);
 
 		statusbar = new StatusBar();
 		statusbar.setName("Statusbar");
@@ -293,6 +294,9 @@ public abstract class UserInterface extends UIFrame implements ActionListener,
                 onButtonFrw();
         if (s.equals(pci.getRev()))
                 onButtonRev();
+        
+        if (s.equals(pli.getPlaylistViewModeButton()))
+        	onButtonPlaylistviewMode(!pli.getPlaylistViewModeButton().isSelected()); //has to be negated, because the selection state is not up to date here
 
         if (s.equals(menu.getMenu_file_open()))
                 onMenu_file_open();
@@ -504,6 +508,9 @@ public abstract class UserInterface extends UIFrame implements ActionListener,
     
     public abstract void onMenu_help_about();
 
+
+    public abstract void onButtonPlaylistviewMode(boolean buttonPressed);
+    
     public abstract void onButtonPlay();
     public abstract void onButtonStop();
     public abstract void onButtonFrw();

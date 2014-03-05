@@ -33,10 +33,11 @@ public class Analyzer {
 
 	private volatile ArrayList<AudioGraph> channelGraphs = new ArrayList<AudioGraph>();
 
-	private volatile ArrayBlockingQueue<AudioBytesBlock> toAnalyze = new ArrayBlockingQueue<AudioBytesBlock>(
-			10000);// ArrayList<AudioBytesBlock> toAnalyze = new
-					// ArrayList<AudioBytesBlock>();
-	private int buffermax = 0;
+	public static final int initCapacity = 10000;
+	private volatile int buffermax = 25;
+	private volatile ArrayBlockingQueue<AudioBytesBlock> toAnalyze = new ArrayBlockingQueue<AudioBytesBlock>(initCapacity);
+	// ArrayList<AudioBytesBlock> toAnalyze = new ArrayList<AudioBytesBlock>();
+	
 	private volatile boolean active;
 	private volatile boolean initNormalizerActive;
 
@@ -288,8 +289,12 @@ public class Analyzer {
 		this.device = device;
 	}
 
-	public int getBuffermax() {
+	public int getBufferMax() {
 		return buffermax;
+	}
+	
+	public int getBufferSize(){
+		return initCapacity - toAnalyze.remainingCapacity();
 	}
 
 	protected void stop() {
@@ -369,7 +374,11 @@ public class Analyzer {
 
 	public void addToAnalyze(AudioBytesBlock abb) {
 		try {
-			toAnalyze.put(abb);
+			if (getBufferSize() < getBufferMax()){
+				toAnalyze.put(abb);
+			}else{
+				if(DEBUG) System.err.println("WARNING: AnalyzerThread: Can't keep up!");
+			}
 		} catch (InterruptedException e) {
 		}
 	}
@@ -446,9 +455,14 @@ public class Analyzer {
 						}
 
 						int bx = toAnalyze.size();
-						if (bx > buffermax)
+						
+						//can't keep up ...
+						if (bx > buffermax){
+							if(DEBUG) System.err.println("WARNING: AnalyzerThread: Can't keep up!");
 							buffermax = bx;
-
+							continue;
+						}
+						
 						if (normalizer == null) {
 							initNormalizer();
 							continue;
@@ -529,16 +543,17 @@ public class Analyzer {
 
 					if (DEBUG)
 						System.out
-								.printf("Duraction: %9s ns  Buffer: %4s  Speed: %4s AudioByteBlocks/s\n",
+								.printf("Duraction: %9s ns  Buffer: %4s /%4s  Speed: %4s AudioByteBlocks/s\n",
 										duractionTime,
-										(10000 - toAnalyze.remainingCapacity()),
+										getBufferSize(), 
+										buffermax,
 										speed);
 				}
 				System.err
 						.println("WARNING: The thread \"AnalyzerThread\" has stopped!");
 			}
 		});
-		analyzerThread.setName("AnalyzerThread");
+		analyzerThread.setName ("AnalyzerThread");
 		analyzerThread.start();
 	}
 

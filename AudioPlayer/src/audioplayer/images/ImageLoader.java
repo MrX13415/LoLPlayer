@@ -14,6 +14,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 
+import net.mrx13415.searchcircle.imageutil.ImageModifier;
 import audioplayer.Application;
 
 /**
@@ -47,8 +48,7 @@ public class ImageLoader {
 	public static String resName_image_rev_pressed_hover = "rev_pressed_hover.png";
 	
 	public static String resName_image_search = "search.png";
-	public static String resName_image_search_hover = "search_hover.png";
-	public static String resName_image_search_pressed_hover = "search_pressed_hover.png";
+	public static String resName_image_search_pressed = "search_pressed.png";
 	
 	//--------------------------------------------------------------------------
 	//-- image holder fields ---------------------------------------------------
@@ -75,8 +75,7 @@ public class ImageLoader {
 	public static ImageIcon image_rev_pressed_hover = new ImageIcon(Altrnative_Image_Path + resName_image_rev_pressed_hover);
 	
 	public static ImageIcon image_search = new ImageIcon(Altrnative_Image_Path + resName_image_search);
-	public static ImageIcon image_search_hover = new ImageIcon(Altrnative_Image_Path + resName_image_search_hover);
-	public static ImageIcon image_search_pressed_hover = new ImageIcon(Altrnative_Image_Path + resName_image_search_pressed_hover);
+	public static ImageIcon image_search_pressed = new ImageIcon(Altrnative_Image_Path + resName_image_search_pressed);
 	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
@@ -110,11 +109,24 @@ public class ImageLoader {
 		images.add(new ImageLoaderData("image_rev_hover", resName_image_rev_hover, size, size));
 		images.add(new ImageLoaderData("image_rev_pressed_hover", resName_image_rev_pressed_hover, size, size));
 		
-		images.add(new ImageLoaderData("image_search", resName_image_search, 20, 20));
-		images.add(new ImageLoaderData("image_search_hover", resName_image_search_hover, size, size));
-		images.add(new ImageLoaderData("image_search_pressed_hover", resName_image_search_pressed_hover, size, size));
+		size = 28;
+		images.add(new ImageLoaderData("image_search", resName_image_search, size, size));
+		images.add(new ImageLoaderData("image_search_pressed", resName_image_search_pressed, size, size));
 	}
 	
+	public static ImageIcon setPressedHoverImgHSB(ImageIcon img){
+		//Make pressed a little darker and hover lighter ... 
+		ImageModifier im = new ImageModifier(img.getImage());
+		im.setBrightness(-0.2f);
+		return new ImageIcon(im.modify());	
+	}
+	
+	public static ImageIcon setHoverImgHSB(ImageIcon img){
+		//Make pressed a little darker and hover lighter ... 
+		ImageModifier im = new ImageModifier(img.getImage());
+		im.setBrightness(0.3f);
+		return new ImageIcon(im.modify());	
+	}
 	
 	public static void loadImages() {
 		loadImages(null);

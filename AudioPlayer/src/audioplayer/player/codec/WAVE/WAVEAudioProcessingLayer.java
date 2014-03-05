@@ -131,6 +131,9 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 								
 				timePerLoop = System.currentTimeMillis() - tplStart;
 			} //loop end
+			
+			reachedEnd = !hasMoreFrames;
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}finally{

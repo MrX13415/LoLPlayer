@@ -7,9 +7,14 @@ package audioplayer.gui.components.playlist;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -18,7 +23,6 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import audioplayer.Application;
-
 import audioplayer.font.FontLoader;
 import audioplayer.images.ImageLoader;
 
@@ -39,7 +43,13 @@ public class PlaylistInterface extends JPanel{
     private JScrollPane playlistScrollPane;
     private PlaylistTableModel ptm;
     private JTextField searchField;
-    private JLabel searchIcon;
+    private JButton searchIcon;
+    
+    private ImageIcon imgSearch = ImageLoader.image_search;
+    private ImageIcon imgSearch_pressed = ImageLoader.image_search_pressed;
+    private ImageIcon imgSearch_hover = ImageLoader.setHoverImgHSB(ImageLoader.image_search);
+    private ImageIcon imgSearch_pressed_hover = ImageLoader.setPressedHoverImgHSB(ImageLoader.image_search_pressed);
+    
     
     public PlaylistInterface(MouseListener ml) {
         
@@ -79,16 +89,19 @@ public class PlaylistInterface extends JPanel{
 
         searchField = new JTextField();
         
-        searchIcon = new JLabel("");
+        searchIcon = new JButton("");
+        searchIcon.setBorderPainted(false);
+        searchIcon.setContentAreaFilled(false);
         searchIcon.setFont(FontLoader.fontSymbola);
         searchIcon.setBackground(new Color(50,50,50));
-//        searchIcon.setBorderPainted(false);
-//        searchIcon.setContentAreaFilled(false);
         searchIcon.setForeground(new Color(255,0,0));
-        searchIcon.setIcon(ImageLoader.image_search);
-//        searchIcon.setPressedIcon(ImageLoader.image_search_pressed_hover);            
-//        searchIcon.setRolloverIcon(ImageLoader.image_search_hover);
-        
+        searchIcon.setIcon(imgSearch);
+        searchIcon.setPreferredSize(new Dimension(ImageLoader.image_search.getIconWidth(), ImageLoader.image_search.getIconHeight()));
+        searchIcon.setPressedIcon(imgSearch_pressed); 
+        searchIcon.setRolloverSelectedIcon(imgSearch_pressed_hover);
+        searchIcon.setSelectedIcon(imgSearch_pressed);
+        searchIcon.setRolloverIcon(imgSearch_hover);
+
         JPanel searchBox = new JPanel(new BorderLayout(3,0));
         searchBox.add(searchField);
         searchBox.add(searchIcon, BorderLayout.WEST);
@@ -116,7 +129,10 @@ public class PlaylistInterface extends JPanel{
 	public JScrollPane getPlaylistScrollPane() {
 		return playlistScrollPane;
 	}
-    
-    
+
+	public JButton getPlaylistViewModeButton() {
+		return searchIcon;
+	}
+	
     
 }

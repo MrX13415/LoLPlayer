@@ -130,6 +130,9 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer implements Ru
 								
 				timePerLoop = System.currentTimeMillis() - tplStart;
 			} //loop end
+			
+			reachedEnd = !hasMoreFrames;
+			
 		} catch (Exception e) {
                     System.err.println("Error while playing Audiofile: " + e);
 		}finally{

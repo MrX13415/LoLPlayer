@@ -14,7 +14,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.plaf.ColorUIResource;
 
 import javazoom.jl.decoder.JavaLayerException;
 import net.mrx13415.searchcircle.swing.JSearchCircle;
@@ -45,6 +44,7 @@ import audioplayer.process.LoadPlaylistProcess;
 import audioplayer.process.Process;
 import audioplayer.process.SavePlaylistDBProcess;
 import audioplayer.process.SavePlaylistProcess;
+import audioplayer.process.SearchPlaylistProcess;
 
 /**
  * LoLPlayer II - Audio-Player Project
@@ -60,8 +60,12 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	private static final long serialVersionUID = 1L;
 
 	private AudioProcessingLayer audioProcessingLayer = AudioProcessingLayer.getEmptyInstance();
-	private AudioPlaylist audioPlaylist = new AudioPlaylist();
 
+	private AudioPlaylist searchPlaylist = new AudioPlaylist();	
+	private AudioPlaylist audioPlaylist = new AudioPlaylist();
+	
+	private AudioPlaylist currentPlaylist = audioPlaylist;
+	
 	private Thread uiUpdaterThread;
 
 	private boolean wasPausedOnSearchBarMousePressed;
@@ -74,7 +78,8 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	 */
 	public PlayerControl() {
 		
-		audioPlaylist.addPlayerListener(this);
+		currentPlaylist.addPlayerListener(this);
+		
 		loadPlaylistFromDB();
 		new LoadPlaylistProcess(this);
 		new GetherAudioFileInfoProcess(this);
@@ -99,25 +104,12 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 			initAudioFile(); // autoplay on startup if playlist had content ...
 		}
 		
+		//playlist search ..
 		getPlaylistInterface().getSearchField().addCaretListener(new CaretListener() {
 			
 			@Override
 			public void caretUpdate(CaretEvent e) {
-				String text = getPlaylistInterface().getSearchField().getText();
-				if (text.isEmpty()) return;
-				
-				for (int i = 0; i < audioPlaylist.size(); i++) {
-					AudioFile af = audioPlaylist.get(i);
-					
-					if (af.getTitle().toLowerCase().contains(text.toLowerCase()) ||
-					    af.getAuthor().toLowerCase().contains(text.toLowerCase())){
-						getPlaylistInterface().getPlaylistTable().changeSelection(i, 0, false, false);
-						break;
-					}else{
-						getPlaylistInterface().getPlaylistTable().changeSelection(0, 0, false, false);
-						getPlaylistInterface().getPlaylistTable().changeSelection(0, 0, true, false);
-					}
-				}
+				onSearchPlaylist();
 			}
 		});
 		
@@ -146,12 +138,24 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 
 	}
 
+	public void onSearchPlaylist(){
+		new SearchPlaylistProcess(this);
+	}
+	
 	public AudioProcessingLayer getAudioProcessingLayer() {
 		return audioProcessingLayer;
 	}
 
 	public AudioPlaylist getAudioPlaylist() {
 		return audioPlaylist;
+	}
+
+	public AudioPlaylist getSearchPlaylist() {
+		return searchPlaylist;
+	}
+
+	public AudioPlaylist getCurrentPlaylist() {
+		return currentPlaylist;
 	}
 
 	public Thread getUiUpdaterThread() {
@@ -190,7 +194,7 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	public void addDirs(File[] dir, boolean autoPlay) {
 		this.autoPlay = autoPlay;
 		new LoadDirProcess(this, dir);
-		new GetherAudioFileInfoProcess(this);;
+		new GetherAudioFileInfoProcess(this);
 	}
 
 	public void addFiles(File[] file, boolean autoPlay) {
@@ -234,13 +238,15 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	}
 
 	public synchronized boolean initAudioFile() {
-		if (!audioPlaylist.isEmpty()) {
-			AudioFile af = audioPlaylist.get();
+		AudioPlaylist currentPlaylist = this.currentPlaylist;
+		
+		if (!currentPlaylist.isEmpty()) {
+			AudioFile af = currentPlaylist.get();
 
 			try {
 				if (!af.isInitialized()){
 					af.initialize();
-					getPlaylistInterface().getPlaylistTableModel().updateData(audioPlaylist.indexOf(af), af);
+					getPlaylistInterface().getPlaylistTableModel().updateData(currentPlaylist.indexOf(af), af);
 				}
 								
 				initAudioProcessingLayer(af);
@@ -259,7 +265,7 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 			} catch (UnsupportedFileFormatException e) {
 				raiseNotSupportedFileFormatError(af, e, false);
 
-				if (!audioPlaylist.isEmpty())
+				if (!currentPlaylist.isEmpty())
 					initAudioFile();
 			}
 
@@ -270,6 +276,7 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 
 	public void raiseNotSupportedFileFormatError(AudioFile af, Exception e, boolean provideErrorMsg) {		
 		audioPlaylist.remove(af);
+		searchPlaylist.remove(af);
 		
 		System.err.println("Error: File format not supported!:" + e);
 		System.err.printf("Type: %s File: %s\n", af.getType().getName(), af
@@ -388,11 +395,52 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 		uiUpdaterThread.setName("UI-Updater-Thread");
 		uiUpdaterThread.start();
 	}
+	
+	public void switchPlaylist(boolean toSearchPlaylist){
+		if (isSearchPlaylistActive() == toSearchPlaylist) return;
+		
+		currentPlaylist.removePlayerListener(this);
+		
+		if (toSearchPlaylist){
+			getPlaylistInterface().getPlaylistViewModeButton().setSelected(true);
+			System.out.println("Switched to search playlist ...");
+			currentPlaylist = searchPlaylist;
+		}else{
+			getPlaylistInterface().getPlaylistViewModeButton().setSelected(false);
+			System.out.println("Switched to audio playlist ...");
+			currentPlaylist = audioPlaylist;
+		}
 
+		currentPlaylist.addPlayerListener(this);
+		
+		//make sure it's playing from the right playlist
+		if (audioProcessingLayer.isInitialized()
+				|| audioProcessingLayer.isStopped())
+			initAudioFile();
+
+		try {
+			//update gui
+			getPlaylistInterface().getPlaylistTableModel().setContent(currentPlaylist);
+			//(re)set selection
+			getPlaylistInterface().getPlaylistTable().changeSelection(currentPlaylist.getIndex(), 0, false, false);
+		} catch (Exception e) {}
+		
+	}
+	
+	
+	public boolean isSearchPlaylistActive(){
+		return currentPlaylist.equals(searchPlaylist);
+	}
+	
+	@Override
+	public void onButtonPlaylistviewMode(boolean buttonPressed){
+		switchPlaylist(buttonPressed);
+	}
+    
 	@Override
 	public void onButtonPlay() {
 		getPlaylistInterface().getPlaylistTable().changeSelection(
-				audioPlaylist.getIndex(), 0, false, false);
+				currentPlaylist.getIndex(), 0, false, false);
 		audioProcessingLayer.togglePlayPause();
 	}
 
@@ -405,25 +453,25 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	@Override
 	public void onButtonFrw() {
 		analyzer.clearData();
-		audioPlaylist.nextIndex();
+		currentPlaylist.nextIndex();
 	}
 
 	@Override
 	public void onButtonRev() {
 		analyzer.clearData();
-		audioPlaylist.priorIndex();
+		currentPlaylist.priorIndex();
 	}
 
 	@Override
 	public void onPlaylistDoubleClick(int index) {
-		audioPlaylist.setNextIndex(index);
+		currentPlaylist.setNextIndex(index);
 		initAudioFileAutoPlay();
-		System.out.println("no. " + audioPlaylist.getIndex());
+		System.out.println("no. " + currentPlaylist.getIndex());
 	}
 	
 	@Override
 	public void onPlaylistRightClick(int index) {
-		new AudioFilePropertiesDialog(audioPlaylist.get(index));
+		new AudioFilePropertiesDialog(currentPlaylist.get(index));
 	}
 
 	@Override
@@ -474,7 +522,7 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 		int retopt = fc.showOpenDialog(this);
 
 		if (retopt == JFileChooser.APPROVE_OPTION) {
-			// initAudioProcessingLayer();
+			switchPlaylist(false);
 			File[] file = fc.getSelectedFiles();
 			openFiles(file);
 		}
@@ -487,6 +535,7 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 		int retopt = fc.showOpenDialog(this);
 
 		if (retopt == JFileChooser.APPROVE_OPTION) {
+			switchPlaylist(false);
 			File[] dir = fc.getSelectedFiles();
 			openDirs(dir);
 		}
@@ -525,21 +574,20 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 		int[] rows = getPlaylistInterface().getPlaylistTable().getSelectedRows();
 		
 		for (int i : rows) {
-			AudioFile af = audioPlaylist.get(rows[0]);
-			if (audioPlaylist.get().equals(af)) {
+			AudioFile af = currentPlaylist.get(rows[0]);
+			if (currentPlaylist.get().equals(af)) {
 				audioProcessingLayer.stop();
-				audioPlaylist.remove(rows[0]);
+				currentPlaylist.remove(rows[0]);
 				initAudioFileAutoPlay();
 				getPlaylistInterface().getPlaylistTable().changeSelection(rows[0], 0,
 						false, false);
 			} else {
-				audioPlaylist.remove(rows[0]);
+				currentPlaylist.remove(rows[0]);
 				getPlaylistInterface().getPlaylistTable().changeSelection(rows[0], 0,
 						false, false);
 			}
-			if (audioPlaylist.isEmpty()) audioProcessingLayer = AudioProcessingLayer.getEmptyInstance();
-			System.out.println("Removed from playlist: "
-					+ af.getFile().getAbsolutePath());
+			if (currentPlaylist.isEmpty()) audioProcessingLayer = AudioProcessingLayer.getEmptyInstance();
+			System.out.println("Removed from playlist: " + af.getFile().getAbsolutePath());
 		}
 	}
 
@@ -547,8 +595,10 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	public void onMenu_playlist_clear() {
 		audioProcessingLayer.stop();
 		audioProcessingLayer = AudioProcessingLayer.getEmptyInstance();
-		audioPlaylist.clear();
+		currentPlaylist.clear();
 		System.out.println("Playlist cleared ...");
+		
+		if (isSearchPlaylistActive()) switchPlaylist(false);
 	}
 
 	@Override
@@ -557,10 +607,10 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 				.getSelectedRows();
 
 		for (int i = 0; i < rows.length; i++) {
-			AudioFile af = audioPlaylist.get(rows[i]);
-			if (audioPlaylist.isFistElement(af))
+			AudioFile af = currentPlaylist.get(rows[i]);
+			if (currentPlaylist.isFistElement(af))
 				return;
-			audioPlaylist.moveUp(af);
+			currentPlaylist.moveUp(af);
 
 			System.out.println("Moved up in playlist: "
 					+ af.getFile().getAbsolutePath());
@@ -576,10 +626,10 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 		int[] rows = getPlaylistInterface().getPlaylistTable()
 				.getSelectedRows();
 		for (int i = rows.length - 1; i >= 0; i--) {
-			AudioFile af = audioPlaylist.get(rows[i]);
-			if (audioPlaylist.isLastElement(af))
+			AudioFile af = currentPlaylist.get(rows[i]);
+			if (currentPlaylist.isLastElement(af))
 				return;
-			audioPlaylist.moveDown(af);
+			currentPlaylist.moveDown(af);
 
 			System.out.println("Moved down in playlist: "
 					+ af.getFile().getAbsolutePath());
@@ -594,9 +644,9 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 		getMenu().getMenu_playlist_shuffle().setText("Shuffle: Enabled");
 		getMenu().getMenu_playlist_shuffle().setText("Shuffle: Disabled");
 		
-		audioPlaylist.setShuffle(!audioPlaylist.isShuffle());
+		currentPlaylist.setShuffle(!currentPlaylist.isShuffle());
 		
-		if (audioPlaylist.isShuffle())
+		if (currentPlaylist.isShuffle())
 			getMenu().getMenu_playlist_shuffle().setText("Disable shufflemode");
 		else
 			getMenu().getMenu_playlist_shuffle().setText("Enable shufflemode");		
@@ -694,7 +744,7 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 
 	@Override
 	public void onPlayerNextSong(PlayerEvent event) {
-		audioPlaylist.nextIndex();
+		currentPlaylist.nextIndex();
 	}
 
 	@Override
@@ -710,7 +760,9 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	}
 
 	@Override
-	public void onPlaylistFileAdd(PlaylistEvent event) {		
+	public void onPlaylistFileAdd(PlaylistEvent event) {
+		if (isSearchPlaylistActive()) return;
+		
 		boolean aplwasEmpty = audioPlaylist.size() == 1 && audioPlaylist.get(0).equals(event.getAudioFile());
 
 		getPlaylistInterface().getPlaylistTableModel().insertData(event.getAudioFile());
@@ -744,6 +796,8 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 
 	@Override
 	public void onPlaylistIncrement(PlaylistIndexChangeEvent event) {
+		if (isSearchPlaylistActive()) audioPlaylist.overrideIndex(audioPlaylist.indexOf(currentPlaylist.get()));
+	
 		initAudioFileAutoPlay();
 		getPlaylistInterface().getPlaylistTable().changeSelection(
 				event.getNewIndex(), 0, false, false);
@@ -759,11 +813,13 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 
 	@Override
 	public void onPlaylistClear(PlaylistEvent event) {
-		getPlaylistInterface().getPlaylistTableModel().setContent(audioPlaylist);
+		getPlaylistInterface().getPlaylistTableModel().setContent(currentPlaylist);
 	}
 
 	@Override
 	public void onPlaylistIndexSet(PlaylistIndexChangeEvent event) {
+		if (isSearchPlaylistActive()) audioPlaylist.overrideIndex(audioPlaylist.indexOf(currentPlaylist.get()));
+		
 		initAudioFileAutoPlay();
 		getPlaylistInterface().getPlaylistTable().changeSelection(
 				event.getNewIndex(), 0, false, false);

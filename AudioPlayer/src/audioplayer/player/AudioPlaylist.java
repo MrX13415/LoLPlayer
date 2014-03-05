@@ -17,12 +17,15 @@ import java.util.Random;
 public class AudioPlaylist {
     
     private ArrayList<AudioFile> content = new ArrayList<AudioFile>();
+
     private History history = new History();
     
     private int index;
+    
     private boolean shuffle;
-      
+    
     private ArrayList<PlayerListener> listener = new ArrayList<PlayerListener>();
+   
     
     public ArrayList<PlayerListener> getPlayerListener() {
          return listener;
@@ -45,18 +48,23 @@ public class AudioPlaylist {
     }
     
     public void resetToFirstIndex(){
-        index = 0;
+    	index = 0;
     }
     
     public void resetToLastIndex(){
-        index = content.size() - 1;
+    	index = content.size() - 1;
     }
     
-    private void setIndex(int index){
-        int preIndex = this.index;
-         
-        this.index = index;
-        
+    public void overrideIndex(int index){
+    	this.index = index;
+    }
+    
+    public void setIndex(int index){
+    	int preIndex = 0;
+
+		preIndex = this.index;
+		overrideIndex(index);
+  
         for (PlayerListener l : listener)
             l.onPlaylistIndexSet(new PlaylistIndexChangeEvent(this, preIndex, index));
     }
