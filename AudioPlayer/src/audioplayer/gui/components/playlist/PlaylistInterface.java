@@ -22,6 +22,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import net.mrx13415.searchcircle.imageutil.ImageModifier;
+import net.mrx13415.searchcircle.imageutil.color.HSB;
 import audioplayer.Application;
 import audioplayer.font.FontLoader;
 import audioplayer.images.ImageLoader;
@@ -95,8 +97,8 @@ public class PlaylistInterface extends JPanel{
         searchIcon.setFont(FontLoader.fontSymbola);
         searchIcon.setBackground(new Color(50,50,50));
         searchIcon.setForeground(new Color(255,0,0));
-        searchIcon.setIcon(imgSearch);
         searchIcon.setPreferredSize(new Dimension(ImageLoader.image_search.getIconWidth(), ImageLoader.image_search.getIconHeight()));
+        searchIcon.setIcon(imgSearch);
         searchIcon.setPressedIcon(imgSearch_pressed); 
         searchIcon.setRolloverSelectedIcon(imgSearch_pressed_hover);
         searchIcon.setSelectedIcon(imgSearch_pressed);
@@ -113,6 +115,28 @@ public class PlaylistInterface extends JPanel{
         this.setOpaque(false);
         this.setPreferredSize(new Dimension(this.getWidth(), 200));
     }  
+    
+    public void setSearchButtonHSB(HSB hsb){
+        
+		ImageModifier im = new ImageModifier(ImageLoader.image_search.getImage());
+		
+		im.setHue(hsb.getHue());
+		im.setSaturation(hsb.getSaturation());
+		im.setBrightness(hsb.getBrightness());
+
+		imgSearch = new ImageIcon(im.modify());
+		imgSearch_pressed = ImageLoader.image_search_pressed;
+        imgSearch_hover = ImageLoader.setHoverImgHSB(ImageLoader.image_search);
+        imgSearch_pressed_hover = ImageLoader.setPressedHoverImgHSB(ImageLoader.image_search_pressed);
+        
+        searchIcon.setIcon(imgSearch);
+        searchIcon.setPressedIcon(imgSearch_pressed); 
+        searchIcon.setRolloverSelectedIcon(imgSearch_pressed_hover);
+        searchIcon.setSelectedIcon(imgSearch_pressed);
+        searchIcon.setRolloverIcon(imgSearch_hover);
+
+		repaint();
+	}
     
     public JTextField getSearchField() {
 		return searchField;
