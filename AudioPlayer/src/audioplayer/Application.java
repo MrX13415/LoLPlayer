@@ -22,7 +22,7 @@ import java.util.ArrayList;
 public class Application {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.6.6 beta - Rainbow Edition";
+	public static String App_Version = "0.1.6.7 beta - Rainbow Edition";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
 	public static String App_Author = "Oliver Daus";	
 	public static String App_License = "CC BY-NC-SA 3.0";
@@ -117,10 +117,11 @@ public class Application {
 
 		FontLoader.loadFonts();
 		ImageLoader.loadImages();
+
 		colors.importData();
-		colors.exportData();
+		
 		AboutDialog.loadAboutText();
-                
+		                
 		try {
 			control = new PlayerControl();
 			colors.initRainbowColorThread();
@@ -158,10 +159,14 @@ public class Application {
 		} catch (Exception e) {}
 		
 		final SavePlaylistProcess fspdbp = spdbp;
+		
         new Thread(new Runnable() {
 			@Override
 			public void run() {
 				waitForExit = true;
+				
+				colors.exportData();
+
 				System.out.println("Awaiting end of process to exit ...");
 		        while(fspdbp != null && !fspdbp.isReachedEnd()){
 		        	System.out.print("");

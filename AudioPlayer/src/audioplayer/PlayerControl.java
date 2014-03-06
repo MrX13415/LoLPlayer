@@ -135,7 +135,6 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 				}
 			}
 		});
-
 	}
 
 	public void onSearchPlaylist(){

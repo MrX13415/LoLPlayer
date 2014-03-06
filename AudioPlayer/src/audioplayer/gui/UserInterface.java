@@ -106,6 +106,7 @@ public abstract class UserInterface extends UIFrame implements ActionListener,
 		
 		getResizeHandler().addInputComponent(pta.getToggleComponent(), Direction.W, Direction.S, Direction.E);
 
+		Application.getColors().applayColors();
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle(Application.App_Name_Version);
