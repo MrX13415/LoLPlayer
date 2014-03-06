@@ -85,14 +85,32 @@ public class PlaylistTableModel extends AbstractTableModel{
 		} catch (Exception e) {}
     }
     
-    private Object[] createDataObject(int index, AudioFile af){
-    	return new Object[] {index + 1, 
-    			af.isTitleEmpty() ? 
-				af.getName() :
-				af.isAuthorEmpty() ?
-				af.getTitle() :
-				String.format("%s - %s", af.getAuthor(), af.getTitle()),
-				af.getFormatedLength()};
+    public void updateData(AudioFile file){
+    	updateData(data.length, file);
+    }
+    
+    /** 
+     * Creates an data Object (actually an object array) which contains all information to display in the gui-list<br/>
+     * <br/>
+     * data[0] : the index in the list as int <br/>
+     * data[1] : the name to display<br/>
+     * data[2] : the length<br/>
+     * 
+     * 
+     * @param index	the index in the list
+     * @param af	an <code>AudioFile</code> object 
+     * @return An object array (Object[]) 
+     */
+    public static Object[] createDataObject(int index, AudioFile af){
+    	return new Object[] {index + 1
+			    			, 
+			    			af.isTitleEmpty() ? 
+							af.getName() :
+							af.isAuthorEmpty() ?
+							af.getTitle() :
+							String.format("%s - %s", af.getAuthor(), af.getTitle())
+							,
+							af.getFormatedLength()};
     }
     
     public void setContent(AudioPlaylist apl){
