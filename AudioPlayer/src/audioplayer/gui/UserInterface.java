@@ -31,7 +31,6 @@ import net.mrx13415.searchcircle.event.SearchCircleListener;
 import net.mrx13415.searchcircle.event.SearchCircleMouseEvent;
 import net.mrx13415.searchcircle.swing.JSearchCircle;
 import audioplayer.Application;
-import audioplayer.desing.Colors;
 import audioplayer.gui.components.MenuBar;
 import audioplayer.gui.components.PlayerControler.PlayerControlInterface;
 import audioplayer.gui.components.frame.TitleFrameResizeHandler.Direction;

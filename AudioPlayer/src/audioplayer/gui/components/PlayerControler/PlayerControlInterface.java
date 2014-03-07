@@ -82,7 +82,7 @@ public class PlayerControlInterface extends JPanel{
 	
 	public PlayerControlInterface(ActionListener actionListener,
 			SearchCircleListener searchCircleListener, ChangeListener changeListener) {
-
+		
             display = new Display();
 
             play = new JButton(""); // >  \u25BA  ||  \u2759\u2759
@@ -299,6 +299,19 @@ public class PlayerControlInterface extends JPanel{
             this.add(sliderPanel, BorderLayout.WEST);
             this.setPreferredSize(new Dimension(400, 400));
             this.setBackground(new Color(30, 30, 30));
+            
+    		//TODO: to method
+            System.out.println(Application.getColors().color_controls_play);
+    		setPlayHSB(Application.getColors().color_controls_play);
+    		setPauseHSB(Application.getColors().color_controls_pause);
+    		setStopHSB(Application.getColors().color_controls_stop);
+    		setFrwHSB(Application.getColors().color_controls_frw);
+    		setRevHSB(Application.getColors().color_controls_rev);
+    		getSearchBar().setButtonHSB(Application.getColors().color_controls_searchbar_button);
+    		getVolume().setButtonHSB(Application.getColors().color_controls_searchbar_button);
+    		getSearchBar().setBarHSB(Application.getColors().color_controls_searchbar_bar);
+    		getVolume().setBarHSB(Application.getColors().color_controls_volume_bar);
+    		
 	}
 
 	public void setPlayPause(boolean isPlaying) {
