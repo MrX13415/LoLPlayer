@@ -262,7 +262,8 @@ public class PlayerControlInterface extends JPanel{
 
             playerInterfaceGraph = new JGraph();
             playerInterfaceGraph.setLayout(null);
-            playerInterfaceGraph.setGaussianFilter(false);
+            playerInterfaceGraph.setBlurFilter(true);
+            playerInterfaceGraph.setGlowEffect(true);
             playerInterfaceGraph.setOpaque(false);
             playerInterfaceGraph.setLayout(new GridLayout(0, 1, 5, 5));
             playerInterfaceGraph.add(searchBar, BorderLayout.CENTER);
@@ -301,7 +302,7 @@ public class PlayerControlInterface extends JPanel{
             this.setBackground(new Color(30, 30, 30));
             
     		//TODO: to method
-            System.out.println(Application.getColors().color_controls_play);
+
     		setPlayHSB(Application.getColors().color_controls_play);
     		setPauseHSB(Application.getColors().color_controls_pause);
     		setStopHSB(Application.getColors().color_controls_stop);

@@ -1,8 +1,10 @@
 package audioplayer.player.analyzer;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
 import org.magicwerk.brownies.collections.GapList;
 
 

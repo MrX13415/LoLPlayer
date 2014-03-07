@@ -52,7 +52,8 @@ public class MenuBar extends JMenuBar {
 	
 	private JMenu menu_graph;
 	private JMenuItem menu_graph_merge;
-	private JMenuItem menu_graph_gfilter;
+	private JMenuItem menu_graph_bfilter;
+	private JMenuItem menu_graph_geffect;
 	private JMenuItem menu_graph_dmode;
 	
 	private JMenu menu_help;
@@ -231,13 +232,17 @@ public class MenuBar extends JMenuBar {
 		menu_graph_merge.setBackground(Application.getColors().color_menu_background1);
 		menu_graph_merge.setForeground(Application.getColors().color_menu_forground1);
 
-		
-		menu_graph_gfilter = new MenuItem();
-		menu_graph_gfilter.setText("Toggle Gaussian filter");
-		menu_graph_gfilter.addActionListener(actionListener);
-		menu_graph_gfilter.setBackground(Application.getColors().color_menu_background1);
-		menu_graph_gfilter.setForeground(Application.getColors().color_menu_forground1);
+		menu_graph_bfilter = new MenuItem();
+		menu_graph_bfilter.setText("Toggle blur filter");
+		menu_graph_bfilter.addActionListener(actionListener);
+		menu_graph_bfilter.setBackground(Application.getColors().color_menu_background1);
+		menu_graph_bfilter.setForeground(Application.getColors().color_menu_forground1);
 
+		menu_graph_geffect = new MenuItem();
+		menu_graph_geffect.setText("Toggle glow effect");
+		menu_graph_geffect.addActionListener(actionListener);
+		menu_graph_geffect.setBackground(Application.getColors().color_menu_background1);
+		menu_graph_geffect.setForeground(Application.getColors().color_menu_forground1);
 		
 		menu_graph_dmode = new Menu();
 		menu_graph_dmode.setText("Drawing mode");
@@ -245,7 +250,6 @@ public class MenuBar extends JMenuBar {
 		menu_graph_dmode.setBackground(Application.getColors().color_menu_background1);
 		menu_graph_dmode.setForeground(Application.getColors().color_menu_forground1);
 
-		
 		for (DrawMode mode : DrawMode.values()) {
 			MenuItem menu_graph_dmode_mode = new MenuItem();
 			menu_graph_dmode_mode.setText(mode.toString());
@@ -266,12 +270,13 @@ public class MenuBar extends JMenuBar {
 
 		menu_graph.setBorder(BorderFactory.createRaisedBevelBorder());
 		menu_graph.add(menu_graph_merge);
-		menu_graph.add(menu_graph_gfilter);
+		menu_graph.add(separator);
+		menu_graph.add(menu_graph_bfilter);
+		menu_graph.add(menu_graph_geffect);
 		menu_graph.add(separator);
 		menu_graph.add(menu_graph_dmode);
 
 		menu_graph.getPopupMenu().setBackground(Application.getColors().color_menu_background1);
-
 		menu_graph.getPopupMenu().setBorder(BorderFactory.createRaisedBevelBorder());
 		
 		menu_help_about = new MenuItem();
@@ -347,10 +352,14 @@ public class MenuBar extends JMenuBar {
 		return menu_graph_merge;
 	}
 
-	public JMenuItem getMenu_graph_gfilter() {
-		return menu_graph_gfilter;
+	public JMenuItem getMenu_graph_bfilter() {
+		return menu_graph_bfilter;
 	}
 	
+	public JMenuItem getMenu_graph_geffect() {
+		return menu_graph_geffect;
+	}
+
 	public JMenuItem getMenu_graph_dmode() {
 		return menu_graph_dmode;
 	}

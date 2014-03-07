@@ -679,11 +679,19 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	}
 
 	@Override
-	public void onMenu_graph_gfilter() {
+	public void onMenu_graph_bfilter() {
 		getPlayerControlInterface().getPlayerInterfaceGraph()
-				.setGaussianFilter(
+				.setBlurFilter(
 						!getPlayerControlInterface().getPlayerInterfaceGraph()
-								.isGaussianFilter());
+								.isBlurFilter());
+	}
+	
+	@Override
+	public void onMenu_graph_geffect() {
+		getPlayerControlInterface().getPlayerInterfaceGraph()
+				.setGlowEffect(
+						!getPlayerControlInterface().getPlayerInterfaceGraph()
+								.isGlowEffect());
 	}
 	
 	@Override

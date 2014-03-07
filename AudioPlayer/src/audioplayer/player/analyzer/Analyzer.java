@@ -36,7 +36,6 @@ public class Analyzer {
 	public static final int initCapacity = 10000;
 	private volatile int buffermax = 25;
 	private volatile ArrayBlockingQueue<AudioBytesBlock> toAnalyze = new ArrayBlockingQueue<AudioBytesBlock>(initCapacity);
-	// ArrayList<AudioBytesBlock> toAnalyze = new ArrayList<AudioBytesBlock>();
 	
 	private volatile boolean active;
 	private volatile boolean initNormalizerActive;
