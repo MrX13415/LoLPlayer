@@ -30,6 +30,8 @@ public class Normalizer {
 
 	public float[][] normalize( byte[] pData, int pPosition, int pLength ) {
 		
+		//TODO: May move this into the analyzer thread top reduce cpu power ?
+		
 		int wChannels  = audioFormat.getChannels();
 		int wSsib      = audioFormat.getSampleSizeInBits();
 		int wFrameSize = audioFormat.getFrameSize();

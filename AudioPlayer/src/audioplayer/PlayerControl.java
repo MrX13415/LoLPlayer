@@ -88,8 +88,6 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 //		analyzer.setDefaultChannelGraphColor(1, Colors.color_graph_defaultChannelGraphColor5);
 		analyzer.setMergedChannels(false);
 
-		getPlayerControlInterface().getPlayerInterfaceGraph().setUi(this);
-
 		initUIupdaterThread();
 
 		try {

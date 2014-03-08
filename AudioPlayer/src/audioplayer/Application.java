@@ -22,7 +22,7 @@ import java.util.ArrayList;
 public class Application {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.6.9 beta - Fency Edition";
+	public static String App_Version = "0.1.6.10 beta - Fency Edition";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
 	public static String App_Author = "Oliver Daus";	
 	public static String App_License = "CC BY-NC-SA 3.0";

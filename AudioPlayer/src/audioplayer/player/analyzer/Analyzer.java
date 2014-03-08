@@ -1,10 +1,12 @@
 package audioplayer.player.analyzer;
 
 import java.awt.Color;
+import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
+
 import audioplayer.Application;
 import audioplayer.player.device.AudioDeviceLayer;
 
@@ -213,7 +215,7 @@ public class Analyzer {
 	 * 
 	 */
 	public void resetDefaultMergedChannelGraphColor() {
-		mergedGraphSettingsColor = Color.red;
+		mergedGraphSettingsColor = Application.getColors().color_graph_defaultMergedGraphColor;
 	}
 
 	/**
@@ -389,8 +391,7 @@ public class Analyzer {
 	private void initMergedChannelGraph() {
 		synchronized (channelGraphs) {
 			g.clearGraphs();
-			AudioGraph ag = new AudioGraph(mergedGraphSettingsColor,
-					mergedGraphSettingsYOffset);
+			AudioGraph ag = new AudioGraph(mergedGraphSettingsColor, mergedGraphSettingsYOffset);
 			channelGraphs.add(ag);
 			g.addGraph(ag);
 		}

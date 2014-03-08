@@ -2,6 +2,7 @@ package audioplayer.player.analyzer.components;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -11,17 +12,18 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
 import java.util.ArrayList;
+
 import javax.swing.JPanel;
+
 import net.mrx13415.searchcircle.imageutil.ImageModifier;
-import audioplayer.gui.UserInterface;
 import audioplayer.player.analyzer.AudioGraph;
 import audioplayer.player.analyzer.Graph;
-
 
 /**
  *  LoLPlayer II - Audio-Player Project
  * 
  * @author Oliver Daus
+ * @version 2.2
  * 
  * A simple panel to display Graphs
  */
@@ -60,36 +62,29 @@ public class JGraph extends JPanel implements Graph{
 		};
 	}
 	
-	private Thread graphRepaintThread = new Thread();	
+	private Thread graphRepaintThread = new Thread();
+    
 	private volatile ArrayList<AudioGraph> graphs = new ArrayList<AudioGraph>();
+
 	private BufferedImage graphImage;	//the graphs
 	private BufferedImage effectsImage;	//the background	
 	private BufferedImage backImage;	//the background	
 	
-	private BufferedImage finalGraphImage;	//the graphs
-	private BufferedImage finalEffectsImage;	//the graphs
-	private BufferedImage finalBackImage;	//the background	
+	private volatile BufferedImage finalGraphImage;	//the graphs
+	private volatile BufferedImage finalEffectsImage;	//the graphs
+	private volatile BufferedImage finalBackImage;	//the background	
 
 	private volatile boolean blurFilter = true;
 	private volatile boolean glowEffect = true;
-	
-	private volatile DrawMode drawMode = DrawMode.STRAIGHT;
-//	
-//	private GaussianFilter gf = new GaussianFilter(2f);
-//	private PremultiplyFilter pf = new PremultiplyFilter();
-//	private UnpremultiplyFilter upf = new UnpremultiplyFilter();
-//    
 
-			
+	private volatile DrawMode drawMode = DrawMode.STRAIGHT;
+	private volatile float fps = 0;
+	
 	private float heightLevel = 0.4f;
 	private int zoomlLevel = 1;
 	
-    UserInterface ui;
-
-    public void setUi(UserInterface ui) {
-        this.ui = ui;
-    }
-             
+    private boolean DEBUG = false;
+      
 	public JGraph() {
 		super();
 
@@ -101,14 +96,24 @@ public class JGraph extends JPanel implements Graph{
     public void paintComponent(Graphics g ) {
     	super.paintComponent(g);
     	
-    	int x = -20;
-    	int y = -10;
-    	int w = this.getWidth() + 20;
-    	int h = this.getHeight() + 20;
-    	
-    	g.drawImage(finalBackImage, x, y, w, h, null);
-        g.drawImage(finalEffectsImage, x, y, w, h, null);
-        g.drawImage(finalGraphImage, x, y, w, h, null);
+    	int x = 0;
+    	int y = 0;
+
+    	g.drawImage(finalBackImage, x, y, null);
+        
+        g.drawImage(finalEffectsImage, x, y, null);
+  
+        g.drawImage(finalGraphImage, x, y, null);
+
+        if (DEBUG){
+			((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+			((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+	
+			//draw label ...
+			g.setColor(Color.darkGray);
+			g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
+			g.drawString(String.format("%s", (Math.round(fps))), 10, 20);
+        }
     }
             
 	@Override
@@ -135,12 +140,14 @@ public class JGraph extends JPanel implements Graph{
 	public synchronized ArrayList<AudioGraph> getGraphs() {
 		return graphs;
 	}
-	
+
 	private synchronized void repaintGraphs(){
-		if(this.getWidth() > 0 && this.getHeight() > 0)
+		
+		if(this.getWidth() > 0 && this.getHeight() > 0){
 			backImage = ImageModifier.createNewCompatibleBufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
 			effectsImage = ImageModifier.createNewCompatibleBufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
 			graphImage = ImageModifier.createNewCompatibleBufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
+		}
 		
 		try {
 			for (AudioGraph ag : graphs) {
@@ -158,28 +165,27 @@ public class JGraph extends JPanel implements Graph{
 				
 				paintBackground(ag);
 				paintGraph(ag);
+				paintGlowEffect(ag);
 			}
 		} catch (Exception e) {}	
-		
-		
+				
 		if(this.getWidth() > 0 && this.getHeight() > 0){
 			
-			if (isGlowEffect()) {
-				effectsImage = getLinearBlurOp(15, 2, .03f).filter(graphImage, null);
-				effectsImage = getLinearBlurOp(2, 15, .03f).filter(effectsImage, null);
+			if (isGlowEffect()) {				
+				effectsImage = getLinearBlurOp(2, 2, .2f).filter(effectsImage, null);
+				finalEffectsImage = effectsImage;
 			}
 			
 			if(isBlurFilter()){
-				graphImage = getLinearBlurOp(2, 1, .6f).filter(graphImage, null);
-				graphImage = getLinearBlurOp(1, 2, .6f).filter(graphImage, null);
-			}
+				graphImage = getLinearBlurOp(2, 2, .6f).filter(graphImage, null);
+			}			
+
 			
-			finalEffectsImage = effectsImage;
 			finalGraphImage = graphImage; 
 			finalBackImage = backImage;
+
+			repaint();
 		}
-		
-		repaint();
 	}
 	
 	public ConvolveOp getLinearBlurOp(int width, int hight) {
@@ -202,7 +208,6 @@ public class JGraph extends JPanel implements Graph{
         }
         return new Kernel(width, hight, data);
     }
-		
 	
 	private void paintBackground(final AudioGraph graph){
 		Graphics2D g = backImage.createGraphics();
@@ -236,7 +241,15 @@ public class JGraph extends JPanel implements Graph{
 	}
 	
 	private void paintGraph(final AudioGraph graph){	
-		Graphics2D g = graphImage.createGraphics();
+		paintGraph(graph, graphImage, 1f, 255);
+	}
+	
+	private void paintGlowEffect(final AudioGraph graph){	
+		paintGraph(graph, effectsImage, 15f, 5);
+	}
+	
+	private void paintGraph(final AudioGraph graph, BufferedImage image, float strock, int alpha){	
+		Graphics2D g = image.createGraphics();
 		
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
@@ -289,8 +302,11 @@ public class JGraph extends JPanel implements Graph{
 			}
 
 			//draw a line from the last point to the current one ...
-			g.setColor(graph.getColor());
-			g.setStroke(new BasicStroke(1f));
+			Color c = graph.getColor();
+			c = new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);
+			
+			g.setColor(c);
+			g.setStroke(new BasicStroke(strock));
 			
 			if (drawMode == DrawMode.STRAIGHT){
 				g.drawLine(lastPoint_x, lastPoint_y, point_x, point_y);
@@ -335,14 +351,28 @@ public class JGraph extends JPanel implements Graph{
 		graphRepaintThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				
+				long fpsUpdateT = System.currentTimeMillis();
+				
 				while (true) {
-					try {
-						Thread.sleep(25); //40 FPS
-					} catch (InterruptedException e) {}	
+					long tStart = System.nanoTime();
+
 					try{
 						repaintGraphs();
 					}catch(Exception e){
 						e.printStackTrace();
+					}
+					
+					try {
+						long sleepT = 33 - ((System.nanoTime() - tStart) / 1000000);
+						sleepT = sleepT > 0 ? sleepT : 15;
+						Thread.sleep(sleepT); //max 50 FPS
+					} catch (InterruptedException e) {}	
+					
+					if(System.currentTimeMillis() - fpsUpdateT > 500) {
+						fpsUpdateT = System.currentTimeMillis();
+						long tDelta = System.nanoTime()- tStart;
+						fps = 1000000000f / (float)tDelta; //1000000000 = 1s
 					}
 				}
 			}
@@ -371,8 +401,8 @@ public class JGraph extends JPanel implements Graph{
 		return blurFilter;
 	}
 
-	public void setBlurFilter(boolean enableGF) {
-		this.blurFilter = enableGF;
+	public void setBlurFilter(boolean blurfilter) {
+		this.blurFilter = blurfilter;
 	}
 	
 	public boolean isGlowEffect() {
@@ -390,168 +420,4 @@ public class JGraph extends JPanel implements Graph{
 	public void setDrawMode(DrawMode drawMode) {
 		this.drawMode = drawMode;
 	}
-
-	
-//	private synchronized void initDrawingThread(){
-//		new Thread(new Runnable() {
-//			
-//			int id = 1;
-//			
-//			@Override
-//			public void run() {
-//
-//				while(true){
-//					
-//					try {
-//						Thread.sleep(50);
-//					} catch (InterruptedException e) {}
-//										
-//					if(toDrawY.size() < 1) continue;
-//					
-//					int lx = 0;
-//					int ly = toDrawY.get(0);
-//					
-//					for (int i = 1; i < toDrawY.size(); i++) {
-//						final int flx = lx;
-//						final int fly = ly;
-//						final int y = toDrawY.get(i);						
-//						final int x = i;
-//
-//						SwingUtilities.invokeLater(new Runnable() {
-//							public void run() {
-//								z.setzeLinie(id, flx, fly, x, y, Color.red);
-////								z.setzePunkt(id, flx, fly, Color.blue);
-////								z.setzePunkt(id, x, y, Color.blue);		
-//							}
-//						});
-//								
-//						lx = x;
-//						ly = y;
-//						
-//					}
-//					SwingUtilities.invokeLater(new Runnable() {
-//						public void run() {
-//							id *= -1;
-//							z.loeschen(id);
-//						}
-//					});
-//				}
-//			}
-//		}).start();
-//	}
-	
-//	@Override
-//	public void addValue(float val){
-//		int h = z.getHeight() >> 1;
-//		int v = Math.round((val * (float)h) + h);
-//		toDrawY.add(v);
-//			if (toDrawY.size() > z.getWidth()) toDrawY.remove(0);
-//	}
-	
-//	public void test(){
-//		new Thread(new Runnable() {
-//			
-//			@Override
-//			public void run() {
-//				while(true){
-////					synchronized(d){
-//						for (int i = 0; i < 315; i++) {
-//							addValue((float) (Math.cos(i / 50d) * 0.5f));
-//							try {
-//								Thread.sleep(0, 50);
-//							} catch (InterruptedException e) {}
-//						}
-////					}
-//				
-//				}
-//			}
-//		}).start();
-//	}
-//	
-	
-	/*
-	 * 
-	 * package audioplayer.gui;
-
-import java.awt.BorderLayout;
-import java.awt.Color;
-
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-
-
-public class Graph extends JFrame{
-
-	/**
-	 * 
-	private static final long serialVersionUID = -3435425401548849058L;
-	
-	ZeichenFlaechenPanel4 z;
-
-	public Graph() {
-		setLayout(new BorderLayout());;
-
-		z = new ZeichenFlaechenPanel4(800, 400);
-		
-        add(z);
-
-        this.pack();
-        this.setVisible(true);
-
-	}
-	
-	public ZeichenFlaechenPanel4 getZ() {
-		return z;
-	}
-	
-	public synchronized void addValues(float[] values){
-		final float[] f = values;
-		Thread th = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				drawValues(f);
-			}
-		});
-		th.start();
-	}
-	
-	private void drawValues(float[] f){
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				z.loeschen(0);
-			}
-		});
-		
-		int lx = -1;
-		int ly = z.getHeight() >> 1;
-		
-		for (int i = 0; i < f.length; i++) {
-			int h = z.getHeight() >> 1;
-			int v = Math.round((f[i] * (float)h) + h);
-		
-			final int flx = lx;
-			final int fly = ly;
-			final int y = v;						
-			final int x = i;
-
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					z.setzeLinie(0, flx, fly, x, y, Color.red);
-//						z.setzePunkt(id, flx, fly, Color.blue);
-//						z.setzePunkt(id, x, y, Color.blue);		
-				}
-			});
-					
-			lx = x;
-			ly = y;
-		}
-	}
-
-		
-}
-
-	 * 
-	 * 
-	 */
-
 }
