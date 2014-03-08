@@ -165,7 +165,7 @@ public class JGraph extends JPanel implements Graph{
 				
 				paintBackground(ag);
 				paintGraph(ag);
-				paintGlowEffect(ag);
+				if (isGlowEffect()) paintGlowEffect(ag);
 			}
 		} catch (Exception e) {}	
 				
@@ -173,16 +173,15 @@ public class JGraph extends JPanel implements Graph{
 			
 			if (isGlowEffect()) {				
 				effectsImage = getLinearBlurOp(2, 2, .2f).filter(effectsImage, null);
-				finalEffectsImage = effectsImage;
 			}
 			
 			if(isBlurFilter()){
 				graphImage = getLinearBlurOp(2, 2, .6f).filter(graphImage, null);
 			}			
-
 			
-			finalGraphImage = graphImage; 
 			finalBackImage = backImage;
+			finalEffectsImage = effectsImage;
+			finalGraphImage = graphImage; 
 
 			repaint();
 		}
