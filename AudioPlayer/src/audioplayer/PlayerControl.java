@@ -28,6 +28,7 @@ import audioplayer.player.AudioFile;
 import audioplayer.player.AudioFile.UnsupportedFileFormatException;
 import audioplayer.player.AudioPlaylist;
 import audioplayer.player.analyzer.Analyzer;
+import audioplayer.player.analyzer.components.JGraph;
 import audioplayer.player.analyzer.components.JGraph.DrawMode;
 import audioplayer.player.codec.AudioProcessingLayer;
 import audioplayer.player.codec.AudioType;
@@ -672,6 +673,20 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	}
 	
 	@Override
+	public void onMenu_graph_enabled() {
+		JGraph jg = getPlayerControlInterface().getPlayerInterfaceGraph();
+		jg.setEnabledDrawing(!jg.isEnabledDrawing());
+		analyzer.setEnabled(!analyzer.isEnabled());
+	}
+	
+	@Override
+	public void onMenu_graph_fps() {
+		JGraph jg = getPlayerControlInterface().getPlayerInterfaceGraph();
+		jg.setShowFPS(!jg.isShowFPS());
+		
+	}
+	
+	@Override
 	public void onMenu_graph_merge() {
 		analyzer.setMergedChannels(!analyzer.isMergedChannels());
 	}
@@ -774,7 +789,6 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 		
 		System.out.println("Added to playlist: " + event.getAudioFile().getFile().getAbsolutePath());
 
-		//TODO: öalskdö
 		if (aplwasEmpty) {
 			audioPlaylist.resetToFirstIndex();
 			if (autoPlay) initAudioFileAutoPlay();

@@ -51,6 +51,8 @@ public class MenuBar extends JMenuBar {
 	private JMenuItem menu_desing_color;
 	
 	private JMenu menu_graph;
+	private JMenuItem menu_graph_enabled;
+	private JMenuItem menu_graph_fps;
 	private JMenuItem menu_graph_merge;
 	private JMenuItem menu_graph_bfilter;
 	private JMenuItem menu_graph_geffect;
@@ -225,7 +227,19 @@ public class MenuBar extends JMenuBar {
 		menu_desing.getPopupMenu().setBackground(Application.getColors().color_menu_background1);
 		menu_desing.getPopupMenu().setBorder(BorderFactory.createRaisedBevelBorder());
 		menu_desing.add(menu_desing_color);
-		
+
+		menu_graph_enabled = new MenuItem();
+		menu_graph_enabled.setText("Enable/Disable graph");
+		menu_graph_enabled.addActionListener(actionListener);
+		menu_graph_enabled.setBackground(Application.getColors().color_menu_background1);
+		menu_graph_enabled.setForeground(Application.getColors().color_menu_forground1);
+
+		menu_graph_fps = new MenuItem();
+		menu_graph_fps.setText("Toggle FPS");
+		menu_graph_fps.addActionListener(actionListener);
+		menu_graph_fps.setBackground(Application.getColors().color_menu_background1);
+		menu_graph_fps.setForeground(Application.getColors().color_menu_forground1);
+
 		menu_graph_merge = new MenuItem();
 		menu_graph_merge.setText("Toggle merged graphs");
 		menu_graph_merge.addActionListener(actionListener);
@@ -269,6 +283,9 @@ public class MenuBar extends JMenuBar {
 		menu_graph.setForeground(Application.getColors().color_menu_forground1);
 
 		menu_graph.setBorder(BorderFactory.createRaisedBevelBorder());
+		menu_graph.add(menu_graph_enabled);
+		menu_graph.add(menu_graph_fps);
+		menu_graph.add(separator);
 		menu_graph.add(menu_graph_merge);
 		menu_graph.add(separator);
 		menu_graph.add(menu_graph_bfilter);
@@ -346,6 +363,14 @@ public class MenuBar extends JMenuBar {
 	
 	public JMenuItem getMenu_playlist_shuffle() {
 		return menu_playlist_shuffle;
+	}
+
+	public JMenuItem getMenu_graph_enabled() {
+		return menu_graph_enabled;
+	}
+
+	public JMenuItem getMenu_graph_fps() {
+		return menu_graph_fps;
 	}
 
 	public JMenuItem getMenu_graph_merge() {

@@ -11,7 +11,10 @@ import audioplayer.images.ImageLoader;
 import audioplayer.process.SavePlaylistProcess;
 
 import java.awt.Color;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Vector;
 
 /**
  *  LoLPlayer II - Audio-Player Project
@@ -22,7 +25,7 @@ import java.util.ArrayList;
 public class Application {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.6.10 beta - Fency Edition";
+	public static String App_Version = "0.1.6.11 beta - Fency Edition";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
 	public static String App_Author = "Oliver Daus";	
 	public static String App_License = "CC BY-NC-SA 3.0";
@@ -50,6 +53,8 @@ public class Application {
 	
 		proccessCommands(args);
 		
+		registerDEBUGclasses();
+		
 		application = new Application();
 		application.initialize();
 
@@ -72,6 +77,28 @@ public class Application {
 				exit();
 			}
 		}
+	}
+	
+	public static void registerDEBUGclasses(){
+		ClassLoader loader = ClassLoader.getSystemClassLoader();		
+		Class<? extends ClassLoader> clclass = loader.getClass();
+				
+		Vector<?> classes = null;
+        
+		try {
+			Field fldclasses = clclass.getDeclaredField("classes");
+	        fldclasses.setAccessible(true);
+			classes = (Vector<?>) fldclasses.get(loader);        
+		} catch (Exception e) {
+			System.out.println("ERROR: get loaded classes");
+		}
+	
+		if(classes == null) return;
+		
+        for (Iterator<?> iter = classes.iterator(); iter.hasNext();) {
+            System.out.println("   Loaded " + iter.next());
+        }
+		
 	}
 	
 	

@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -23,7 +24,7 @@ import audioplayer.player.analyzer.Graph;
  *  LoLPlayer II - Audio-Player Project
  * 
  * @author Oliver Daus
- * @version 2.2
+ * @version 2.3
  * 
  * A simple panel to display Graphs
  */
@@ -66,6 +67,8 @@ public class JGraph extends JPanel implements Graph{
     
 	private volatile ArrayList<AudioGraph> graphs = new ArrayList<AudioGraph>();
 
+	private volatile boolean enabledDrawing = false;
+	
 	private BufferedImage graphImage;	//the graphs
 	private BufferedImage effectsImage;	//the background	
 	private BufferedImage backImage;	//the background	
@@ -74,6 +77,12 @@ public class JGraph extends JPanel implements Graph{
 	private volatile BufferedImage finalEffectsImage;	//the graphs
 	private volatile BufferedImage finalBackImage;	//the background	
 
+	private Stroke graphStroke = new BasicStroke(1f);
+	private Stroke effetcStroke1 = new BasicStroke(15f);
+//	private Stroke effetcStroke2 = new BasicStroke(10f);
+//	private Stroke effetcStroke3 = new BasicStroke(6f);
+	
+	private volatile boolean showFPS = false;
 	private volatile boolean blurFilter = true;
 	private volatile boolean glowEffect = true;
 
@@ -82,30 +91,27 @@ public class JGraph extends JPanel implements Graph{
 	
 	private float heightLevel = 0.4f;
 	private int zoomlLevel = 1;
-	
-    private boolean DEBUG = false;
-      
+
 	public JGraph() {
 		super();
-
-        initGraphRepaintThread();
-        	
-//		test();
+		
+		//start DrawingThread
+        setEnabledDrawing(true);
 	}
 	
     public void paintComponent(Graphics g ) {
     	super.paintComponent(g);
     	
+    	if (!enabledDrawing) return;
+    	
     	int x = 0;
     	int y = 0;
 
     	g.drawImage(finalBackImage, x, y, null);
-        
         g.drawImage(finalEffectsImage, x, y, null);
-  
         g.drawImage(finalGraphImage, x, y, null);
 
-        if (DEBUG){
+        if (showFPS){
 			((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 			((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 	
@@ -220,7 +226,6 @@ public class JGraph extends JPanel implements Graph{
 		//metric of the label text
 		LineMetrics metrics = g.getFontMetrics().getLineMetrics(graph.getName(), g);
 		Rectangle2D bounds = g.getFontMetrics().getStringBounds(graph.getName(), g);
-
 		
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
@@ -239,15 +244,20 @@ public class JGraph extends JPanel implements Graph{
 		g.dispose();
 	}
 	
-	private void paintGraph(final AudioGraph graph){	
-		paintGraph(graph, graphImage, 1f, 255);
+	private void paintGraph(final AudioGraph graph){
+		paintGraph(graph, graphImage, graphStroke, 255);
 	}
 	
-	private void paintGlowEffect(final AudioGraph graph){	
-		paintGraph(graph, effectsImage, 15f, 5);
+	private void paintGlowEffect(final AudioGraph graph){
+
+//		paintGraph(graph, effectsImage, effetcStroke1, 5);
+//		paintGraph(graph, effectsImage, effetcStroke2, 10);
+//		paintGraph(graph, effectsImage, effetcStroke3, 15);
+		
+		paintGraph(graph, effectsImage, effetcStroke1, 8);
 	}
 	
-	private void paintGraph(final AudioGraph graph, BufferedImage image, float strock, int alpha){	
+	private void paintGraph(final AudioGraph graph, BufferedImage image, Stroke stroke, int alpha){	
 		Graphics2D g = image.createGraphics();
 		
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -267,6 +277,11 @@ public class JGraph extends JPanel implements Graph{
 
 		int graphcenterY = Math.round((0 * (float)(h * heightLevel)) + h) + graph.getYOffset();;
 		
+		Color c = graph.getColor();
+		c = new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);			
+		g.setColor(c);
+		g.setStroke(stroke);
+		
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				
 		//define first point ...
@@ -284,6 +299,9 @@ public class JGraph extends JPanel implements Graph{
 		//update minIndex because first point is already defined ... 
 		minIndex++;
 
+//		GeneralPath path = new GeneralPath();
+//		path.moveTo(lastPoint_x, lastPoint_y);
+				
 		for (int i = minIndex; i < graph.getValues().size(); i++) {				
 
 			//calculate the y coordinates of the next point
@@ -300,15 +318,10 @@ public class JGraph extends JPanel implements Graph{
 				detailC = 0;
 			}
 
-			//draw a line from the last point to the current one ...
-			Color c = graph.getColor();
-			c = new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);
-			
-			g.setColor(c);
-			g.setStroke(new BasicStroke(strock));
-			
+			//draw a line from the last point to the current one ...			
 			if (drawMode == DrawMode.STRAIGHT){
 				g.drawLine(lastPoint_x, lastPoint_y, point_x, point_y);
+//				path.lineTo(point_x, point_y);
 			}
 			
 			if (drawMode == DrawMode.DOTS){
@@ -343,6 +356,10 @@ public class JGraph extends JPanel implements Graph{
 			lastPoint_y = point_y;
 		}
 		
+//		if (drawMode == DrawMode.STRAIGHT){
+//			g.draw(path);
+//		}
+
 		g.dispose();
 	}
 
@@ -353,7 +370,7 @@ public class JGraph extends JPanel implements Graph{
 				
 				long fpsUpdateT = System.currentTimeMillis();
 				
-				while (true) {
+				while (enabledDrawing) {
 					long tStart = System.nanoTime();
 
 					try{
@@ -378,6 +395,26 @@ public class JGraph extends JPanel implements Graph{
 		});
 		graphRepaintThread.setName("GraphRepaintThread");
 		graphRepaintThread.start();
+	}
+
+	public boolean isEnabledDrawing() {
+		return enabledDrawing;
+	}
+
+	public void setEnabledDrawing(boolean enabledDrawing) {
+		if (this.enabledDrawing && enabledDrawing) return;
+		 		
+		this.enabledDrawing = enabledDrawing;
+		
+		if (enabledDrawing) initGraphRepaintThread();
+	}
+
+	public boolean isShowFPS() {
+		return showFPS;
+	}
+
+	public void setShowFPS(boolean showFPS) {
+		this.showFPS = showFPS;
 	}
 
 	public float getHeightLevel() {

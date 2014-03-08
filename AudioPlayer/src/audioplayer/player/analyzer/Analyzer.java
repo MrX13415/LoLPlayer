@@ -1,7 +1,6 @@
 package audioplayer.player.analyzer;
 
 import java.awt.Color;
-import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -39,7 +38,7 @@ public class Analyzer {
 	private volatile int buffermax = 25;
 	private volatile ArrayBlockingQueue<AudioBytesBlock> toAnalyze = new ArrayBlockingQueue<AudioBytesBlock>(initCapacity);
 	
-	private volatile boolean active;
+	private volatile boolean enabled;
 	private volatile boolean initNormalizerActive;
 
 	private boolean mergedChannels;
@@ -70,7 +69,8 @@ public class Analyzer {
 
 		this.g = g;
 
-		initAnalyzerThread();
+		//start analyzer
+		setEnabled(true);
 
 		setDefaultGraphs(2);
 	}
@@ -282,8 +282,16 @@ public class Analyzer {
 		}
 	}
 
-	public boolean isActive() {
-		return active;
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		if (this.enabled && enabled) return;
+		
+		this.enabled = enabled;
+		
+		if (enabled) initAnalyzerThread();
 	}
 
 	public void setDevice(AudioDeviceLayer device) {
@@ -299,7 +307,7 @@ public class Analyzer {
 	}
 
 	protected void stop() {
-		active = false;
+		enabled = false;
 	}
 
 	public boolean isMergedChannels() {
@@ -341,7 +349,7 @@ public class Analyzer {
 					while (normalizer == null && initNormalizerActive) {
 
 						try {
-							Thread.sleep(16);
+							Thread.sleep(20);
 						} catch (InterruptedException e1) {
 						}
 
@@ -435,15 +443,15 @@ public class Analyzer {
 	}
 
 	public void initAnalyzerThread() {
-		if (this.isActive() || analyzerThread.isAlive())
+		if (this.isEnabled() || analyzerThread.isAlive())
 			this.stop();
 
 		analyzerThread = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
-				active = true;
-				while (active) {
+				enabled = true;
+				while (enabled) {
 
 					long s = System.nanoTime();
 
