@@ -6,8 +6,9 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 
+import javax.sound.sampled.AudioFormat;
+
 import audioplayer.Application;
-import audioplayer.player.device.AudioDeviceLayer;
 
 /**
  * LoLPlayer II - Audio-Player Project
@@ -17,11 +18,15 @@ import audioplayer.player.device.AudioDeviceLayer;
  *         Analyzer class to analyzer audio data ...
  */
 public class Analyzer {
-
+	
 	private Thread analyzerThread = new Thread();
 	private Thread initNormalizerThread = new Thread();
 
-	private volatile AudioDeviceLayer device;
+	private volatile AudioFormat format;
+
+	private static volatile ArrayList<AnalyzerSourceDevice> devices = new ArrayList<>();
+	private volatile AnalyzerSourceDevice activeDevice;
+	
 	private volatile Normalizer normalizer;
 
 	private volatile Graph g;
@@ -73,11 +78,6 @@ public class Analyzer {
 		setEnabled(true);
 
 		setDefaultGraphs(2);
-	}
-
-	public Analyzer(AudioDeviceLayer device, Graph g) {
-		this(g);
-		init(device);
 	}
 
 	public void setDefaultGraphs(int count) {
@@ -259,6 +259,34 @@ public class Analyzer {
 	public void setDebug(boolean dEBUG) {
 		DEBUG = dEBUG;
 	}
+	
+	public static AnalyzerSourceDevice[] geSourceDevices(){
+		AnalyzerSourceDevice[] aT = new AnalyzerSourceDevice[devices.size()];
+		return devices.toArray(aT);
+	}
+	
+	public int getActiveDeviceIndex(){
+		return devices.indexOf(getActiveDevice());
+	}
+	
+	public AnalyzerSourceDevice getActiveDevice(){
+		return activeDevice;
+	}
+	
+	public void setActiveDevice(int index){
+		try {
+			setActiveDevice(devices.get(index));
+		} catch (Exception e) {
+			if (devices.size() > 0)
+				setActiveDevice(devices.get(0));
+			else
+				activeDevice = null;
+		}
+	}
+	public void setActiveDevice(AnalyzerSourceDevice device){
+		this.activeDevice = device;
+		System.out.println("Analyzer: Active Device changed to: [" + device.getDisplayName() + "]");
+	}
 
 	public long getDuractionTime() {
 		return duractionTime;
@@ -282,6 +310,14 @@ public class Analyzer {
 		}
 	}
 
+	public AudioFormat getFormat() {
+		return format;
+	}
+
+	public void setFormat(AudioFormat format) {
+		this.format = format;
+	}
+
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -292,10 +328,6 @@ public class Analyzer {
 		this.enabled = enabled;
 		
 		if (enabled) initAnalyzerThread();
-	}
-
-	public void setDevice(AudioDeviceLayer device) {
-		this.device = device;
 	}
 
 	public int getBufferMax() {
@@ -330,13 +362,29 @@ public class Analyzer {
 		}
 	}
 
-	public void init(AudioDeviceLayer device) {
+	public void registerDevice(AnalyzerSourceDevice device){
+		if (devices.size() <= 0){
+			setActiveDevice(device);
+		}
+		
+		if (!devices.contains(device))
+			devices.add(device);
+	}
+	
+	public void unregisterDevice(AnalyzerSourceDevice device){
+		devices.remove(device);
+		
+		if (devices.size() <= 0){
+			activeDevice = null;
+		}
+	}
+	
+	public void init() {
 		clearGraphs();
 		setDefaultGraphs(2);
-
-		this.device = device;
-		device.setAnalyzer(this);
-
+		
+		this.format = getActiveDevice().getAudioFormat();
+		
 		initNormalizer();
 	}
 
@@ -354,12 +402,9 @@ public class Analyzer {
 						}
 
 						try {
-							normalizer = new Normalizer(device.getSource()
-									.getFormat());
-							channelsValueSum = new float[device.getFmt()
-									.getChannels()];
-							chennalsDetailIndex = new int[device.getFmt()
-									.getChannels()];
+							normalizer = new Normalizer(format);
+							channelsValueSum = new float[format.getChannels()];
+							chennalsDetailIndex = new int[format.getChannels()];
 
 							if (mergedChannels) {
 								initMergedChannelGraph();
@@ -377,14 +422,17 @@ public class Analyzer {
 		}
 	}
 
-	public void addToAnalyze(byte[] b, int off, int len) {
-		addToAnalyze(new AudioBytesBlock(b.clone(), off, len));
+	public void analyze(AnalyzerSourceDevice source, byte[] b, int off, int len) {
+		analyze(source, new AudioBytesBlock(b.clone(), off, len));
 	}
 
-	public void addToAnalyze(AudioBytesBlock abb) {
+	public void analyze(AnalyzerSourceDevice source, AudioBytesBlock abb) {
 		try {
 			if (getBufferSize() < getBufferMax()){
-				toAnalyze.put(abb);
+				if (getActiveDevice() == null) throw new RuntimeException("No devices are known. Register any devices befor calling this method");
+				if (getActiveDevice().equals(source)){
+					toAnalyze.put(abb);
+				}
 			}else{
 				if(DEBUG) System.err.println("WARNING: AnalyzerThread: Can't keep up!");
 			}
@@ -418,7 +466,7 @@ public class Analyzer {
 			if (defaultGraphsSet)
 				g.clearGraphs();
 
-			int channels = device.getFmt().getChannels();
+			int channels = format.getChannels();
 			while (channelGraphs.size() < channels) {
 
 				int index = channelGraphs.size();
@@ -485,8 +533,7 @@ public class Analyzer {
 						int offset = abb.getOffset();
 						int length = abb.getLength();
 
-						float[][] channelData = normalizer.normalize(byteBlock,
-								offset, length);
+						float[][] channelData = normalizer.normalize(byteBlock, offset, length);
 
 						if (mergedChannels) {
 							float[] mergedChannelData = channelMerge(channelData);

@@ -1,5 +1,7 @@
 package audioplayer.player.device;
 
+import java.util.Arrays;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -7,287 +9,246 @@ import javax.sound.sampled.Control;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
+import javax.sound.sampled.Port;
 import javax.sound.sampled.SourceDataLine;
 
 import audioplayer.Application;
 import audioplayer.player.analyzer.Analyzer;
-import javazoom.jl.decoder.Decoder;
-import javazoom.jl.decoder.JavaLayerException;
-import javazoom.jl.player.AudioDeviceBase;
+import audioplayer.player.analyzer.AnalyzerSourceDevice;
 
 /**
  *  LoLPlayer II - Audio-Player Project
  * 
+ * Audio-Device Layer
+ * 
  * @author Oliver Daus
  * 
- * @version 1.2
+ * @version 2.0
  * 
- * TODO: marker for 0 DB
+ * TODO: marker for 0 DB 100%
  * 
  */
-public class AudioDeviceLayer extends AudioDeviceBase {
+public class AudioDeviceLayer implements AnalyzerSourceDevice{
 	
-	private volatile SourceDataLine source = null;
-	private AudioFormat fmt = null;
-	private byte[] byteBuf = new byte[4096];
-	private byte[] currentSamplesBytes;
-	private short[] currentSamples;
-	private int currentOffs;
-	private int currentLen;
+	private static AudioDeviceLayer currentAudioDeviceLayer = null;
+	
+	private boolean open = false;
+	private volatile SourceDataLine dataline = null;
+	private AudioFormat format = null;
 	private Analyzer analyzer;
-		
-	public AudioDeviceLayer() {
-            super();
+	
+	private AudioDeviceLayer() {
+        super();
 	}
 	
-	public SourceDataLine getSource() {
-		return source;
+	public static AudioDeviceLayer getInstance(){
+		if (currentAudioDeviceLayer == null)
+			currentAudioDeviceLayer = new AudioDeviceLayer();
+
+		return currentAudioDeviceLayer;
 	}
 	
-	public int getCurrentOffs() {
-		return currentOffs;
-	}
-
-	public byte[] getByteBuf() {
-		return byteBuf;
-	}
-
-	public byte[] getCurrentSamplesBytes() {
-		return currentSamplesBytes;
-	}
-
 	public Analyzer getAnalyzer() {
 		return analyzer;
 	}
 
 	public void setAnalyzer(Analyzer analyzer) {
+		if (this.analyzer != null && analyzer != this.analyzer)
+			this.analyzer.unregisterDevice(this);
+		
+		if (analyzer != null) analyzer.registerDevice(this);
 		this.analyzer = analyzer;
-		this.analyzer.setDevice(this);
 	}
 
-	public short[] getCurrentSamples() {
-		return currentSamples;
+	public boolean isOpen() {
+		return open;
 	}
 
-	public void setCurrentOffs(int currentOffs) {
-		this.currentOffs = currentOffs;
+	public SourceDataLine getDataline() {
+		return dataline;
 	}
 
-	public int getCurrentLen() {
-		return currentLen;
+	public AudioFormat getFormat() {
+		return format;
 	}
 
-	public void setCurrentLen(int currentLen) {
-		this.currentLen = currentLen;
+	public void open(AudioFormat format){
+		if (isOpen()) return;
+		this.format = format;
+		open = true;
 	}
 
-	public void setVolume(float vol){
-	    if (source != null){
-	    	
-            FloatControl control = getVolumeControl();
-
-            if (control == null){
-        	    Application.getApplication().getControl().raiseVolumeControlError();
-        	    return;
-            }
-
-            //linear:
-            //float newvol = (volControl.getMinimum() + (volControl.getMaximum() - volControl.getMinimum()) / 100f * vol);
-            
-            //log:
-            float vmax = 3f; //volControl.getMaximum();
-            float vmin = control.getMinimum();
-
-            float vdelta = vmin - vmax;
-            float vnew = (float) (Math.log(vol/100f) * (vdelta / Math.log(0.01f/100f)) + vmax);
-            if (vnew > vmax) vnew = vmax;
-            if (vnew < vmin) vnew = vmin;
-
-            control.setValue((float) vnew);
-	    }
-    }
+	public void close() {
+		open = false;
 		
-	public float getVolume(){
-		return getVolumeControl() != null ? getVolumeControl().getValue() : 0;
-    }
+		if (dataline == null) return;
+		try {
+			dataline.close();
+		} catch (Exception e) {
+			System.err.println("WARNING: Can't close the audio device: " + e);
+		}finally{
+			dataline = null;
+		}
+	}
 	
-	public FloatControl getVolumeControl(){
-	    if (source != null){
-	    	
-			Control.Type[] controlTypes = new Control.Type[] {
-					FloatControl.Type.MASTER_GAIN,
-					FloatControl.Type.VOLUME
-					};
-			
-			for (Control.Type control : controlTypes) {
-				if (!source.isControlSupported(control)) continue;
+	public void write(byte[] b, final int off, final int len) throws LineUnavailableException{
+		if (dataline == null) createDataLine();
+		
+		dataline.write(b, off, len);
+		
+		if (analyzer != null) analyzer.analyze(this, b, off, len);
+	}
 				
-				return (FloatControl) source.getControl(control);
-			}
-	    }
+	public void flush(){
+		if (dataline != null) dataline.drain();
+	}
 
-	    return null;
+	protected void createDataLine() throws LineUnavailableException {
+		DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
+		
+		Line line = AudioSystem.getLine(info);
+
+		if (line instanceof SourceDataLine){
+			dataline = (SourceDataLine) line;
+			dataline.open(format);
+			
+			dataline.start();
+		}
+		
+		System.out.println(Arrays.toString(AudioSystem.getMixerInfo()));
+		for (int i = 0; i < AudioSystem.getMixerInfo().length; i++) {
+			System.out.println((i < 10? " " : "") + i + " : " + AudioSystem.getMixerInfo()[i]);
+			
+			Mixer m = AudioSystem.getMixer(AudioSystem.getMixerInfo()[i]);
+			System.out.println("     > " + m.getLineInfo());
+			System.out.println("     > " + Arrays.toString(m.getControls()));
+			System.out.println("     > " + Arrays.toString(m.getSourceLines()));
+			for (int j = 0; j < m.getSourceLines().length; j++) {
+				System.out.println("          > " + m.getSourceLines()[j].getLineInfo());
+			}
+			
+			System.out.println("     > " + Arrays.toString(m.getTargetLines()));
+			System.out.println("     > " + Arrays.toString(m.getSourceLineInfo()));
+			System.out.println("     > " + Arrays.toString(m.getTargetLineInfo()));
+		}
+		
+		
+		if (AudioSystem.isLineSupported(Port.Info.SPEAKER)) {
+			
+		    try {
+		        line = (Port) AudioSystem.getLine(Port.Info.MICROPHONE);
+		    }catch(Exception e){
+		    	
+		    }
+		}
+		
+
+		if (dataline == null) throw new LineUnavailableException("Can't obtain Data line");
+	}
+
+	public FloatControl getVolumeControl(){
+	    if (dataline == null) return null;
+	    	
+		Control.Type[] controlTypes = new Control.Type[] {
+				FloatControl.Type.MASTER_GAIN,
+				FloatControl.Type.VOLUME
+				};
+		
+		for (Control.Type control : controlTypes) {
+			if (!dataline.isControlSupported(control)) continue;
+			return (FloatControl) dataline.getControl(control);
+		}
+		return null;
     }
+	
+	public void setVolume(float vol) {
+		if (dataline == null) return;
+		    	
+		FloatControl control = getVolumeControl();
 		
-	public AudioFormat getFmt() {
-		return fmt;
-	}
-
-	public void setAudioFormat(AudioFormat fmt) {
-		this.fmt = fmt;
-	}
-
-	protected AudioFormat getAudioFormat() {
-		if (fmt == null) {
-			Decoder decoder = getDecoder();
-			fmt = new AudioFormat(decoder.getOutputFrequency(), 16, decoder.getOutputChannels(), true, false);
+		if (control == null){
+		    Application.getApplication().getControl().raiseVolumeControlError();
+		    return;
 		}
 		
-		return fmt;
+//	   //linear:
+//	    float newvol = (volControl.getMinimum() + (volControl.getMaximum() - volControl.getMinimum()) / 100f * vol);
+		
+		//log:
+		float vmax = control.getMaximum();
+			  vmax = vmax < 3f ? vmax : 3f; // max vol. can't exceed +3 DB due to noise on >+3 DB
+		float vmin = control.getMinimum(); //-80 DB
+		
+		float vdelta = vmin - vmax;
+		float vnew = (float) (Math.log(vol/100f) * (vdelta / Math.log(0.01f/100f)) + vmax);
+		if (vnew > vmax) vnew = vmax;
+		if (vnew < vmin) vnew = vmin;
+		
+		control.setValue((float) vnew);
 	}
 
-	protected DataLine.Info getSourceLineInfo() {
-		AudioFormat fmt = getAudioFormat();
-		DataLine.Info info = new DataLine.Info(SourceDataLine.class, fmt);
-		return info;
+	public Object getVolume() {
+		return getVolumeControl() != null ? getVolumeControl().getValue() : 0;
 	}
 
-	public void open(AudioFormat fmt) throws JavaLayerException{
-		if (!isOpen()) {
-			setAudioFormat(fmt);
-			openImpl(); //TODO
-			setOpen(true);
-		}
+	/**
+	 * Plays a test tone with a frequency of 440 Hz and a duration of 700 ms
+	 * @throws LineUnavailableException
+	 */
+	public void test() throws LineUnavailableException {
+		open(new AudioFormat(44100, 16, 1, true, false));
+
+		byte[] b = generateSineWave(440, 700);
+		write(b, 0, b.length);
+
+		flush();
+		close();
 	}
 
-	protected void createSource() throws JavaLayerException {
-		Throwable t = null;
-		try {
-			Line line = AudioSystem.getLine(getSourceLineInfo());
-			if (line instanceof SourceDataLine) {
-				source = (SourceDataLine) line;
-				source.open(fmt);
-				source.start();		
-
-			}
-
-		} catch (RuntimeException ex) {
-			t = ex;
-		} catch (LinkageError ex) {
-			t = ex;
-		} catch (LineUnavailableException ex) {
-			t = ex;
-		}
-		if (source == null)
-			throw new JavaLayerException("cannot obtain source audio line", t);
-	}
-
-	public int millisecondsToBytes(AudioFormat fmt, int time) {
-		return (int) (time * (fmt.getSampleRate() * fmt.getChannels() * fmt.getSampleSizeInBits()) / 8000.0);
-	}
-
-	public void closeImpl() {
-		if (source != null) {
-			analyzer = null;
-            try{
-                source.close();
-            }catch(Exception e){
-                System.err.println("WARNING: Can't close the audio device");
-            }
-		}
-	}
-
-	public void writeImpl(short[] samples, final int offs, final int len) throws JavaLayerException {
-		this.currentSamples = samples;
-		writeImpl(toByteArray(samples, offs, len), offs, len * 2);
+	/**
+	 * Returns a byte array of a sinus wave with the given frequency and an duration of 1 second
+	 * to be played on an AudioDevice
+	 * @param frequency The frequency of the sinus wave
+	 * @return A byte array of a sinus wave
+	 */
+	public static byte[] generateSineWave(int frequency) {
+		return generateSineWave(frequency, 1000);
 	}
 	
-	public void writeImpl(byte[] samples, final int offs, final int len) throws JavaLayerException {
-		if (source == null)
-			createSource();
-
-		this.currentOffs = offs;
-		this.currentLen = len; 
-		this.currentSamplesBytes = samples;
-		
-		source.write(samples, 0, len);
-		
-		if (analyzer != null){
-			analyzer.addToAnalyze(samples, offs, len);
-		}		
-	}
-
-	protected byte[] getByteArray(int length) {
-		if (byteBuf.length != length) {
-			byteBuf = new byte[length]; //TODO: +1024?
-		}
-		return byteBuf;
-	}
-
-	protected byte[] toByteArray(short[] samples, int offs, int len) {
-		byte[] b = getByteArray(len * 2);
-		int idx = 0;
-		short s;
-		while (len-- > 0) {
-			s = samples[offs++];
-			b[idx++] = (byte) s;
-			b[idx++] = (byte) (s >>> 8);
-			
-		}
-		return b;
-	}
-
-	protected void flushImpl() {
-		if (source != null) {
-			source.drain();
-		}
-	}
-
-	public int getPosition() {
-		if (source != null) {
-			return (int) (source.getMicrosecondPosition() /1000);
-		}
-		return 0;
-	}
-		
 	/**
-	 * Runs a short test by playing a short silent sound.
-	 * @throws JavaLayerException 
+	 * Returns a byte array of a sinus wave with the given frequency and time
+	 * to be played on an AudioDevice
+	 * @param frequency The frequency of the sinus wave
+	 * @param time The duration in milliseconds
+	 * @return A byte array of a sinus wave
 	 */
-	public void test() throws JavaLayerException{
-		try {
-			open(new AudioFormat(22050, 16, 1, true, false));
-			short[] data = new short[22050 / 10];
-			write(data, 0, data.length);
-			flush();
-			close();
-		} catch (RuntimeException ex) {
-			throw new JavaLayerException("Device test failed: " + ex);
-		}
+	public static byte[] generateSineWave(int frequency, int time) {
+		int sampleRate = 44100;
+        byte[] sin = new byte[(sampleRate / 1000) * time];
+        double samplingInterval = (double) (sampleRate / frequency);
 
+        for (int i = 0; i < (sin.length); i++) {
+            double angle = (2.0 * Math.PI * i) / samplingInterval;
+            sin[i] = (byte) (Math.sin(angle) * 15);
+        }
+        
+        return sin;
+    }
+	
+	@Override
+	public String getDisplayName() {
+		return "Internal Audio Device";
 	}
 
-	public int getLevel()
-    { // audioData might be buffered data read from a data line
-		byte[] audioData = byteBuf;
-		
-		for (byte b : audioData) {
-			System.out.print(b + " ");
-		}
-		System.out.println("");
-		return 0;
-//        long lSum = 0;
-//        for(int i=0; i<audioData.length; i++)
-//            lSum = lSum + audioData[i];
-// 
-//        double dAvg = lSum / audioData.length;
-// 
-//        double sumMeanSquare = 0d;
-//        for(int j=0; j<audioData.length; j++)
-//            sumMeanSquare = sumMeanSquare + Math.pow(audioData[j] - dAvg, 2d);
-// 
-//        double averageMeanSquare = sumMeanSquare / audioData.length;
-//        return (int)(Math.pow(averageMeanSquare,0.5d) + 0.5);
-    }
+	@Override
+	public String getDescription() {
+		return "The internal audio device of the LOLPlayer";
+	}
+
+	@Override
+	public AudioFormat getAudioFormat() {
+		return format;
+	}
 
 }

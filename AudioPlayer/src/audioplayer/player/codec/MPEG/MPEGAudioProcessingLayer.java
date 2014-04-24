@@ -4,11 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.LineUnavailableException;
 
 import javazoom.jl.decoder.Bitstream;
 import javazoom.jl.decoder.BitstreamException;
 import javazoom.jl.decoder.Decoder;
+import javazoom.jl.decoder.DecoderException;
 import javazoom.jl.decoder.Header;
 import javazoom.jl.decoder.SampleBuffer;
 import audioplayer.player.codec.AudioProcessingLayer;
@@ -34,7 +37,8 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer implements Ru
 	protected SampleBuffer output;
 	
 	public MPEGAudioProcessingLayer() {
-		audioDevice = new AudioDeviceLayer();
+		super();
+		//audioDevice = AudioDeviceLayer.getInstance();
 	}
 		
 	public Bitstream getBitstream() {
@@ -44,18 +48,44 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer implements Ru
 	public Decoder getDecoder() {
 		return decoder;
 	}
+		
+	private void initializeBitStreamDecoder() throws FileNotFoundException{
+		bitstream = new Bitstream(new FileInputStream(file.getFile()));
+		decoder = new Decoder();
+	}
+	
+	protected AudioFormat getAudioFormat() throws FileNotFoundException {
+		if (decoder == null || bitstream == null) return null;
+			
+		try {
+			Header header = bitstream.readFrame();
+			decoder.decodeFrame(header, bitstream);
+			bitstream.closeFrame();
+			return new AudioFormat(decoder.getOutputFrequency(), 16, decoder.getOutputChannels(), true, false);
+		} catch (BitstreamException | DecoderException e) {
+			return null;
+		}finally{
+			try {
+				bitstream.close();
+			} catch (BitstreamException e) {}
+			initializeBitStreamDecoder();
+		}				
+	}
 	
 	public SampleBuffer getOutput() {
 		return output;
 	}
 	
 	/** Resets the file bit stream and the audio device
+	 * @throws FileNotFoundException 
+	 * @throws LineUnavailableException 
 	 */
-	public void initializeAudioDevice() throws Exception{
-		bitstream = new Bitstream(new FileInputStream(file.getFile()));
-		audioDevice = new AudioDeviceLayer();
-		audioDevice.open(decoder = new Decoder());
+	public void initializeAudioDevice() throws FileNotFoundException, LineUnavailableException{
+		initializeBitStreamDecoder();
+		audioDevice = AudioDeviceLayer.getInstance();
+		audioDevice.open(getAudioFormat());
 	}
+	
 		
 	/** Frame decoding and audio playing routine
 	 *  <br>
@@ -100,7 +130,9 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer implements Ru
 
 						if (audioDevice.isOpen()) {
 							audioDevice.setVolume(volume);
-							audioDevice.write(output.getBuffer(), 0, output.getBufferLength());
+							
+							byte[] b = toByteArray(output.getBuffer(), 0, output.getBufferLength());						
+							audioDevice.write(b, 0, b.length);
 						}
 					}
 
@@ -135,6 +167,7 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer implements Ru
 			
 		} catch (Exception e) {
                     System.err.println("Error while playing Audiofile: " + e);
+                    e.printStackTrace();
 		}finally{
 			boolean nextSong = isPlaying();
 			
@@ -152,6 +185,18 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer implements Ru
 		}
 	}
 
+	private byte[] toByteArray(short[] samples, int offs, int len) {
+		byte[] b = new byte[len * 2];
+		int idx = 0;
+		short s;
+		while (len-- > 0) {
+			s = samples[offs++];
+			b[idx++] = (byte) s;
+			b[idx++] = (byte) (s >>> 8);
+			
+		}
+		return b;
+	}
 	public synchronized void closeStream() {		
 		try {
 			if (bitstream != null) bitstream.close();

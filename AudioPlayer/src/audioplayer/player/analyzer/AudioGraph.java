@@ -1,7 +1,7 @@
 package audioplayer.player.analyzer;
 
 import java.awt.Color;
-import java.util.ArrayList;
+import java.awt.image.VolatileImage;
 import java.util.List;
 import java.util.Random;
 
@@ -21,16 +21,20 @@ public class AudioGraph{
 	 * Faster Version of an ArrayList:
 	 * The remove() method of an ArrayList is too slow.
 	 */
-	private volatile GapList<Float> values = new GapList<Float>();
+	private volatile GapList<Float> buffer = new GapList<Float>();
 	private volatile int id = (int) System.currentTimeMillis() + new Random().nextInt(500);
+	
+	private volatile VolatileImage renderSnapshot;
+	
 	private volatile int shownValues = 1000;
 	private volatile Color color = Color.red;
 	private volatile int yOffset = 0;
 	private volatile String name = "";
+	private volatile int changesCounter;
 	
 	public AudioGraph() {
 		for (int i = 0; i < shownValues; i++) {
-			values.add(0f);
+			buffer.add(0f);
 		}
 	}
 	
@@ -55,7 +59,7 @@ public class AudioGraph{
 	}
         
     public void clear(){
-    	values.clear();
+    	buffer.clear();
     }
        
 	public String getName() {
@@ -70,33 +74,56 @@ public class AudioGraph{
 		this.id = id;
 	}
 
+	public int getChangesCountSincSnapshot() {
+		return changesCounter;
+	}
+
+	public void createSnapShot(VolatileImage img) {
+		this.changesCounter = 0;
+	}
+
+	@Deprecated
 	public int getShownValues() {
 		return shownValues;
 	}
 
+	public int size(){
+		return shownValues > buffer.size() ? buffer.size() : shownValues; 
+	}
+	
+	@Deprecated
 	public void setShownValues(int shownValues) {
 		this.shownValues = shownValues;
 	}
 
 	public void addValue(float val){
-		synchronized (values) {
-			if (values.size() < shownValues) {
-	            values.add(val);
-	        } else {
-	            values.removeFirst();
-	            values.add(val);
+		synchronized (buffer) {
+			if (buffer.size() >= shownValues) {
+	            buffer.removeFirst();    
 	        }
+			
+            buffer.add(val);			
+            changesCounter ++;
+		}
+	}
+	
+	public void syncBufferSize(int size){
+		shownValues = size;
+		while (buffer.size() > shownValues) {
+			buffer.removeFirst();
+			changesCounter ++;
 		}
 	}
 	
 	public float getValue(int index){
-		synchronized (values) {
-			return values.get(index);
+		synchronized (buffer) {
+			return buffer.get(index);
 		}
 	}
 
-	public List<Float> getValues() {
-		return values;
+	@Deprecated
+	public List<Float> getBuffer() {
+		return buffer;
 	}
 
 	public int getID() {

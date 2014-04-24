@@ -50,7 +50,7 @@ public abstract class AudioProcessingLayer implements Runnable{
 	protected long timePerLoop = 0;
 
 	public AudioProcessingLayer() {
-		audioDevice = new AudioDeviceLayer();
+		audioDevice = AudioDeviceLayer.getInstance();
 	}
 		
 	public static AudioProcessingLayer getEmptyInstance (){

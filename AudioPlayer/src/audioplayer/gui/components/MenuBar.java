@@ -51,6 +51,7 @@ public class MenuBar extends JMenuBar {
 	private JMenuItem menu_desing_color;
 	
 	private JMenu menu_graph;
+	private JMenuItem menu_graph_analyzerSettings;
 	private JMenuItem menu_graph_enabled;
 	private JMenuItem menu_graph_fps;
 	private JMenuItem menu_graph_merge;
@@ -228,6 +229,12 @@ public class MenuBar extends JMenuBar {
 		menu_desing.getPopupMenu().setBorder(BorderFactory.createRaisedBevelBorder());
 		menu_desing.add(menu_desing_color);
 
+		menu_graph_analyzerSettings = new MenuItem();
+		menu_graph_analyzerSettings.setText("Analyzer settings ...");
+		menu_graph_analyzerSettings.addActionListener(actionListener);
+		menu_graph_analyzerSettings.setBackground(Application.getColors().color_menu_background1);
+		menu_graph_analyzerSettings.setForeground(Application.getColors().color_menu_forground1);
+
 		menu_graph_enabled = new MenuItem();
 		menu_graph_enabled.setText("Enable/Disable graph");
 		menu_graph_enabled.addActionListener(actionListener);
@@ -283,6 +290,8 @@ public class MenuBar extends JMenuBar {
 		menu_graph.setForeground(Application.getColors().color_menu_forground1);
 
 		menu_graph.setBorder(BorderFactory.createRaisedBevelBorder());
+		menu_graph.add(menu_graph_analyzerSettings);
+		menu_graph.add(separator);
 		menu_graph.add(menu_graph_enabled);
 		menu_graph.add(menu_graph_fps);
 		menu_graph.add(separator);
@@ -363,6 +372,10 @@ public class MenuBar extends JMenuBar {
 	
 	public JMenuItem getMenu_playlist_shuffle() {
 		return menu_playlist_shuffle;
+	}
+
+	public JMenuItem getMenu_graph_analyzerSettings() {
+		return menu_graph_analyzerSettings;
 	}
 
 	public JMenuItem getMenu_graph_enabled() {

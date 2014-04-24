@@ -1,7 +1,9 @@
 package audioplayer;
 
+import javax.sound.sampled.AudioSystem;
 import javax.swing.UIManager;
 
+import net.mrx13415.searchcircle.imageutil.color.HSB;
 import audioplayer.database.sql.LoLPlayerDB;
 import audioplayer.desing.Colors;
 import audioplayer.font.FontLoader;
@@ -13,6 +15,7 @@ import audioplayer.process.SavePlaylistProcess;
 import java.awt.Color;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -20,12 +23,12 @@ import java.util.Vector;
  *  LoLPlayer II - Audio-Player Project
  * 
  * @author Oliver Daus
- * @version 0.1.6.9
+ * @version 0.1.6.14
  */ 
 public class Application {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.6.11 beta - Fency Edition";
+	public static String App_Version = "0.1.6.14 beta";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
 	public static String App_Author = "Oliver Daus";	
 	public static String App_License = "CC BY-NC-SA 3.0";
@@ -50,14 +53,17 @@ public class Application {
 	 */
 	public static void main(String[] args) {
 		System.out.println(App_Name_Version);
-	
+
+		System.out.println(Arrays.toString(AudioSystem.getAudioFileTypes()));
+		
+		
+		
 		proccessCommands(args);
 		
 		registerDEBUGclasses();
-		
+			
 		application = new Application();
 		application.initialize();
-
 	}
 
 	public static void proccessCommands(String[] args){

@@ -334,6 +334,9 @@ public abstract class UserInterface extends UIFrame implements ActionListener,
         if (s.equals(menu.getMenu_desing_color()))
             onMenu_desing_color();
         
+        if (s.equals(menu.getMenu_graph_analyzerSettings()))
+        	onMenu_graphs_analyzerSettings();
+        
         if (s.equals(menu.getMenu_graph_enabled()))
             onMenu_graph_enabled();
         
@@ -511,6 +514,7 @@ public abstract class UserInterface extends UIFrame implements ActionListener,
     
     public abstract void onMenu_desing_color();
     
+    public abstract void onMenu_graphs_analyzerSettings();
     public abstract void onMenu_graph_enabled();
     public abstract void onMenu_graph_fps();
     public abstract void onMenu_graph_merge();

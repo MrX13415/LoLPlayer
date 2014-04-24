@@ -25,6 +25,13 @@ import net.mrx13415.searchcircle.imageutil.color.HSB;
 
 public class Colors {
 
+	/*
+	 * Ausgangsfarbe : RGB(        235,         065,         065)
+	 *                 HSB(0.00000000f, 0.72340420f, 0.92156863f)
+	 *                
+	 * Rainbow Effect: add '0.0001f' to the "hue" every 10 ms
+	 * 
+	 */
 
 	private Thread rainbowThread;
 	
@@ -60,6 +67,8 @@ public class Colors {
 	
 	public Color SETTING_color_aboutpage_background1 = new Color(20, 20, 20);
 	public Color SETTING_color_aboutPage_forground = new Color(255 ,255, 255);	
+	
+	public Color SETTING_color_forground1 = new Color(255, 255, 255);
 	
 	public Color SETTING_color_background1 = new Color(50, 50, 50);
 	public Color SETTING_color_background2 = new Color(128, 128, 128, 0);
@@ -116,6 +125,8 @@ public class Colors {
 	public Color color_aboutpage_background1 = SETTING_color_aboutpage_background1;
 	public Color color_aboutPage_forground = SETTING_color_aboutPage_forground;
 
+	public Color color_forground1 = SETTING_color_forground1;
+	
 	public Color color_background1 = SETTING_color_background1;
 	public Color color_background2 = SETTING_color_background2;
 	public Color color_background3 = SETTING_color_background3;

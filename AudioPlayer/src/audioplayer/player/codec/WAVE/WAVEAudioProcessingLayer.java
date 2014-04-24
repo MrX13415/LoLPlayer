@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import javazoom.jl.decoder.BitstreamException;
@@ -35,23 +36,20 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 	public int bps = 1;
 	
 	public WAVEAudioProcessingLayer() {
-            audioDevice = new AudioDeviceLayer();
+		super();
+		//audioDevice = AudioDeviceLayer.getInstance();
 	}
 			
 	/** Resets the file bit stream and the audio device
-	 * @throws FileNotFoundException 
 	 * @throws IOException 
 	 * @throws UnsupportedAudioFileException 
-	 * @throws JavaLayerException 
+	 * @throws FileNotFoundException 
+	 * @throws LineUnavailableException 
 	 */
-	public void initializeAudioDevice() throws FileNotFoundException, UnsupportedAudioFileException, IOException{
+	public void initializeAudioDevice() throws FileNotFoundException, UnsupportedAudioFileException, IOException, LineUnavailableException {
 		bitstream = AudioSystem.getAudioInputStream(new BufferedInputStream(new FileInputStream(file.getFile())));
-		audioDevice = new AudioDeviceLayer();
-		try {
-			audioDevice.open(bitstream.getFormat());
-		} catch (JavaLayerException e) {
-			e.printStackTrace();
-		}
+		audioDevice = AudioDeviceLayer.getInstance();
+		audioDevice.open(bitstream.getFormat());
 	}
 	
 	/** Frame decoding and audio playing routine
@@ -101,7 +99,7 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 						try {	
 							if (audioDevice.isOpen()) {
 								audioDevice.setVolume(volume);
-								audioDevice.writeImpl(b, 0, r);
+								audioDevice.write(b, 0, r);
 							}
 						} catch (Exception e) {
 							e.printStackTrace();

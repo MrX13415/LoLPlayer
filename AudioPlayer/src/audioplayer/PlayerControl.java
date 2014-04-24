@@ -6,6 +6,7 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 
 import javax.activity.InvalidActivityException;
+import javax.sound.sampled.LineUnavailableException;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -18,6 +19,7 @@ import javax.swing.filechooser.FileFilter;
 import javazoom.jl.decoder.JavaLayerException;
 import net.mrx13415.searchcircle.swing.JSearchCircle;
 import audioplayer.gui.AboutDialog;
+import audioplayer.gui.AnalyzerSettingsDialog;
 import audioplayer.gui.AudioFilePropertiesDialog;
 import audioplayer.gui.ColorDialog;
 import audioplayer.gui.UserInterface;
@@ -28,6 +30,7 @@ import audioplayer.player.AudioFile;
 import audioplayer.player.AudioFile.UnsupportedFileFormatException;
 import audioplayer.player.AudioPlaylist;
 import audioplayer.player.analyzer.Analyzer;
+import audioplayer.player.analyzer.AudioCapture;
 import audioplayer.player.analyzer.components.JGraph;
 import audioplayer.player.analyzer.components.JGraph.DrawMode;
 import audioplayer.player.codec.AudioProcessingLayer;
@@ -58,8 +61,8 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-
+	private static final long serialVersionUID = 1L; 
+	
 	private AudioProcessingLayer audioProcessingLayer = AudioProcessingLayer.getEmptyInstance();
 
 	private AudioPlaylist searchPlaylist = new AudioPlaylist();	
@@ -88,16 +91,15 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 		analyzer = new Analyzer(getPlayerControlInterface().getPlayerInterfaceGraph());
 //		analyzer.setDefaultChannelGraphColor(1, Colors.color_graph_defaultChannelGraphColor5);
 		analyzer.setMergedChannels(false);
-
 		initUIupdaterThread();
 
 		try {
 			System.out.print("Test audio device ...\t\t\t");
-			new AudioDeviceLayer().test();
+			AudioDeviceLayer.getInstance().test();
 			System.out.println("OK");
-		} catch (JavaLayerException ex) {
+		} catch (LineUnavailableException e1) {
 			System.out.println("ERROR");
-		}
+		} 
 
 		if (!audioPlaylist.isEmpty()) {
 			initAudioFile(); // autoplay on startup if playlist had content ...
@@ -134,6 +136,9 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 				}
 			}
 		});
+		
+		AudioCapture ac = new AudioCapture(analyzer);
+		ac.start();
 	}
 
 	public void onSearchPlaylist(){
@@ -249,14 +254,14 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 								
 				initAudioProcessingLayer(af);
 
+				analyzer.init();
+				
 				System.out.println("Playing type: " + af.getType().getName()
 						+ " file: " + af.getFile().getAbsolutePath());
 
 				this.getPlayerControlInterface().getSearchBar()
 						.setMaximum(audioProcessingLayer.getStreamLength());
-				
-				analyzer.init(audioProcessingLayer.getAudioDevice());
-				
+
 				if (!af.isSupported())
 					throw new UnsupportedFileFormatException(af);
 				
@@ -670,6 +675,10 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	@Override
 	public void onMenu_desing_color() {
 		ColorDialog cd = new ColorDialog(this);		
+	}
+	
+	public void onMenu_graphs_analyzerSettings() {
+		AnalyzerSettingsDialog asd = new AnalyzerSettingsDialog(this, analyzer);
 	}
 	
 	@Override
