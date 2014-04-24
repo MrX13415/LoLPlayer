@@ -188,7 +188,7 @@ public class AudioDeviceLayer implements AnalyzerSourceDevice{
 		control.setValue((float) vnew);
 	}
 
-	public Object getVolume() {
+	public float getVolume() {
 		return getVolumeControl() != null ? getVolumeControl().getValue() : 0;
 	}
 

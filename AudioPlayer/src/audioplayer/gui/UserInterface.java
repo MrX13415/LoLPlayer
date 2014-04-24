@@ -261,7 +261,7 @@ public abstract class UserInterface extends UIFrame implements ActionListener,
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				double val = getPlayerControlInterface().getSearchBar().getButtonValue();
-				double ksm = getPlayerControlInterface().getSearchBar().getKeyScrollamount();
+				double ksm = getPlayerControlInterface().getSearchBar().getKeyScrollAmount();
 				getPlayerControlInterface().getSearchBar().setButtonValue(val - ksm);
 				onSearchBarButtonMove(getPlayerControlInterface().getSearchBar());
 			}
@@ -276,7 +276,7 @@ public abstract class UserInterface extends UIFrame implements ActionListener,
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				double val = getPlayerControlInterface().getSearchBar().getButtonValue();
-				double ksm = getPlayerControlInterface().getSearchBar().getKeyScrollamount();
+				double ksm = getPlayerControlInterface().getSearchBar().getKeyScrollAmount();
 				getPlayerControlInterface().getSearchBar().setButtonValue(val + ksm);
 				onSearchBarButtonMove(getPlayerControlInterface().getSearchBar());
 			}

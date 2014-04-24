@@ -150,8 +150,8 @@ public class PlayerControlInterface extends JPanel{
             volume.setDirection(JSearchCircle.BAR_DIRECTION_LEFT);
             volume.setStartAngle(270 - 45);
             volume.setViewAngle(90);
-            volume.setMinimum(0d);
-            volume.setMaximum(100d);
+            volume.setMinimum(0f);
+            volume.setMaximum(100f);
             volume.addSearchCircleListener(searchCircleListener);
             volume.addActionListener(actionListener);
             volume.setButtonValue(25);
@@ -193,7 +193,7 @@ public class PlayerControlInterface extends JPanel{
                             }
                     }
             });
-            volume.setKeyScrollamount(0.1d);
+            volume.setKeyScrollAmount(0.1d);
             volume.setFocusPainted(false);
             volume.setOpaque(false);
             volume.setBarHSB(Application.getColors().color_controls_volume_bar);
@@ -205,7 +205,7 @@ public class PlayerControlInterface extends JPanel{
 
             searchBar = new JSearchCircle();
             searchBar.setName("searchBar");
-            searchBar.setKeyScrollamount(1000);
+            searchBar.setKeyScrollAmount(100);
             searchBar.addSearchCircleListener(searchCircleListener);
             searchBar.addActionListener(actionListener);
             searchBar.setLayout(new LayoutManager() {
@@ -445,7 +445,7 @@ public class PlayerControlInterface extends JPanel{
 		long time = ppl.getTimePosition();
 		long lenght = ppl.getStreamLength();
 		double posperc = Math.round(100d / (double) lenght * (double) time * 10d) / 10d;
-		double volume = Math.round(ppl.getVolume() * 100d) / 100d;
+		double volume = Math.round(ppl.getVolume() * 130d) / 130d;
 		
 		String state = String.format("%s", ppl.getState());
 
