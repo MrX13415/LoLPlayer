@@ -2,6 +2,8 @@ package audioplayer.player.analyzer;
 
 import javax.sound.sampled.AudioFormat;
 
+import audioplayer.player.analyzer.data.PCMData;
+
 /**
  *  LoLPlayer II - Audio-Player Project
  * 
@@ -25,7 +27,9 @@ public class Normalizer {
 		channels = new float[ pFormat.getChannels() ][]; 
 		
 		channelSize     = audioFormat.getFrameSize() / audioFormat.getChannels();
-		audioSampleSize = ( 1 << ( audioFormat.getSampleSizeInBits() - 1 ) );
+		audioSampleSize = 0xFFFF ; //( 1 << ( audioFormat.getSampleSizeInBits() - 1 ) );
+		
+		System.out.println(audioSampleSize);
 	}
 
 	public float[][] normalize( byte[] pData, int pPosition, int pLength ) {
@@ -55,11 +59,12 @@ public class Normalizer {
 				//Sign least significant byte. (PCM_SIGNED)
 				long sm = ( pData[ pPosition + cdp ] & 0xFF ) - 128;
 				
-				for( int bt = 8, bp = 1; bt < wSsib; bt += 8 ) {
+				for( int bt = 8,
+						 bp = 1; bt < wSsib; bt += 8 ) {
 					sm += pData[ pPosition + cdp + bp ] << bt;
 					bp++;
 				}
-				
+
 				//normalized data.
 				channels[ ch ][ sp ] = (float)sm / audioSampleSize;
 

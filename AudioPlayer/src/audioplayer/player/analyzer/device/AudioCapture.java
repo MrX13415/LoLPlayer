@@ -1,4 +1,4 @@
-package audioplayer.player.analyzer;
+package audioplayer.player.analyzer.device;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -9,6 +9,8 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Port;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
+
+import audioplayer.player.analyzer.Analyzer;
 
 
 public class AudioCapture extends Thread implements AnalyzerSourceDevice{
@@ -70,7 +72,7 @@ public class AudioCapture extends Thread implements AnalyzerSourceDevice{
 		
 		while (true){
 			if (line != null){
-				int btr = 4096;
+				int btr = 2048;
 				byte[] b = new byte[btr];
 				int r = line.read(b, 0, btr);
 	

@@ -21,7 +21,7 @@ public abstract class AudioType extends FileFilter{
 	protected String name;
 	protected String description;
 	protected String[] extentions = {""};
-	protected Class<?> pplClass = AudioProcessingLayer.class;
+	protected Class<?> aplClass = AudioProcessingLayer.class;
 	
 	public  String getName() {
 		return name;
@@ -47,7 +47,7 @@ public abstract class AudioType extends FileFilter{
 
 	public AudioProcessingLayer getAudioProcessingLayerInstance() {
 		try {
-			return (AudioProcessingLayer) pplClass.newInstance();
+			return (AudioProcessingLayer) aplClass.newInstance();
 		} catch (Exception e) {
 			return AudioProcessingLayer.getEmptyInstance();
 		}

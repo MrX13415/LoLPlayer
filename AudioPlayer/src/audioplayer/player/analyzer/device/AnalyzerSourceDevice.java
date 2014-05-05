@@ -1,4 +1,4 @@
-package audioplayer.player.analyzer;
+package audioplayer.player.analyzer.device;
 
 import javax.sound.sampled.AudioFormat;
 

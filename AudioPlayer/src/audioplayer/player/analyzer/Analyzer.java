@@ -9,6 +9,9 @@ import java.util.concurrent.ArrayBlockingQueue;
 import javax.sound.sampled.AudioFormat;
 
 import audioplayer.Application;
+import audioplayer.player.analyzer.components.JGraph;
+import audioplayer.player.analyzer.data.PCMData;
+import audioplayer.player.analyzer.device.AnalyzerSourceDevice;
 
 /**
  * LoLPlayer II - Audio-Player Project
@@ -41,7 +44,7 @@ public class Analyzer {
 
 	public static final int initCapacity = 10000;
 	private volatile int buffermax = 25;
-	private volatile ArrayBlockingQueue<AudioBytesBlock> toAnalyze = new ArrayBlockingQueue<AudioBytesBlock>(initCapacity);
+	private volatile ArrayBlockingQueue<PCMData> toAnalyze = new ArrayBlockingQueue<PCMData>(initCapacity);
 	
 	private volatile boolean enabled;
 	private volatile boolean initNormalizerActive;
@@ -81,6 +84,7 @@ public class Analyzer {
 	}
 
 	public void setDefaultGraphs(int count) {
+		g.clearGraphs();
 		for (int i = 0; i < count; i++) {
 			Color color = getDefaultChannelGraphColor(count);
 			if (color == null)
@@ -370,7 +374,7 @@ public class Analyzer {
 		if (!devices.contains(device))
 			devices.add(device);
 	}
-	
+
 	public void unregisterDevice(AnalyzerSourceDevice device){
 		devices.remove(device);
 		
@@ -423,15 +427,19 @@ public class Analyzer {
 	}
 
 	public void analyze(AnalyzerSourceDevice source, byte[] b, int off, int len) {
-		analyze(source, new AudioBytesBlock(b.clone(), off, len));
+		if (b == null || format == null) return;
+		analyze(source, new PCMData(format, b.clone(), off, len));
 	}
 
-	public void analyze(AnalyzerSourceDevice source, AudioBytesBlock abb) {
+	public void analyze(AnalyzerSourceDevice source, PCMData raw) {
+		if (raw == null || format == null) return;
+		if (!format.equals(raw.getFormat())) format = raw.getFormat();
+		
 		try {
 			if (getBufferSize() < getBufferMax()){
 				if (getActiveDevice() == null) throw new RuntimeException("No devices are known. Register any devices befor calling this method");
 				if (getActiveDevice().equals(source)){
-					toAnalyze.put(abb);
+					toAnalyze.put(raw);
 				}
 			}else{
 				if(DEBUG) System.err.println("WARNING: AnalyzerThread: Can't keep up!");
@@ -442,6 +450,9 @@ public class Analyzer {
 
 	public void clearData() {
 		toAnalyze.clear();
+		for (AudioGraph g : g.getGraphs()) {
+			g.clear();
+		}
 	}
 
 	private void initMergedChannelGraph() {
@@ -527,14 +538,52 @@ public class Analyzer {
 						if (toAnalyze.size() <= 0)
 							continue;
 
-						AudioBytesBlock abb = toAnalyze.take();
-						byte[] byteBlock = abb.getBytes();// .clone();
+						PCMData pcmdata = toAnalyze.take();
+						byte[] byteBlock = pcmdata.getBytes();// .clone();
 
-						int offset = abb.getOffset();
-						int length = abb.getLength();
+						int offset = pcmdata.getOffset();
+						int length = pcmdata.getLength();
+						
+						int datalength = pcmdata.getDataLenght();
 
-						float[][] channelData = normalizer.normalize(byteBlock, offset, length);
+						//float[][] channelData = normalizer.normalize(byteBlock, offset, length);
 
+						float[][] channelData = new float[ pcmdata.getFormat().getChannels() ][];
+
+						
+						for (int ci = 0; ci < pcmdata.getFormat().getChannels(); ci++) {
+							channelData[ci] = new float[ datalength ];
+							
+							for (int di = 0; di < datalength; di++) {
+								channelData[ci][di] = pcmdata.getData(di, ci);
+							}
+						}
+						
+//						try {
+//							abb.getData(0, 0);
+//							System.out.println(
+//									"                                                                 => " + 
+//									PCMData.getBinary(-91L));
+//						} catch (Exception e) {
+//							e.printStackTrace();
+//						}
+//						
+						
+						
+						/* 
+						 * byteBlock:
+						 * 
+						 * 16 bit == 2 byte per channel
+						 * 
+						 * byteAbfolge:
+						 * [channel#1][channel#2][channel#x] [channel#1][channel#2][channel#x] ...
+						 * 
+						 * 
+						 *  
+						 */
+						
+						
+						
 						if (mergedChannels) {
 							float[] mergedChannelData = channelMerge(channelData);
 							channelData = new float[1][mergedChannelData.length];
@@ -638,42 +687,4 @@ public class Analyzer {
 		return pChannels[0];
 	}
 
-	class AudioBytesBlock {
-
-		private byte[] bytes;
-		private int offset;
-		private int length;
-
-		public AudioBytesBlock(byte[] bytes, int offset, int length) {
-			super();
-			this.bytes = bytes;
-			this.offset = offset;
-			this.length = length;
-		}
-
-		public byte[] getBytes() {
-			return bytes;
-		}
-
-		public void setBytes(byte[] bytes) {
-			this.bytes = bytes;
-		}
-
-		public int getOffset() {
-			return offset;
-		}
-
-		public void setOffset(int offset) {
-			this.offset = offset;
-		}
-
-		public int getLength() {
-			return length;
-		}
-
-		public void setLength(int length) {
-			this.length = length;
-		}
-
-	}
 }

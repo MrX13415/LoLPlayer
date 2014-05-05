@@ -46,10 +46,16 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 	 * @throws FileNotFoundException 
 	 * @throws LineUnavailableException 
 	 */
-	public void initializeAudioDevice() throws FileNotFoundException, UnsupportedAudioFileException, IOException, LineUnavailableException {
-		bitstream = AudioSystem.getAudioInputStream(new BufferedInputStream(new FileInputStream(file.getFile())));
-		audioDevice = AudioDeviceLayer.getInstance();
-		audioDevice.open(bitstream.getFormat());
+	public boolean initializeAudioDevice(){
+		try {
+			bitstream = AudioSystem.getAudioInputStream(new BufferedInputStream(new FileInputStream(file.getFile())));
+			audioDevice = AudioDeviceLayer.getInstance();
+			if (!audioDevice.claim(this)) return false;
+			audioDevice.open(bitstream.getFormat());
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 	
 	/** Frame decoding and audio playing routine
@@ -58,7 +64,7 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 	 *  NOTE: Do not call this method directly! Use <code>play()</code> instead 
 	 */
 	@Override
-	public void run() {
+	public void decode() {
 		try {
 			if (!isPaused()) state = PlayerState.PLAYING;
 			
@@ -99,7 +105,7 @@ public class WAVEAudioProcessingLayer extends AudioProcessingLayer implements Ru
 						try {	
 							if (audioDevice.isOpen()) {
 								audioDevice.setVolume(volume);
-								audioDevice.write(b, 0, r);
+								audioDevice.write(this, b, 0, r);
 							}
 						} catch (Exception e) {
 							e.printStackTrace();

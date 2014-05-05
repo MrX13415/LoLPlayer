@@ -30,9 +30,9 @@ import audioplayer.player.AudioFile;
 import audioplayer.player.AudioFile.UnsupportedFileFormatException;
 import audioplayer.player.AudioPlaylist;
 import audioplayer.player.analyzer.Analyzer;
-import audioplayer.player.analyzer.AudioCapture;
 import audioplayer.player.analyzer.components.JGraph;
 import audioplayer.player.analyzer.components.JGraph.DrawMode;
+import audioplayer.player.analyzer.device.AudioCapture;
 import audioplayer.player.codec.AudioProcessingLayer;
 import audioplayer.player.codec.AudioType;
 import audioplayer.player.device.AudioDeviceLayer;
@@ -450,7 +450,6 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	@Override
 	public void onButtonStop() {
 		audioProcessingLayer.stop();
-		analyzer.clearData();
 	}
 
 	@Override
@@ -468,8 +467,9 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	@Override
 	public void onPlaylistDoubleClick(int index) {
 		currentPlaylist.setNextIndex(index);
-		initAudioFileAutoPlay();
-		System.out.println("no. " + currentPlaylist.getIndex());
+// FIX: double init. ; this will be done at the onPlaylistIndexSet Event
+//		initAudioFileAutoPlay();
+//		System.out.println("no. " + currentPlaylist.getIndex());
 	}
 	
 	@Override
@@ -761,14 +761,14 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	public void onPlayerStart(PlayerEvent event) {
 		System.out.println("started @ frame "
 				+ event.getSource().getTimePosition());
-
+		
 	}
 
 	@Override
 	public void onPlayerStop(PlayerEvent event) {
 		System.out.println("stoped @ frame "
 				+ event.getSource().getTimePosition());
-
+		analyzer.clearData();
 	}
 
 	@Override

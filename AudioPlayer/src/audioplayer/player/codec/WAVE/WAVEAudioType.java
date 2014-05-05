@@ -13,6 +13,6 @@ public class WAVEAudioType extends AudioType{
 		name = "Wave";
 		description = "Waveform Audio File Format";
 		extentions = new String[]{".wav", ".aiff"};
-		pplClass = WAVEAudioProcessingLayer.class;
+		aplClass = WAVEAudioProcessingLayer.class;
 	}
 }

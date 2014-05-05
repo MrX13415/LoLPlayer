@@ -21,7 +21,7 @@ import net.mrx13415.searchcircle.imageutil.color.HSB;
 import audioplayer.Application;
 import audioplayer.gui.ui.UIFrame;
 import audioplayer.player.analyzer.Analyzer;
-import audioplayer.player.analyzer.AnalyzerSourceDevice;
+import audioplayer.player.analyzer.device.AnalyzerSourceDevice;
 import audioplayer.player.device.AudioDeviceLayer;
 
 public class AnalyzerSettingsDialog extends UIFrame implements ActionListener {

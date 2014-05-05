@@ -77,13 +77,20 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer implements Ru
 	}
 	
 	/** Resets the file bit stream and the audio device
+	 * @return 
 	 * @throws FileNotFoundException 
 	 * @throws LineUnavailableException 
 	 */
-	public void initializeAudioDevice() throws FileNotFoundException, LineUnavailableException{
-		initializeBitStreamDecoder();
-		audioDevice = AudioDeviceLayer.getInstance();
-		audioDevice.open(getAudioFormat());
+	public boolean initializeAudioDevice(){
+		try {
+			initializeBitStreamDecoder();
+			audioDevice = AudioDeviceLayer.getInstance();
+			if (!audioDevice.claim(this)) return false;
+			audioDevice.open(getAudioFormat());
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 	
 		
@@ -93,7 +100,7 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer implements Ru
 	 *  NOTE: Do not call this method directly! Use <code>play()</code> instead 
 	 */
 	@Override
-	public void run() {
+	public void decode() {
 		try {
 			if (!isPaused()) state = PlayerState.PLAYING;
 			
@@ -132,7 +139,7 @@ public class MPEGAudioProcessingLayer extends AudioProcessingLayer implements Ru
 							audioDevice.setVolume(volume);
 							
 							byte[] b = toByteArray(output.getBuffer(), 0, output.getBufferLength());						
-							audioDevice.write(b, 0, b.length);
+							audioDevice.write(this, b, 0, b.length);
 						}
 					}
 

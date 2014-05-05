@@ -36,7 +36,8 @@ public abstract class AudioProcessingLayer implements Runnable{
 	protected PlayerState state = PlayerState.NEW; 	
 	
 	protected volatile boolean closed;							
-
+	protected boolean audioDeviceInitialized;
+	
 	protected volatile double internaltimePosition;			//in milliseconds
     protected volatile long timePosition;
 	protected volatile long newTimePosition;					//in milliseconds
@@ -49,6 +50,7 @@ public abstract class AudioProcessingLayer implements Runnable{
 	
 	protected long timePerLoop = 0;
 
+	
 	public AudioProcessingLayer() {
 		audioDevice = AudioDeviceLayer.getInstance();
 	}
@@ -65,10 +67,11 @@ public abstract class AudioProcessingLayer implements Runnable{
 			public void closeStream() {}
 			
 			@Override
-			public void run() {}
+			public void decode() {}
 			
 			@Override
-			public void initializeAudioDevice() throws Exception {}
+			public boolean initializeAudioDevice() {
+				return false;}
 			
 			@Override
 			protected void determineTimePerFrame() throws Exception,
@@ -320,14 +323,16 @@ public abstract class AudioProcessingLayer implements Runnable{
 			
 			closeStream();
 			
-			if (audioDevice != null) audioDevice.close();
+//			if (audioDevice != null){
+//				audioDevice.close();
+//			}
 			
 			//give a little time ...
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {}
-			
-			initializeAudioDevice();
+//			try {
+//				Thread.sleep(50);
+//			} catch (InterruptedException e) {}
+//			
+//			initializeAudioDevice();
 			                        
 			closed = false;
 			internaltimePosition = 0;
@@ -352,10 +357,10 @@ public abstract class AudioProcessingLayer implements Runnable{
 		timePosition = 0;
 	}
 	
-	
 	/** Resets the file bitstream and the audiodevice
+	 * @return If initializing was successful
 	 */
-	protected abstract void initializeAudioDevice() throws Exception;
+	protected abstract boolean initializeAudioDevice();
 	
 	/** Frame decoding and audio playing routine
 	 *  <br>
@@ -363,7 +368,29 @@ public abstract class AudioProcessingLayer implements Runnable{
 	 *  NOTE: Do not call this method directly! Use <code>play()</code> instead 
 	 */
 	@Override
-	public abstract void run();
+	public void run(){
+		
+		audioDeviceInitialized = initializeAudioDevice();
+
+		if (!audioDeviceInitialized){
+			System.err.printf("Error: [%s] Can't initialize the audio device\n", ((Object)this).toString());
+			try {
+				Thread.sleep(25);
+			} catch (InterruptedException e) {}
+			
+			state = PlayerState.STOPPED;
+			return;
+		}
+		
+		decode();
+	}
+	
+	/** Frame decoding and audio playing routine
+	 *  <br>
+	 *  <br>
+	 *  NOTE: Do not call this method directly! Use <code>play()</code> instead 
+	 */
+	public abstract void decode();
 	
 	/** Stops the current playing file and closes the file stream
 	 */
@@ -383,6 +410,7 @@ public abstract class AudioProcessingLayer implements Runnable{
 			closeStream();
 			
 			closeAudioDevice();
+			resetPlayer();
 		}
 	}
 	
@@ -392,6 +420,7 @@ public abstract class AudioProcessingLayer implements Runnable{
 		if (audioDevice != null){
 			audioDevice.flush();
 			audioDevice.close();
+			audioDevice.release(this);
 		}
         
 		closed = true;
