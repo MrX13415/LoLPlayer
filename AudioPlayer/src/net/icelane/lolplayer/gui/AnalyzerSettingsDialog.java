@@ -1,28 +1,20 @@
-package audioplayer.gui;
+package net.icelane.lolplayer.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
-import net.mrx13415.searchcircle.imageutil.color.HSB;
-import audioplayer.Application;
-import audioplayer.gui.ui.UIFrame;
-import audioplayer.player.analyzer.Analyzer;
-import audioplayer.player.analyzer.device.AnalyzerSourceDevice;
-import audioplayer.player.device.AudioDeviceLayer;
+import net.icelane.lolplayer.Application;
+import net.icelane.lolplayer.gui.ui.UIFrame;
+import net.icelane.lolplayer.player.analyzer.Analyzer;
+import net.icelane.lolplayer.player.analyzer.device.AnalyzerSourceDevice;
 
 public class AnalyzerSettingsDialog extends UIFrame implements ActionListener {
 
@@ -110,8 +102,13 @@ public class AnalyzerSettingsDialog extends UIFrame implements ActionListener {
 		if (e.getSource().equals(sources)){
 			int sIndex = sources.getSelectedIndex();
 			
+			AnalyzerSourceDevice currentASD = analyzer.getActiveDevice();
+			
 			//WARNING: This can go wrong if a device get removed before this line!
-			analyzer.setActiveDevice(sIndex);
+			if (analyzer.setActiveDevice(sIndex)){
+				currentASD.CloseSettingsUI();
+				analyzer.getActiveDevice().OpenSettingsUI(this);
+			}
 			
 			reinitDeviceList();
 			updateToCurrentDevice();

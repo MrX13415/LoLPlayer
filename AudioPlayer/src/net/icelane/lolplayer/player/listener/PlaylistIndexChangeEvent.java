@@ -1,6 +1,6 @@
-package audioplayer.player.listener;
+package net.icelane.lolplayer.player.listener;
 
-import audioplayer.player.AudioPlaylist;
+import net.icelane.lolplayer.player.AudioPlaylist;
 
 /**
  *  LoLPlayer II - Audio-Player Project

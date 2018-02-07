@@ -1,6 +1,6 @@
-package audioplayer.player.codec.WAVE;
+package net.icelane.lolplayer.player.codec.WAVE;
 
-import audioplayer.player.codec.AudioType;
+import net.icelane.lolplayer.player.codec.AudioType;
 
 /**
  *  LoLPlayer II - Audio-Player Project

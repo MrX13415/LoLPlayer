@@ -1,12 +1,11 @@
-package audioplayer.database.sql;
+package net.icelane.lolplayer.database.sql;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
-
-import audioplayer.player.AudioFile;
-
 import java.io.File;
+
+import net.icelane.lolplayer.player.AudioFile;
 
 /**
  * LoLPlayer II - Audio-Player Project

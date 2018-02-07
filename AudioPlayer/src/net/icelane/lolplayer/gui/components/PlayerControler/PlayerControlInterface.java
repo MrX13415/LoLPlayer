@@ -1,10 +1,11 @@
-package audioplayer.gui.components.PlayerControler;
+package net.icelane.lolplayer.gui.components.PlayerControler;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.LayoutManager;
@@ -19,16 +20,18 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeListener;
 
-import net.mrx13415.searchcircle.event.SearchCircleListener;
+import net.icelane.lolplayer.Application;
+import net.icelane.lolplayer.font.FontLoader;
+import net.icelane.lolplayer.images.ImageLoader;
+import net.icelane.lolplayer.player.analyzer.render.GraphRender;
+import net.icelane.lolplayer.player.analyzer.render.opengl.GL11Graph;
+import net.icelane.lolplayer.player.analyzer.render.opengl.GL45Graph;
+import net.icelane.lolplayer.player.codec.AudioProcessingLayer;
+import net.icelane.searchcircle.event.SearchCircleListener;
 import net.mrx13415.searchcircle.imageutil.ImageModifier;
 import net.mrx13415.searchcircle.imageutil.color.HSB;
 import net.mrx13415.searchcircle.swing.JSearchCircle;
 import net.mrx13415.searchcircle.swing.JSearchCircle.Anchor;
-import audioplayer.Application;
-import audioplayer.font.FontLoader;
-import audioplayer.images.ImageLoader;
-import audioplayer.player.analyzer.components.JGraph;
-import audioplayer.player.codec.AudioProcessingLayer;
 
 /**
  *  LoLPlayer II - Audio-Player Project
@@ -43,7 +46,7 @@ public class PlayerControlInterface extends JPanel{
 	 */
 	private static final long serialVersionUID = -2926358910478096155L;
 
-	private JGraph playerInterfaceGraph;
+	private GraphRender playerInterfaceGraph;
         
 	private JPanel playerControls;
 	private JPanel playerButtons;
@@ -85,7 +88,8 @@ public class PlayerControlInterface extends JPanel{
 			SearchCircleListener searchCircleListener, ChangeListener changeListener) {
 		
             display = new Display();
-
+            display.setOpaque(false);
+            
             play = new JButton(""); // >  \u25BA  ||  \u2759\u2759
             play.setFont(FontLoader.fontSymbola);
             play.addActionListener(actionListener);
@@ -127,23 +131,31 @@ public class PlayerControlInterface extends JPanel{
             rev.setRolloverIcon(imgRevHover);
             
             playerButtons = new JPanel();
-            playerButtons.setBackground(new Color(50,50,50));
-            playerButtons.setOpaque(true);
+            playerButtons.setOpaque(false);
             playerButtons.setLayout(new GridLayout(1, 4));
-            playerButtons.setBorder(BorderFactory.createLoweredBevelBorder());
+            //playerButtons.setBorder(BorderFactory.createLoweredBevelBorder());
             playerButtons.add(rev);
             playerButtons.add(play);
             playerButtons.add(stop);
             playerButtons.add(frw);
 
-            playerControls = new JPanel();
+            playerControls = new JPanel(){
+            	@Override
+                protected void paintComponent(Graphics g) {
+            		//TODO
+                    super.paintComponent(g);
+                   // Application.drawReflectionEffect(this, g, 0.3f);
+                }
+            };
             playerControls.setOpaque(true);
-            playerControls.setBorder(BorderFactory.createRaisedBevelBorder());
+            //playerControls.setBorder(BorderFactory.createRaisedBevelBorder());
+            playerControls.setBorder(BorderFactory.createEmptyBorder(10, 5, 0, 5));
             playerControls.setLayout(new GridLayout(2, 1));
             playerControls.add(display);
             playerControls.add(playerButtons);
-            playerControls.setBackground(new Color(50,50,50));
-
+            playerControls.setBackground(Application.getColors().color_display_background);
+            playerControls.setOpaque(true);
+                        
             volume = new JSearchCircle();
             volume.setName("volume");
             volume.setBarThickness(10);
@@ -156,6 +168,7 @@ public class PlayerControlInterface extends JPanel{
             volume.addActionListener(actionListener);
             volume.setButtonValue(25);
             volume.setBarValue(25);
+            volume.setBackgroundHSB(new HSB(0.f, -1.f, -0.16f));
             volume.setMaximumSize(new Dimension(100, 100));
             volume.setLayout(new LayoutManager() {
 
@@ -256,19 +269,21 @@ public class PlayerControlInterface extends JPanel{
             searchBar.setOpaque(false);
             searchBar.setAnchor(Anchor.LEFT);
             searchBar.setBarHSB(Application.getColors().color_controls_searchbar_bar);
+            searchBar.setBackgroundHSB(new HSB(0.f, -1.f, -0.16f));
             searchBar.add(volume);
 
             //register searchBar as mouse event source from volume 
             volume.addParentMouseListener(searchBar);
 
-            playerInterfaceGraph = new JGraph();
+            playerInterfaceGraph = new GL45Graph();
             playerInterfaceGraph.setLayout(null);
             playerInterfaceGraph.setBlurFilter(true);
             playerInterfaceGraph.setGlowEffect(true);
             playerInterfaceGraph.setOpaque(false);
             playerInterfaceGraph.setLayout(new GridLayout(0, 1, 5, 5));
             playerInterfaceGraph.add(searchBar, BorderLayout.CENTER);
-
+            playerInterfaceGraph.setBackground(Application.getColors().color_background1);
+            
             graphdetail = new JSlider(0, 1000); 
             graphdetail.setPreferredSize(new Dimension(16, 0));
             graphdetail.setOpaque(false);
@@ -301,6 +316,7 @@ public class PlayerControlInterface extends JPanel{
             this.add(sliderPanel, BorderLayout.WEST);
             this.setPreferredSize(new Dimension(400, 400));
             this.setBackground(new Color(30, 30, 30));
+            this.setOpaque(true);
             
     		//TODO: to method
 
@@ -315,6 +331,13 @@ public class PlayerControlInterface extends JPanel{
     		getVolume().setBarHSB(Application.getColors().color_controls_volume_bar);
     		
 	}
+	
+	@Override
+    protected void paintComponent(Graphics g) {
+		//TODO
+        super.paintComponent(g);
+        Application.drawReflectionEffect(this, g, 0.3f);
+    }
 
 	public void setPlayPause(boolean isPlaying) {
 		if (isPlaying){
@@ -464,7 +487,7 @@ public class PlayerControlInterface extends JPanel{
 
 	}
 	
-	public JGraph getPlayerInterfaceGraph() {
+	public GraphRender getPlayerInterfaceGraph() {
 		return playerInterfaceGraph;
 	}
 

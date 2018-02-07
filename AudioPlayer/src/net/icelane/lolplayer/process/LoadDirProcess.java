@@ -2,13 +2,14 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package audioplayer.process;
-
-import audioplayer.PlayerControl;
-import audioplayer.player.AudioFile;
-import audioplayer.player.codec.AudioType;
+package net.icelane.lolplayer.process;
 
 import java.io.File;
+
+import net.icelane.lolplayer.AppCore;
+import net.icelane.lolplayer.player.AudioFile;
+import net.icelane.lolplayer.player.codec.AudioType;
+import net.icelane.lolplayer.process.api.Process;
 
 /**
  * LoLPlayer II - Audio-Player Project
@@ -20,7 +21,7 @@ public class LoadDirProcess extends Process {
 
 	private File[] dir;
 
-	public LoadDirProcess(PlayerControl control, File[] dir) {
+	public LoadDirProcess(AppCore control, File[] dir) {
 		super(control);
 		this.dir = dir;
 	}
@@ -34,6 +35,7 @@ public class LoadDirProcess extends Process {
 						0, dir.length, 0));
 		control.getStatusbar().setVisible(true);
 
+		
 		DirSearcher ds = new DirSearcher() {
 			@Override
 			public void processFile(File f) {

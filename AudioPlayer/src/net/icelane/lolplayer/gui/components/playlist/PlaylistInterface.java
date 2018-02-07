@@ -2,11 +2,14 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package audioplayer.gui.components.playlist;
+package net.icelane.lolplayer.gui.components.playlist;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
@@ -22,11 +25,11 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import net.icelane.lolplayer.Application;
+import net.icelane.lolplayer.font.FontLoader;
+import net.icelane.lolplayer.images.ImageLoader;
 import net.mrx13415.searchcircle.imageutil.ImageModifier;
 import net.mrx13415.searchcircle.imageutil.color.HSB;
-import audioplayer.Application;
-import audioplayer.font.FontLoader;
-import audioplayer.images.ImageLoader;
 
 
 /**
@@ -51,7 +54,6 @@ public class PlaylistInterface extends JPanel{
     private ImageIcon imgSearch_pressed = ImageLoader.image_search_pressed;
     private ImageIcon imgSearch_hover = ImageLoader.setHoverImgHSB(ImageLoader.image_search);
     private ImageIcon imgSearch_pressed_hover = ImageLoader.setPressedHoverImgHSB(ImageLoader.image_search_pressed);
-    
     
     public PlaylistInterface(MouseListener ml) {
         

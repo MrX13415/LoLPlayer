@@ -1,11 +1,16 @@
-package audioplayer.gui.components.playlist;
+package net.icelane.lolplayer.gui.components.playlist;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -17,9 +22,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 
-import audioplayer.Application;
-
-import audioplayer.desing.Colors;
+import net.icelane.lolplayer.Application;
+import net.icelane.lolplayer.design.Colors;
 
 /**
  *  LoLPlayer II - Audio-Player Project
@@ -34,12 +38,13 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	 */
 	private static final long serialVersionUID = 6885243785578821275L;
 
+	public static boolean defaultState = false;
+	
 	private JButton toggleButton;
 	private JPanel toggleComponent;
 	
-	private boolean shownState = false;
-//	private boolean lastState = shownState;
-	private boolean runAnimation = false;
+	private boolean shownState;
+	private boolean runAnimation;
 	
 	private PlaylistInterface playlistInterface;
 	private JFrame frame;
@@ -59,11 +64,11 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 	private int hideAnimationSpeed = 15;
 
 	public PlaylistToggleArea(PlaylistInterface pli, JFrame frame) {
-		this(null, pli, frame, false);
+		this(null, pli, frame, defaultState);
 	}
 
 	public PlaylistToggleArea(Component resizeTargetComp, PlaylistInterface pli, JFrame frame) {
-		this(resizeTargetComp, pli, frame, false);
+		this(resizeTargetComp, pli, frame, defaultState);
 	}
 	
 	public PlaylistToggleArea(Component resizeTargetComp, PlaylistInterface pli, JFrame frame, boolean defaultState) {
@@ -122,7 +127,14 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 			}
 		});
 		
-		toggleComponent = new JPanel();
+		toggleComponent = new JPanel(){			
+			@Override
+		    protected void paintComponent(Graphics g) {
+				//TODO
+		        super.paintComponent(g);
+		        Application.drawReflectionEffect(this, g);
+		    }
+		};
 		toggleComponent.add(toggleButton);
 		toggleComponent.add(pli);
 		toggleComponent.setBackground(Application.getColors().color_playlist_background6);
@@ -179,8 +191,11 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 		});
 		
 		this.add(toggleComponent);
+		
+		if (defaultState) showComponente();
+		else hideComponente();
 	}
-
+   
 	public JPanel getToggleComponent() {
 		return toggleComponent;
 	}
@@ -241,65 +256,61 @@ public class PlaylistToggleArea extends JLayeredPane implements ActionListener {
 //		lastState = show;
 		runAnimation = true;
 
-		animationThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
+		animationThread = new Thread(() -> {
+			final int targetHeightOffset = playlistInterface.getSize().height * -1;
+			
+			fSize = frame.getSize();
+		    fMSize = frame.getMinimumSize();
+		    thisSize = getPreferredSize();
+		    
+            int yIndex = (show ? targetHeightOffset : 0);
+            int showYMax = insets.top;
+            int hideYMin = targetHeightOffset - insets.top;
+            int delta = 0;
+            
+			while (show ? yIndex <= showYMax
+					    : yIndex >= hideYMin)
+			{
 
-				final int targetHeightOffset = playlistInterface.getSize().height * -1;
-				
-				fSize = frame.getSize();
-			    fMSize = frame.getMinimumSize();
-			    thisSize = getPreferredSize();
-			    
-                int yIndex = (show ? targetHeightOffset : 0);
-                int showYMax = insets.top;
-                int hideYMin = targetHeightOffset - insets.top;
-                int delta = 0;
-                
-				while (show ? yIndex <= showYMax
-						    : yIndex >= hideYMin)
-				{
-
-	                if (cancleAnimation) {
-                        cancleAnimation = false;
-                        return;
-	                }
-	
-	                delta = show ? yIndex + Math.abs(targetHeightOffset)
-	                		: Math.abs(yIndex) * -1;
-
-	                setDelta(delta);
-	                
-	                try {
-	                    Thread.sleep(20); //50 FPS
-	                } catch (InterruptedException ex) {
-	                }
-
-                    if (show && yIndex >= showYMax || !show && yIndex <= hideYMin) break;
-                    
-	                int nextYIndex = (show ? yIndex + showAnimationSpeed : yIndex - hideAnimationSpeed);
-					yIndex = show ?
-							 	nextYIndex > showYMax ?
-							 		yIndex + Math.abs(showYMax - yIndex)
-									: nextYIndex
-							 : nextYIndex < hideYMin ?
-									yIndex - Math.abs(yIndex - hideYMin)
-									: nextYIndex;
+                if (cancleAnimation) {
+                    cancleAnimation = false;
+                    return;
                 }
-								
-				SwingUtilities.invokeLater(new Runnable() {
-	                @Override
-	                public void run() {
-	                	if (show)
-	                		showComponente();
-	                	else
-	                		hideComponente();
-	                }
-		        });
-		        
-		        runAnimation = false;
-		        animationThread = null;
-			}
+
+                delta = show ? yIndex + Math.abs(targetHeightOffset)
+                		: Math.abs(yIndex) * -1;
+
+                setDelta(delta);
+                
+                try {
+                    Thread.sleep(20); //50 FPS
+                } catch (InterruptedException ex) {
+                }
+
+                if (show && yIndex >= showYMax || !show && yIndex <= hideYMin) break;
+                
+                int nextYIndex = (show ? yIndex + showAnimationSpeed : yIndex - hideAnimationSpeed);
+				yIndex = show ?
+						 	nextYIndex > showYMax ?
+						 		yIndex + Math.abs(showYMax - yIndex)
+								: nextYIndex
+						 : nextYIndex < hideYMin ?
+								yIndex - Math.abs(yIndex - hideYMin)
+								: nextYIndex;
+            }
+							
+			SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                	if (show)
+                		showComponente();
+                	else
+                		hideComponente();
+                }
+	        });
+	        
+	        runAnimation = false;
+	        animationThread = null;
 
 		});
 

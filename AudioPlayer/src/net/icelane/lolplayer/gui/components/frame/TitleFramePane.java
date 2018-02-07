@@ -1,4 +1,4 @@
-package audioplayer.gui.components.frame;
+package net.icelane.lolplayer.gui.components.frame;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -7,6 +7,8 @@ import java.awt.Insets;
 import java.awt.LayoutManager;
 
 import javax.swing.JPanel;
+
+import net.icelane.lolplayer.Application;
 
 public class TitleFramePane extends JPanel{
 
@@ -20,8 +22,7 @@ public class TitleFramePane extends JPanel{
     
     private Insets invisborder = new Insets(5,5,5,5);
     private Insets frameBorder = new Insets(20,5,0,0);
-    private Dimension frameBorderSize = new Dimension(400 - 30 + 5, 400 - 30 + 20);
-    
+
 	public TitleFramePane(JPanel tF, JPanel mP) {
 		this.titleFrame = tF;  
 		this.mainPane = mP;
@@ -76,21 +77,16 @@ public class TitleFramePane extends JPanel{
 					Component c = p.getComponent(i);
 				
 					if (c.equals(titleFrame)){
-//						
-//						int h = mainPane.getSize().height
-//								+ frameBorder.bottom
-//								- 30;
-//						
-//						int w = mainPane.getSize().width
-//								+ frameBorder.right
-//								- 30;
-						
-//						h = h == 0 ? c.getPreferredSize().height: h;
-//						w = w == 0 ? c.getPreferredSize().width : w;
-						
+
 						int x = invisborder.left;
 						int y = invisborder.top;
 						
+						int w = p.getWidth() >= 400 ? 400 : p.getWidth() + x;
+						int h = p.getHeight() >= 400 ? 400 : p.getHeight() + y;
+						
+					    Dimension frameBorderSize = new Dimension(w + frameBorder.left - 30,
+					    		 							      h + frameBorder.top - 30);
+					    
 						c.setBounds(x, y, frameBorderSize.width, frameBorderSize.height);
 					}
 					
@@ -121,4 +117,5 @@ public class TitleFramePane extends JPanel{
 			
 		});
 	}
+	
 }

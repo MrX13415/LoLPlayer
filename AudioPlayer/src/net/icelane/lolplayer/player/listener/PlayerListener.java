@@ -1,4 +1,4 @@
-package audioplayer.player.listener;
+package net.icelane.lolplayer.player.listener;
 
 /**
  *  LoLPlayer II - Audio-Player Project

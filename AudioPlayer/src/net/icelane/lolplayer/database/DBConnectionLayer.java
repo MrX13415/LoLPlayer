@@ -1,9 +1,9 @@
-package audioplayer.database;
+package net.icelane.lolplayer.database;
 
 import java.sql.DriverManager;
 
-import audioplayer.database.connetionlayer.DB4OClient;
-import audioplayer.database.connetionlayer.DB4OServer;
+import net.icelane.lolplayer.database.connetionlayer.DB4OClient;
+import net.icelane.lolplayer.database.connetionlayer.DB4OServer;
 
 
 public class DBConnectionLayer {

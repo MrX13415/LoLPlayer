@@ -1,4 +1,4 @@
-package audioplayer.player.codec;
+package net.icelane.lolplayer.player.codec;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -6,11 +6,12 @@ import java.util.ArrayList;
 
 import javax.activity.InvalidActivityException;
 
+import net.icelane.lolplayer.player.AudioFile;
+import net.icelane.lolplayer.player.device.AudioDevice;
+import net.icelane.lolplayer.player.device.AudioDeviceLayer;
+import net.icelane.lolplayer.player.listener.PlayerEvent;
+import net.icelane.lolplayer.player.listener.PlayerListener;
 import javazoom.jl.decoder.BitstreamException;
-import audioplayer.player.AudioFile;
-import audioplayer.player.device.AudioDeviceLayer;
-import audioplayer.player.listener.PlayerEvent;
-import audioplayer.player.listener.PlayerListener;
 
 /**
  * LoLPlayer II - Audio-Player Project
@@ -27,7 +28,7 @@ public abstract class AudioProcessingLayer implements Runnable{
 		NEW, INIT, PLAYING, STOPPED, PAUSED;
 	}
 		
-	protected AudioDeviceLayer audioDevice;			
+	protected AudioDevice audioDevice;			
 
 	protected AudioFile file;								
 	protected Thread decoderThread;					
@@ -110,7 +111,7 @@ public abstract class AudioProcessingLayer implements Runnable{
 		}
 	}
 	
-	public AudioDeviceLayer getAudioDevice() {
+	public AudioDevice getAudioDevice() {
 		return audioDevice;
 	}
 

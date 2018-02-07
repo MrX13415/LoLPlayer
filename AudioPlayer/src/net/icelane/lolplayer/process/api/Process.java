@@ -1,7 +1,7 @@
-package audioplayer.process;
+package net.icelane.lolplayer.process.api;
 
-import audioplayer.Application;
-import audioplayer.PlayerControl;
+import net.icelane.lolplayer.Application;
+import net.icelane.lolplayer.AppCore;
 
 /**
  *
@@ -9,12 +9,12 @@ import audioplayer.PlayerControl;
  */
 public abstract class Process implements Runnable{
     
-	protected PlayerControl control;
+	protected AppCore control;
     protected boolean running;
     protected boolean reachedEnd;
     protected Thread thread;
     
-    public Process(PlayerControl control) {
+    public Process(AppCore control) {
         this.control = control;
         this.control.getStatusbar().addProcess(this);
         initThread();

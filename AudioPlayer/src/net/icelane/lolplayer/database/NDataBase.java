@@ -1,4 +1,4 @@
-package audioplayer.database;
+package net.icelane.lolplayer.database;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import audioplayer.database.sql.PostgresSQLConnectionLayer;
-import audioplayer.player.AudioFile;
+import net.icelane.lolplayer.database.sql.PostgresSQLConnectionLayer;
+import net.icelane.lolplayer.player.AudioFile;
 
 /**
  *  LoLPlayer II - Audio-Player Project

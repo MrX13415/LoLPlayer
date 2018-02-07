@@ -2,12 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package audioplayer.process;
+package net.icelane.lolplayer.process;
 
-import audioplayer.PlayerControl;
-import audioplayer.gui.components.playlist.PlaylistTableModel;
-import audioplayer.player.AudioFile;
-import audioplayer.player.AudioPlaylist;
+import net.icelane.lolplayer.AppCore;
+import net.icelane.lolplayer.gui.components.playlist.PlaylistTableModel;
+import net.icelane.lolplayer.player.AudioFile;
+import net.icelane.lolplayer.player.AudioPlaylist;
+import net.icelane.lolplayer.process.api.Process;
 
 /**
  * LoLPlayer II - Audio-Player Project
@@ -17,7 +18,7 @@ import audioplayer.player.AudioPlaylist;
  */
 public class SearchPlaylistProcess extends Process {
 
-	public SearchPlaylistProcess(PlayerControl control) {
+	public SearchPlaylistProcess(AppCore control) {
 		super(control);
 	}
 

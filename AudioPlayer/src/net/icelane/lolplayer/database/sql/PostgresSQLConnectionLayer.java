@@ -1,4 +1,4 @@
-package audioplayer.database.sql;
+package net.icelane.lolplayer.database.sql;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

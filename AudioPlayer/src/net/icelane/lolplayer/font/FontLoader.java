@@ -1,4 +1,4 @@
-package audioplayer.font;
+package net.icelane.lolplayer.font;
 
 import java.awt.Font;
 import java.io.InputStream;

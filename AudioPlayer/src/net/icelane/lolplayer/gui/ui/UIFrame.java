@@ -1,8 +1,9 @@
-package audioplayer.gui.ui;
+package net.icelane.lolplayer.gui.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Graphics;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsDevice.WindowTranslucency;
 import java.awt.GraphicsEnvironment;
@@ -15,11 +16,11 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 
-import audioplayer.Application;
-import audioplayer.gui.components.frame.TitleFrameBorder;
-import audioplayer.gui.components.frame.TitleFramePane;
-import audioplayer.gui.components.frame.TitleFrameResizeHandler;
-import audioplayer.gui.components.frame.TitleFrameResizeHandler.Direction;
+import net.icelane.lolplayer.Application;
+import net.icelane.lolplayer.gui.components.frame.TitleFrameBorder;
+import net.icelane.lolplayer.gui.components.frame.TitleFramePane;
+import net.icelane.lolplayer.gui.components.frame.TitleFrameResizeHandler;
+import net.icelane.lolplayer.gui.components.frame.TitleFrameResizeHandler.Direction;
 
 
 public class UIFrame extends JFrame{
@@ -41,7 +42,7 @@ public class UIFrame extends JFrame{
 	private JPanel rootPane;
 	private JPanel contentPane;
 
-	private boolean translucency;
+	private boolean translucency = true;
 	private boolean translucencySupported;
 
 	private JFrame parent;
@@ -68,13 +69,19 @@ public class UIFrame extends JFrame{
 
 		System.out.print("Per-pixel translucency ...\t\t");
 
-		// If translucent windows aren't supported, exit.
 		if (!translucencySupported) {
 			System.out.println("NOT SUPPORTED");
 		} else
 			System.out.println("SUPPORTED");
 
-		contentPane = new JPanel();
+		contentPane = new JPanel(){
+			@Override
+		    protected void paintComponent(Graphics g) {
+				//TODO
+		        super.paintComponent(g);
+		        Application.drawReflectionEffect(this, g, 0.3f);
+		    }
+		};
 		contentPane.setName("ContentPane");
 		contentPane.setLayout(new BorderLayout());
 		contentPane.setBackground(Application.getColors().color_background1);
@@ -107,12 +114,6 @@ public class UIFrame extends JFrame{
 		titleFrame.setResizehandler(resizeHandler);
 		
 		framePane = new TitleFramePane(titleFrame, mainPane);
-		
-		/* TRANSLUCENCY 
-		 *
-		 * Alpha has to be 0;
-		 * 
-		 */
 		framePane.setBackground(Application.getColors().color_background4);
 		
 		framePane.setName("FramePane");
@@ -122,33 +123,11 @@ public class UIFrame extends JFrame{
 
 		this.setResizable(false);
 		this.setUndecorated(true);
-		this.setBackground(new Color(0, 0, 0, 0));
+		if (translucencySupported && translucency)
+			this.setBackground(new Color(0, 0, 0, 0));
 		
 		if (parent == null) return;
 
-//		JPanel glass = new JPanel(){
-//			
-////		    public JPane() {
-////
-////		        setOpaque(false);
-////
-////		        addMouseListener(new MouseAdapter() {
-////		            @Override
-////		            public void mouseClicked(MouseEvent e) {
-////		                actionAllowed = false;
-////		            }
-////		        });
-////		    }
-////
-////		    //Draw an cross to indicate glasspane visibility 
-////		    public void paintComponent(Graphics g) {  
-////		      g.setColor(Color.red);  
-////		      g.drawLine(0, 0, getWidth(), getHeight());  
-////		      g.drawLine(getWidth(), 0, 0, getHeight());
-////		    }
-////		};
-		
-//		parent.setGlassPane(glassPane);
 		parent.addWindowFocusListener(new WindowFocusListener() {
 			
 			@Override

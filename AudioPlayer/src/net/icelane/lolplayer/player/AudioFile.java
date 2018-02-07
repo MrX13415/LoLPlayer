@@ -1,9 +1,9 @@
-package audioplayer.player;
+package net.icelane.lolplayer.player;
 
 import java.io.File;
 
-import audioplayer.player.codec.AudioProcessingLayer;
-import audioplayer.player.codec.AudioType;
+import net.icelane.lolplayer.player.codec.AudioProcessingLayer;
+import net.icelane.lolplayer.player.codec.AudioType;
 import de.vdheide.mp3.MP3File;
 
 /**
@@ -50,18 +50,23 @@ public class AudioFile {
 	}
 
 	public void initialize() throws UnsupportedFileFormatException{
-		System.out.printf("init audioFile %-100s\t\t", file.getName() + " ...");
+		//System.out.printf("init audioFile %-100s\t\t", file.getName() + " ...");
     	 try{
     		readID3Tags();
          	length = type.getAudioProcessingLayerInstance().calculateStreamLength(file);
          	initialized = true;
          	
-         	System.out.println("OK");
+         	//System.out.println("OK");
          }catch(Exception e){
-        	 System.out.println("ERROR");
+        	System.out.printf("init audioFile %-100s\t\t", file.getName() + " ...");
+        	System.out.println("ERROR: " + e);
          	throw new UnsupportedFileFormatException(this);
          }
-    	 if (!isSupported()) throw new UnsupportedFileFormatException(this);
+    	 if (!isSupported()){
+    		System.out.printf("init audioFile %-100s\t\t", file.getName() + " ...");
+         	System.out.println("ERROR");
+          	throw new UnsupportedFileFormatException(this);
+    	 }
     }
 	
 	public void readID3Tags(){

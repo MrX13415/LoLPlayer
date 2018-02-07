@@ -1,4 +1,4 @@
-package audioplayer.desing;
+package net.icelane.lolplayer.design;
 
 import java.awt.Color;
 import java.io.BufferedReader;
@@ -15,10 +15,10 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
-import audioplayer.Application;
-import audioplayer.gui.UserInterface;
-import audioplayer.gui.ui.UIFrame;
-import audioplayer.player.analyzer.AudioGraph;
+import net.icelane.lolplayer.Application;
+import net.icelane.lolplayer.gui.UserInterface;
+import net.icelane.lolplayer.gui.ui.UIFrame;
+import net.icelane.lolplayer.player.analyzer.AudioGraph;
 import net.mrx13415.searchcircle.imageutil.ImageModifier;
 import net.mrx13415.searchcircle.imageutil.color.HSB;
 
@@ -77,6 +77,7 @@ public class Colors {
 	
 	public Color SETTING_color_display_forground1 = new Color(255, 128 , 0);
 	public Color SETTING_color_display_forground2 = Color.gray;
+	public Color SETTING_color_display_background = new Color(15, 15, 15, 150);
 	
 	public Color SETTING_color_menu_background1 = new Color(50 ,50, 50);
 	public Color SETTING_color_menu_forground1 = new Color(255 ,255, 255);
@@ -134,7 +135,8 @@ public class Colors {
 
 	public Color color_display_forground1 = SETTING_color_display_forground1;
 	public Color color_display_forground2 = SETTING_color_display_forground2;
-
+	public Color color_display_background = SETTING_color_display_background;
+	
 	public Color color_menu_background1 = SETTING_color_menu_background1;
 	public Color color_menu_forground1 = SETTING_color_menu_forground1;
 
@@ -235,10 +237,10 @@ public class Colors {
 				while (SETTING_rainbowColor) {
 					
 					try {
-						Thread.sleep(10);
+						Thread.sleep(200);
 					} catch (InterruptedException e) {}
 					
-					SETTING_rainbowHue += 0.0001f;
+					SETTING_rainbowHue += 0.001f;
 					
 					changeColor(new HSB(SETTING_rainbowHue, SETTING_rainbowSaturation, SETTING_rainbowBrightness));
 					
@@ -248,7 +250,7 @@ public class Colors {
 				}
 			}
 		});
-		
+		rainbowThread.setName("UI-RainbowEffect");
 		rainbowThread.start();
 	}
 	

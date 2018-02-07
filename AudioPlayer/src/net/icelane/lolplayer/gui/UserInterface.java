@@ -1,4 +1,4 @@
-package audioplayer.gui;
+package net.icelane.lolplayer.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -25,20 +25,21 @@ import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.mrx13415.searchcircle.event.SearchCircleChangeEvent;
-import net.mrx13415.searchcircle.event.SearchCircleKeyEvent;
-import net.mrx13415.searchcircle.event.SearchCircleListener;
-import net.mrx13415.searchcircle.event.SearchCircleMouseEvent;
+import net.icelane.lolplayer.Application;
+import net.icelane.lolplayer.gui.components.MenuBar;
+import net.icelane.lolplayer.gui.components.PlayerControler.PlayerControlInterface;
+import net.icelane.lolplayer.gui.components.frame.TitleFrameResizeHandler.Direction;
+import net.icelane.lolplayer.gui.components.playlist.PlaylistInterface;
+import net.icelane.lolplayer.gui.components.playlist.PlaylistToggleArea;
+import net.icelane.lolplayer.gui.ui.UIFrame;
+import net.icelane.lolplayer.player.analyzer.render.GraphRender.DisplayMode;
+import net.icelane.lolplayer.player.analyzer.render.GraphRender.DrawMode;
+import net.icelane.lolplayer.process.api.gui.StatusBar;
+import net.icelane.searchcircle.event.SearchCircleChangeEvent;
+import net.icelane.searchcircle.event.SearchCircleKeyEvent;
+import net.icelane.searchcircle.event.SearchCircleListener;
+import net.icelane.searchcircle.event.SearchCircleMouseEvent;
 import net.mrx13415.searchcircle.swing.JSearchCircle;
-import audioplayer.Application;
-import audioplayer.gui.components.MenuBar;
-import audioplayer.gui.components.PlayerControler.PlayerControlInterface;
-import audioplayer.gui.components.frame.TitleFrameResizeHandler.Direction;
-import audioplayer.gui.components.playlist.PlaylistInterface;
-import audioplayer.gui.components.playlist.PlaylistToggleArea;
-import audioplayer.gui.ui.UIFrame;
-import audioplayer.player.analyzer.components.JGraph.DrawMode;
-import audioplayer.process.components.StatusBar;
 
 /**
  *  LoLPlayer II - Audio-Player Project
@@ -99,7 +100,6 @@ public abstract class UserInterface extends UIFrame implements ActionListener,
 		pta = new PlaylistToggleArea(pli, this);
 		pta.setName("PlaylistToggleArea");
 		pta.getToggleComponent().setName("PlaylistToggleComponent");
-		
 
 		getMainPane().add(pta, BorderLayout.SOUTH);
 		
@@ -283,6 +283,7 @@ public abstract class UserInterface extends UIFrame implements ActionListener,
 		});
     }
     
+    //TODO: refectoring ...
     @Override
     public void actionPerformed(ActionEvent ae) {
         Object s = ae.getSource();
@@ -355,9 +356,17 @@ public abstract class UserInterface extends UIFrame implements ActionListener,
         if (s.equals(menu.getMenu_help_about()))
                 onMenu_help_about();
         
-        if (ae.getActionCommand().startsWith("SetJGraphDrawingMODE:")){
+        if (s.equals(menu.getMenu_help_console()))
+            onMenu_help_console();
+        
+        if (ae.getActionCommand().startsWith("SetGraphDisplayMode:")){
         	String mode = ae.getActionCommand().split(":")[1];
-        	onMenu_graph_dmode_change(DrawMode.valueOf(mode));
+        	onMenu_graph_displaymode(DisplayMode.valueOf(mode));
+        }
+        
+        if (ae.getActionCommand().startsWith("SetGraphDrawingMode:")){
+        	String mode = ae.getActionCommand().split(":")[1];
+        	onMenu_graph_drawmode(DrawMode.valueOf(mode));
         }
     }
 
@@ -518,12 +527,13 @@ public abstract class UserInterface extends UIFrame implements ActionListener,
     public abstract void onMenu_graph_enabled();
     public abstract void onMenu_graph_fps();
     public abstract void onMenu_graph_merge();
+    public abstract void onMenu_graph_displaymode(DisplayMode mode);
     public abstract void onMenu_graph_bfilter();
     public abstract void onMenu_graph_geffect();
-    public abstract void onMenu_graph_dmode_change(DrawMode mode);
+    public abstract void onMenu_graph_drawmode(DrawMode mode);
     
     public abstract void onMenu_help_about();
-
+    public abstract void onMenu_help_console();
 
     public abstract void onButtonPlaylistviewMode(boolean buttonPressed);
     

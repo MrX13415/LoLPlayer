@@ -2,11 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package audioplayer.process;
+package net.icelane.lolplayer.process;
 
-import audioplayer.PlayerControl;
-import audioplayer.player.AudioFile.UnsupportedFileFormatException;
-import audioplayer.player.AudioPlaylist;
+import net.icelane.lolplayer.AppCore;
+import net.icelane.lolplayer.player.AudioPlaylist;
+import net.icelane.lolplayer.player.AudioFile.UnsupportedFileFormatException;
+import net.icelane.lolplayer.process.api.Process;
 
 /**
  * LoLPlayer II - Audio-Player Project
@@ -16,7 +17,7 @@ import audioplayer.player.AudioPlaylist;
  */
 public class GetherAudioFileInfoProcess extends Process {
 
-	public GetherAudioFileInfoProcess(PlayerControl control) {
+	public GetherAudioFileInfoProcess(AppCore control) {
 		super(control);
 	}
 
@@ -30,16 +31,18 @@ public class GetherAudioFileInfoProcess extends Process {
 		control.getStatusbar().setMessageText(String.format("Gethering file informations ... (%s/%s)", 0, pl.size()));
 		control.getStatusbar().setVisible(true);
 
+
 		for (int i = 0; i < pl.size(); i++) {
 			if (!running) break;
 			
 			try {
-				pl.get(i).initialize();				
-				control.getPlaylistInterface().getPlaylistTableModel().updateData(pl.indexOf(pl.get(i)), pl.get(i));
+				pl.get(i).initialize();	
+	
+				control.getPlaylistInterface().getPlaylistTableModel().updateData(i, pl.get(i));
 			} catch (UnsupportedFileFormatException e) {
 				control.raiseNotSupportedFileFormatError(pl.get(i), e, false);
 			} catch (Exception e) {
-
+				System.out.println("Error: " + e);
 			}
 			
 			control.getStatusbar().setMessageText(String.format("Gethering file informations ... (%s/%s)", i, pl.size()));

@@ -1,4 +1,4 @@
-package audioplayer.player.codec.MPEG;
+package net.icelane.lolplayer.player.codec.MPEG;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,17 +8,17 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 
+import net.icelane.lolplayer.player.codec.AudioProcessingLayer;
+import net.icelane.lolplayer.player.codec.AudioType;
+import net.icelane.lolplayer.player.device.AudioDeviceLayer;
+import net.icelane.lolplayer.player.listener.PlayerEvent;
+import net.icelane.lolplayer.player.listener.PlayerListener;
 import javazoom.jl.decoder.Bitstream;
 import javazoom.jl.decoder.BitstreamException;
 import javazoom.jl.decoder.Decoder;
 import javazoom.jl.decoder.DecoderException;
 import javazoom.jl.decoder.Header;
 import javazoom.jl.decoder.SampleBuffer;
-import audioplayer.player.codec.AudioProcessingLayer;
-import audioplayer.player.codec.AudioType;
-import audioplayer.player.device.AudioDeviceLayer;
-import audioplayer.player.listener.PlayerEvent;
-import audioplayer.player.listener.PlayerListener;
 
 /**
  *  LoLPlayer II - Audio-Player Project

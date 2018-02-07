@@ -1,4 +1,4 @@
-package audioplayer.player.analyzer;
+package net.icelane.lolplayer.player.analyzer;
 
 import java.util.ArrayList;
 

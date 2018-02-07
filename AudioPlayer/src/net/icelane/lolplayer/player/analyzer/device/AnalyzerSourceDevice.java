@@ -1,8 +1,7 @@
-package audioplayer.player.analyzer.device;
+package net.icelane.lolplayer.player.analyzer.device;
 
 import javax.sound.sampled.AudioFormat;
-
-import audioplayer.player.device.AudioDeviceLayer;
+import javax.swing.JFrame;
 
 public interface AnalyzerSourceDevice {
 
@@ -11,5 +10,10 @@ public interface AnalyzerSourceDevice {
 	public String getDescription();
 	
 	public AudioFormat getAudioFormat();
+
+	public boolean hasSettingsUI();
 	
+	public void OpenSettingsUI(JFrame parent);
+	
+	public void CloseSettingsUI();
 }

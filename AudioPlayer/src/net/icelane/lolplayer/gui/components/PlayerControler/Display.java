@@ -1,4 +1,4 @@
-package audioplayer.gui.components.PlayerControler;
+package net.icelane.lolplayer.gui.components.PlayerControler;
 
 
 import java.awt.BorderLayout;
@@ -8,9 +8,8 @@ import java.awt.GridLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import audioplayer.Application;
-
-import audioplayer.desing.Colors;
+import net.icelane.lolplayer.Application;
+import net.icelane.lolplayer.design.Colors;
 
 /**
  *  LoLPlayer II - Audio-Player Project
@@ -116,22 +115,27 @@ public class Display extends JPanel {
 
 	public void setInfo1Text(String info1) {
 		this.info1.setText(info1);
+		this.info1.setForeground(Application.getColors().color_display_forground1);
 	}
 
 	public void setInfo2Text(String info2) {
 		this.info2.setText(info2);
+		this.info2.setForeground(Application.getColors().color_display_forground1);
 	}
 
 	public void setInfo3Text(String info3) {
 		this.info3.setText(info3);
+		this.info3.setForeground(Application.getColors().color_display_forground1);
 	}
 
 	public void setStatusBar1Text(String info4) {
 		this.statusbar1.setText(info4 + " ");
+		this.statusbar1.setForeground(Application.getColors().color_display_forground2);
 	}
 
 	public void setStatusBar2Text(String bottomline) {
 		this.statusbar2.setText(bottomline);
+		this.statusbar2.setForeground(Application.getColors().color_display_forground2);
 	}
 
 }

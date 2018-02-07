@@ -1,4 +1,4 @@
-package audioplayer.database.sql;
+package net.icelane.lolplayer.database.sql;
 
 import java.io.BufferedReader;
 import java.io.File;

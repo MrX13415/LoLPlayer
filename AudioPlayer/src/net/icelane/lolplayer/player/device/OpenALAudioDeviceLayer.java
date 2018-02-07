@@ -1,40 +1,47 @@
-package audioplayer.player.device;
+package net.icelane.lolplayer.player.device;
 
+import java.io.BufferedInputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 import java.util.Arrays;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
 import javax.sound.sampled.Control;
+import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
-import javax.sound.sampled.Port;
 import javax.sound.sampled.SourceDataLine;
+import javax.swing.JFrame;
 
-import javazoom.jl.player.AudioDevice;
-import audioplayer.Application;
-import audioplayer.player.analyzer.Analyzer;
-import audioplayer.player.analyzer.data.PCMData;
-import audioplayer.player.analyzer.device.AnalyzerSourceDevice;
-import audioplayer.player.codec.AudioProcessingLayer;
+import net.icelane.lolplayer.Application;
+import net.icelane.lolplayer.player.analyzer.Analyzer;
+import net.icelane.lolplayer.player.analyzer.data.PCMData;
+import net.icelane.lolplayer.player.analyzer.device.AnalyzerSourceDevice;
+import net.icelane.lolplayer.player.codec.AudioProcessingLayer;
+
+import org.lwjgl.BufferUtils;
+
+import org.lwjgl.openal.AL;
+import org.lwjgl.openal.AL10;
+
 
 /**
  *  LoLPlayer II - Audio-Player Project
  * 
- * Audio-Device Layer
+ * Java Sound Audio-Device Layer
  * 
  * @author Oliver Daus
  * 
  * @version 2.0
  * 
- * TODO: marker for 0 DB 100%
- * 
  */
-public class AudioDeviceLayer implements AnalyzerSourceDevice{
-	
-	private static AudioDeviceLayer currentAudioDeviceLayer = null;
+public class OpenALAudioDeviceLayer implements AudioDevice, AnalyzerSourceDevice{
 	
 	private boolean open = false;
 	private volatile SourceDataLine dataline = null;
@@ -42,17 +49,42 @@ public class AudioDeviceLayer implements AnalyzerSourceDevice{
 	private Analyzer analyzer;
 	private Object owner = null;
 	
-	private AudioDeviceLayer() {
+	public boolean DEBUG = false;
+	
+	public static final int AL_FORMAT_MONO8 = 0x1100;
+	public static final int AL_FORMAT_MONO16 = 0x1101;
+	public static final int AL_FORMAT_STEREO8 = 0x1102;
+	public static final int AL_FORMAT_STEREO16 = 0x1103;
+	
+	//*** OAL ****
+
+	/** Buffers hold sound data. */
+	IntBuffer buffer = BufferUtils.createIntBuffer(1);
+	 
+	/** Sources are points emitting sound. */
+	IntBuffer source = BufferUtils.createIntBuffer(1);
+	 
+	/** Position of the source sound. */
+	FloatBuffer sourcePos = (FloatBuffer)BufferUtils.createFloatBuffer(3).put(new float[] { 0.0f, 0.0f, 0.0f }).rewind();
+	 
+	/** Velocity of the source sound. */
+	FloatBuffer sourceVel = (FloatBuffer)BufferUtils.createFloatBuffer(3).put(new float[] { 0.0f, 0.0f, 0.0f }).rewind();
+	 
+	/** Position of the listener. */
+	FloatBuffer listenerPos = (FloatBuffer)BufferUtils.createFloatBuffer(3).put(new float[] { 0.0f, 0.0f, 0.0f }).rewind();
+	 
+	/** Velocity of the listener. */
+	FloatBuffer listenerVel = (FloatBuffer)BufferUtils.createFloatBuffer(3).put(new float[] { 0.0f, 0.0f, 0.0f }).rewind();
+	 
+	/** Orientation of the listener. (first 3 elements are "at", second 3 are "up") */
+	FloatBuffer listenerOri = (FloatBuffer)BufferUtils.createFloatBuffer(6).put(new float[] { 0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f }).rewind();
+	
+	//************	
+	
+	protected OpenALAudioDeviceLayer() {
         super();
 	}
-	
-	public static AudioDeviceLayer getInstance(){
-		if (currentAudioDeviceLayer == null)
-			currentAudioDeviceLayer = new AudioDeviceLayer();
-
-		return currentAudioDeviceLayer;
-	}
-	
+		
 	public Analyzer getAnalyzer() {
 		return analyzer;
 	}
@@ -63,11 +95,14 @@ public class AudioDeviceLayer implements AnalyzerSourceDevice{
 		
 		if (analyzer != null){
 			analyzer.registerDevice(this);
-			analyzer.setActiveDevice(this);
 		}
 		this.analyzer = analyzer;
 	}
 
+	public void setAnalyzerActive(){
+		if (analyzer != null) analyzer.setActiveDevice(this);
+	}
+	
 	public boolean isOpen() {
 		return open;
 	}
@@ -93,13 +128,14 @@ public class AudioDeviceLayer implements AnalyzerSourceDevice{
 			return this.owner.equals(owner) ? true : false;
 		
 		
+		
 		ccc = true;
 		this.owner = owner;
 		
 		try {
-			System.out.printf("[ADL] EVENT: CLAIM   SOURCE: %100s CCC : %s\n", ((AudioProcessingLayer) owner).getAudioFile().getName(), ccc);	
+			if (DEBUG) System.out.printf("[ADL] EVENT: CLAIM   SOURCE: %100s CCC : %s\n", ((AudioProcessingLayer) owner).getAudioFile().getName(), ccc);	
 		} catch (Exception e) {
-			System.out.printf("[ADL] EVENT: CLAIM   SOURCE: %100s CCC : %s\n", owner, ccc);
+			if (DEBUG) System.out.printf("[ADL] EVENT: CLAIM   SOURCE: %100s CCC : %s\n", owner, ccc);
 		}
 		return true;
 	}
@@ -121,7 +157,7 @@ public class AudioDeviceLayer implements AnalyzerSourceDevice{
 		
 		ccc = false;
 		this.owner = null;
-		System.out.printf("[ADL] EVENT: RELEASE SOURCE: %100s CCC : %s\n", owner, ccc);
+		if (DEBUG) System.out.printf("[ADL] EVENT: RELEASE SOURCE: %100s CCC : %s\n", owner, ccc);
 		
 		return true;
 	}
@@ -131,10 +167,6 @@ public class AudioDeviceLayer implements AnalyzerSourceDevice{
 	 */
 	public void forceRelease(){
 		this.owner = null;
-	}
-	
-	public SourceDataLine getDataline() {
-		return dataline;
 	}
 
 	public AudioFormat getFormat() {
@@ -148,7 +180,7 @@ public class AudioDeviceLayer implements AnalyzerSourceDevice{
 		System.out.println(format.toString());
 		open = true;
 	}
-
+	
 	public void close() {
 		open = false;
 		
@@ -161,89 +193,168 @@ public class AudioDeviceLayer implements AnalyzerSourceDevice{
 			dataline = null;
 		}
 	}
+
 	
-	public synchronized boolean write(Object owner, byte[] b, final int off, final int len) throws LineUnavailableException{
-		if (owner == null) return false;
-		if (this.owner != null && !this.owner.equals(owner)) return false;
-		
-		PCMData d = new PCMData(format, b, off, len);
-		format = d.getFormat();
-		
-		if (dataline == null) createDataLine();
-		
-		if (analyzer != null) analyzer.analyze(this, b, off, len);
-		
-		dataline.write(b, off, len);
-		
-		return true;
-	}
-				
-	public synchronized void flush(){
-		if (dataline != null) dataline.drain();
-	}
+	
 
-	protected void createDataLine() throws LineUnavailableException {
-		
-//		 Mixer.Info[] mi = AudioSystem.getMixerInfo();
-//	        for (Mixer.Info info : mi) {
-//	            System.out.println("info: " + info);
-//	            Mixer m = AudioSystem.getMixer(info);
-//	            System.out.println("mixer " + m);
-//	            Line.Info[] sl = m.getSourceLineInfo();
-//	            for (Line.Info info2 : sl) {
-//	                System.out.println("    info: " + info2);
-//	                Line line = AudioSystem.getLine(info2);
-//	                if (line instanceof SourceDataLine) {
-//	                    SourceDataLine source = (SourceDataLine) line;
-//
-//	                    DataLine.Info i = (DataLine.Info) source.getLineInfo();
-//	                    for (AudioFormat format : i.getFormats()) {
-//	                        System.out.println("    format: " + format);
-//	                    }
-//	                }
-//	            }
-//	        }
-	        
-		DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
-		
-		Line line = AudioSystem.getLine(info);
 
-		if (line instanceof SourceDataLine){
-			dataline = (SourceDataLine) line;
-			dataline.open(format);
-			
-			dataline.start();
-		}
-		
-//		System.out.println(Arrays.toString(AudioSystem.getMixerInfo()));
-//		for (int i = 0; i < AudioSystem.getMixerInfo().length; i++) {
-//			System.out.println((i < 10? " " : "") + i + " : " + AudioSystem.getMixerInfo()[i]);
-//			
-//			Mixer m = AudioSystem.getMixer(AudioSystem.getMixerInfo()[i]);
-//			System.out.println("     > " + m.getLineInfo());
-//			System.out.println("     > " + Arrays.toString(m.getControls()));
-//			System.out.println("     > " + Arrays.toString(m.getSourceLines()));
-//			for (int j = 0; j < m.getSourceLines().length; j++) {
-//				System.out.println("          > " + m.getSourceLines()[j].getLineInfo());
-//			}
-//			
-//			System.out.println("     > " + Arrays.toString(m.getTargetLines()));
-//			System.out.println("     > " + Arrays.toString(m.getSourceLineInfo()));
-//			System.out.println("     > " + Arrays.toString(m.getTargetLineInfo()));
-//		}
-//		
-//		
-//		if (AudioSystem.isLineSupported(Port.Info.SPEAKER)) {
-//			
-//		    try {
-//		        line = (Port) AudioSystem.getLine(Port.Info.MICROPHONE);
-//		    }catch(Exception e){
-//		    	
+private static ByteBuffer convertAudioBytes(byte[] audio_bytes, boolean two_bytes_data, ByteOrder order) {
+	ByteBuffer dest = ByteBuffer.allocateDirect(audio_bytes.length);
+	dest.order(ByteOrder.nativeOrder());
+	ByteBuffer src = ByteBuffer.wrap(audio_bytes);
+	src.order(order);
+	if (two_bytes_data) {
+		ShortBuffer dest_short = dest.asShortBuffer();
+		ShortBuffer src_short = src.asShortBuffer();
+		while (src_short.hasRemaining())
+			dest_short.put(src_short.get());
+	} else {
+		while (src.hasRemaining())
+			dest.put(src.get());
+	}
+	dest.rewind();
+	return dest;
+}
+	
+	
+	boolean ff = false;
+
+	@Override
+	public boolean write(Object owner, byte[] b, int off, int len)
+			throws LineUnavailableException {
+	
+////		if (!ff){
+//			try{
+//			      AL.create();
+//		    } catch (LWJGLException le) {
+//		      le.printStackTrace();
 //		    }
+//			ff = true;
+//		}
+	
+		 // Load wav data into a buffer.
+	    AL10.alGenBuffers(buffer);
+
+		// get channels
+		int channels = 0;
+//		if (format.getChannels() == 1) {
+//			if (format.getSampleSizeInBits() == 8) {
+//				channels = AL10.AL_FORMAT_MONO8;
+//			} else if (format.getSampleSizeInBits() == 16) {
+//				channels = AL10.AL_FORMAT_MONO16;
+//			} else {
+//				assert false : "Illegal sample size";
+//			}
+//		} else if (format.getChannels() == 2) {
+//			if (format.getSampleSizeInBits() == 8) {
+//				channels = AL10.AL_FORMAT_STEREO8;
+//			} else if (format.getSampleSizeInBits() == 16) {
+//				channels = AL10.AL_FORMAT_STEREO16;
+//			} else {
+//				assert false : "Illegal sample size";
+//			}
+//		} else {
+//			assert false : "Only mono or stereo is supported";
 //		}
 		
+		channels = AL10.AL_FORMAT_STEREO16;
+	
+		//read data into buffer
+		b = monoToStereo(generateSineWave(742, 3000));
+		ByteBuffer buf = null;
+		buf = convertAudioBytes(b, format.getSampleSizeInBits() == 16, format.isBigEndian() ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
 
-		if (dataline == null) throw new LineUnavailableException("Can't obtain Data line");
+	    AL10.alBufferData(this.buffer.get(0), channels , buf, (int) format.getFrameRate());
+
+	    // Bind the buffer with the source.
+	    AL10.alGenSources(source);
+
+	    if (AL10.alGetError() != AL10.AL_NO_ERROR)
+	    	return false;
+
+	    AL10.alSourcei(source.get(0), AL10.AL_BUFFER,   buffer.get(0) );
+	    AL10.alSourcef(source.get(0), AL10.AL_PITCH,    1.0f          );
+	    AL10.alSourcef(source.get(0), AL10.AL_GAIN,     1.0f          );
+	   // AL10.alSource (source.get(0), AL10.AL_POSITION, sourcePos     );
+	   // AL10.alSource (source.get(0), AL10.AL_VELOCITY, sourceVel     );
+
+	    
+	    AL10.alSourcePlay(source.get(0));
+
+	    printJavaSoundMixerInfo();
+	    
+	    return false;
+	}
+		
+	boolean play;
+	boolean cccc;
+	
+	public synchronized void flush(){
+		//if (dataline != null) dataline.drain();
+	}
+
+//	protected void createDataLine() throws LineUnavailableException { 
+//		DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
+//		
+//		Line line = AudioSystem.getLine(info);
+//
+//		if (line instanceof SourceDataLine){
+//			dataline = (SourceDataLine) line;
+//			dataline.open(format);
+//			
+//			dataline.start();
+//		}
+//		
+//		if (dataline == null) throw new LineUnavailableException("Can't obtain Data line");
+//	}
+	
+	public static void printJavaSoundMixerInfo(){
+		Mixer.Info[] mi = AudioSystem.getMixerInfo();
+		for (Mixer.Info info : mi) {
+			System.out.println("info: " + info);
+			Mixer m = AudioSystem.getMixer(info);
+			System.out.println("mixer " + m);
+			Line.Info[] sl = m.getSourceLineInfo();
+			for (Line.Info info2 : sl) {
+				System.out.println("    info: " + info2);
+				try {
+					Line line = AudioSystem.getLine(info2);
+					if (line instanceof SourceDataLine) {
+						SourceDataLine source = (SourceDataLine) line;
+
+						DataLine.Info i = (DataLine.Info) source.getLineInfo();
+						for (AudioFormat format : i.getFormats()) {
+							System.out.println("    format: " + format);
+						}
+					}
+				} catch (Exception e) {
+					System.out.println("    Error: " + e);
+				}
+			}
+		}
+	}
+	
+	public static void printSystemDeviceInfo(){
+		System.out.println(Arrays.toString(AudioSystem.getMixerInfo()));
+		for (int i = 0; i < AudioSystem.getMixerInfo().length; i++) {
+			System.out.println((i < 10 ? " " : "") + i + " : "
+					+ AudioSystem.getMixerInfo()[i]);
+
+			Mixer m = AudioSystem.getMixer(AudioSystem.getMixerInfo()[i]);
+			System.out.println("     > " + m.getLineInfo());
+			System.out.println("     > " + Arrays.toString(m.getControls()));
+			System.out.println("     > " + Arrays.toString(m.getSourceLines()));
+			for (int j = 0; j < m.getSourceLines().length; j++) {
+				System.out.println("          > "
+						+ m.getSourceLines()[j].getLineInfo());
+			}
+
+			System.out.println("     > " + Arrays.toString(m.getTargetLines()));
+			System.out.println("     > "
+					+ Arrays.toString(m.getSourceLineInfo()));
+			System.out.println("     > "
+					+ Arrays.toString(m.getTargetLineInfo()));
+		}
 	}
 
 	public FloatControl getVolumeControl(){
@@ -306,7 +417,7 @@ public class AudioDeviceLayer implements AnalyzerSourceDevice{
 		Thread th = new Thread(
 			(Runnable) () -> {
 				claim(this);
-				open(new AudioFormat(44100, 16, 2, true, false));
+				open(new AudioFormat(48000, 16, 2, true, false));
 				
 				for (int i = 0; i < 1; i++) {
 					byte[] b = monoToStereo(generateSineWave(432, 700));
@@ -367,10 +478,7 @@ public class AudioDeviceLayer implements AnalyzerSourceDevice{
 	 * @return A byte array of a sinus wave
 	 */
 	public static byte[] generateSineWave(int sampleRate, int frequency, int time) {
-		
-		
 		float t = (1f / (float)(frequency)) * 1000;
-		System.out.println(t);
         byte[] sin = new byte[(sampleRate / 1000) * time];
         double samplingInterval = (double) (sampleRate / frequency);
 
@@ -395,6 +503,27 @@ public class AudioDeviceLayer implements AnalyzerSourceDevice{
 	@Override
 	public AudioFormat getAudioFormat() {
 		return format;
+	}
+
+	@Override
+	public SourceDataLine getDataline() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean hasSettingsUI() {
+		return false;
+	}
+
+	@Override
+	public void OpenSettingsUI(JFrame parent) {
+
+	}
+	
+	@Override
+	public void CloseSettingsUI() {
+
 	}
 
 }

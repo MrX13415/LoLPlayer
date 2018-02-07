@@ -1,8 +1,8 @@
-package audioplayer.player.analyzer;
+package net.icelane.lolplayer.player.analyzer;
 
 import javax.sound.sampled.AudioFormat;
 
-import audioplayer.player.analyzer.data.PCMData;
+import net.icelane.lolplayer.player.analyzer.data.PCMData;
 
 /**
  *  LoLPlayer II - Audio-Player Project

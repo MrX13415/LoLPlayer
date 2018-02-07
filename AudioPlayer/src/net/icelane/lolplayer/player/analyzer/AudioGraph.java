@@ -1,4 +1,4 @@
-package audioplayer.player.analyzer;
+package net.icelane.lolplayer.player.analyzer;
 
 import java.awt.Color;
 import java.awt.image.VolatileImage;
@@ -26,7 +26,7 @@ public class AudioGraph{
 	
 	private volatile VolatileImage renderSnapshot;
 	
-	private volatile int shownValues = 1000;
+	private volatile int shownValues = 1000; //TODO: auto determine value !
 	private volatile Color color = Color.red;
 	private volatile int yOffset = 0;
 	private volatile String name = "";
@@ -117,6 +117,7 @@ public class AudioGraph{
 	
 	public float getValue(int index){
 		synchronized (buffer) {
+			if (index >= buffer.size()) return 0.0f;
 			return buffer.get(index);
 		}
 	}

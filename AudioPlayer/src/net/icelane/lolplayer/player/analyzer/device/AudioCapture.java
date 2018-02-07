@@ -1,16 +1,17 @@
-package audioplayer.player.analyzer.device;
+package net.icelane.lolplayer.player.analyzer.device;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.DataLine.Info;
+import javax.swing.JFrame;
 import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Port;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
-import audioplayer.player.analyzer.Analyzer;
+import net.icelane.lolplayer.player.analyzer.Analyzer;
 
 
 public class AudioCapture extends Thread implements AnalyzerSourceDevice{
@@ -103,6 +104,21 @@ public class AudioCapture extends Thread implements AnalyzerSourceDevice{
 	@Override
 	public AudioFormat getAudioFormat() {
 		return format;
+	}
+
+	@Override
+	public boolean hasSettingsUI() {
+		return false;
+	}
+
+	@Override
+	public void OpenSettingsUI(JFrame parent) {
+
+	}
+	
+	@Override
+	public void CloseSettingsUI() {
+
 	}
 
 }

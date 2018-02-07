@@ -1,8 +1,5 @@
-package audioplayer.process.components;
+package net.icelane.lolplayer.process.api.gui;
 
-import audioplayer.Application;
-import audioplayer.font.FontLoader;
-import audioplayer.process.Process;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -17,6 +14,10 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+
+import net.icelane.lolplayer.Application;
+import net.icelane.lolplayer.font.FontLoader;
+import net.icelane.lolplayer.process.api.Process;
 
 /**
  * LoLPlayer II - Audio-Player Project

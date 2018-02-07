@@ -1,4 +1,4 @@
-package audioplayer.player.analyzer;
+package net.icelane.lolplayer.player.analyzer;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -8,10 +8,10 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import javax.sound.sampled.AudioFormat;
 
-import audioplayer.Application;
-import audioplayer.player.analyzer.components.JGraph;
-import audioplayer.player.analyzer.data.PCMData;
-import audioplayer.player.analyzer.device.AnalyzerSourceDevice;
+import net.icelane.lolplayer.Application;
+import net.icelane.lolplayer.player.analyzer.data.PCMData;
+import net.icelane.lolplayer.player.analyzer.device.AnalyzerSourceDevice;
+import net.icelane.lolplayer.player.analyzer.render.opengl.GL11Graph;
 
 /**
  * LoLPlayer II - Audio-Player Project
@@ -55,7 +55,7 @@ public class Analyzer {
 	private volatile float[] channelsValueSum;
 	private volatile int[] chennalsDetailIndex;
 
-	private int sleepTime = 20; // (50 FPS) in ms ; must be max 25 ms, otherwise
+	private int sleepTime = 16; // (50 FPS) in ms ; must be max 25 ms, otherwise
 								// the
 								// Graph on the GUI will start lagging
 
@@ -277,19 +277,21 @@ public class Analyzer {
 		return activeDevice;
 	}
 	
-	public void setActiveDevice(int index){
+	public boolean setActiveDevice(int index){
 		try {
-			setActiveDevice(devices.get(index));
+			return setActiveDevice(devices.get(index));
 		} catch (Exception e) {
 			if (devices.size() > 0)
 				setActiveDevice(devices.get(0));
 			else
 				activeDevice = null;
 		}
+		return false;
 	}
-	public void setActiveDevice(AnalyzerSourceDevice device){
+	public boolean setActiveDevice(AnalyzerSourceDevice device){
 		this.activeDevice = device;
 		System.out.println("Analyzer: Active Device changed to: [" + device.getDisplayName() + "]");
+		return true;
 	}
 
 	public long getDuractionTime() {
@@ -384,8 +386,8 @@ public class Analyzer {
 	}
 	
 	public void init() {
-		clearGraphs();
-		setDefaultGraphs(2);
+		//clearGraphs();
+		//setDefaultGraphs(2);
 		
 		this.format = getActiveDevice().getAudioFormat();
 		
@@ -474,9 +476,11 @@ public class Analyzer {
 
 	private void initChannelGraphs() {
 		synchronized (channelGraphs) {
-			if (defaultGraphsSet)
+			if (defaultGraphsSet){
 				g.clearGraphs();
-
+				defaultGraphsSet = false;
+			}
+			
 			int channels = format.getChannels();
 			while (channelGraphs.size() < channels) {
 
@@ -646,15 +650,13 @@ public class Analyzer {
 					speed = 1000000000 / duractionTime; // 1000000000ns == 1s
 
 					if (DEBUG)
-						System.out
-								.printf("Duraction: %9s ns  Buffer: %4s /%4s  Speed: %4s AudioByteBlocks/s\n",
+						System.out.printf("Duraction: %9s ns  Buffer: %4s /%4s  Speed: %4s AudioByteBlocks/s\n",
 										duractionTime,
 										getBufferSize(), 
 										buffermax,
 										speed);
 				}
-				System.err
-						.println("WARNING: The thread \"AnalyzerThread\" has stopped!");
+				System.err.println("WARNING: The thread \"AnalyzerThread\" has stopped!");
 			}
 		});
 		analyzerThread.setName ("AnalyzerThread");

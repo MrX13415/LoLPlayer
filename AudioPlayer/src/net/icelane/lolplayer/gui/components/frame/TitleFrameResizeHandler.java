@@ -1,4 +1,4 @@
-package audioplayer.gui.components.frame;
+package net.icelane.lolplayer.gui.components.frame;
 
 import java.awt.AWTEvent;
 import java.awt.Color;
@@ -21,7 +21,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import audioplayer.gui.components.playlist.PlaylistToggleArea;
+import net.icelane.lolplayer.gui.components.playlist.PlaylistToggleArea;
 
 
 public class TitleFrameResizeHandler extends JComponent implements MouseListener, MouseMotionListener {

@@ -1,4 +1,4 @@
-package audioplayer.images;
+package net.icelane.lolplayer.images;
 
 import java.awt.Image;
 import java.io.File;
@@ -14,8 +14,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 
+import net.icelane.lolplayer.Application;
 import net.mrx13415.searchcircle.imageutil.ImageModifier;
-import audioplayer.Application;
 
 /**
  *  LoLPlayer II - Audio-Player Project
@@ -118,7 +118,7 @@ public class ImageLoader {
 		//Make pressed a little darker and hover lighter ... 
 		ImageModifier im = new ImageModifier(img.getImage());
 		im.setBrightness(-0.2f);
-		return new ImageIcon(im.modify());	
+		return new ImageIcon(im.modify());
 	}
 	
 	public static ImageIcon setHoverImgHSB(ImageIcon img){
@@ -263,7 +263,71 @@ public class ImageLoader {
 								if (resourceFileName.contains("\\"))
 									resourceFileName = resourceFileName.substring(resourceFileName.lastIndexOf("\\") + 1);
 
+								System.out.println(resourceFileName);
 								imageResFiles.add(resourceFileName);
+							}
+						}
+					}
+
+				} else {
+					ZipInputStream zip = new ZipInputStream(jar.openStream());
+
+					ZipEntry ze = null;
+					while ((ze = zip.getNextEntry()) != null) {
+						if (ze.getName().startsWith(packagePath)) {
+							for (String type : acceptedImgFileTypes) {
+								if (ze.getName().endsWith(type)) {
+									
+									String resourceFileName = ze.getName().substring(ze.getName().lastIndexOf("/") + 1);
+									
+									if (resourceFileName.contains("\\"))
+										resourceFileName = resourceFileName.substring(resourceFileName.lastIndexOf("\\") + 1);
+
+									imageResFiles.add(resourceFileName);
+								}
+							}
+						}
+					}
+				}
+			}
+			System.out.println("OK\n");
+		} catch (Exception e) {
+			System.out.println("ERROR: " + e);
+		}
+		return imageResFiles;
+	}
+	
+	public static ArrayList<String> ljhkjhloadImnageResourcesList(){
+		String packagePath = ImageLoader.class.getPackage().getName();
+		while (packagePath.contains(".")) packagePath = packagePath.replace(".", "/"); 
+		
+		String[] acceptedImgFileTypes = { ".png" };
+
+		ArrayList<String> imageResFiles = new ArrayList<String>();
+
+		try {
+			System.out.print("Load Images ...\t\t\t");
+			CodeSource src = ImageLoader.class.getProtectionDomain().getCodeSource();
+
+			if (src != null) {
+				
+				URL jar = src.getLocation();
+				File dir = new File(jar.getPath() + packagePath + "/");
+
+				if (dir.canRead() && dir.isDirectory()) {
+
+					for (File file : dir.listFiles()) {
+						for (String type : acceptedImgFileTypes) {
+							if (file.getPath().endsWith(type)) {
+
+								String resourceFileName = file.getPath().substring(file.getPath().lastIndexOf("/") + 1);
+								
+								if (resourceFileName.contains("\\"))
+									resourceFileName = resourceFileName.substring(resourceFileName.lastIndexOf("\\") + 1);
+
+								System.out.println(resourceFileName);
+								imageResFiles.add(resourceFileName);
+							
 							}
 						}
 					}

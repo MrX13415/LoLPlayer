@@ -1,11 +1,11 @@
-package audioplayer.player;
-
-import audioplayer.player.listener.PlayerListener;
-import audioplayer.player.listener.PlaylistEvent;
-import audioplayer.player.listener.PlaylistIndexChangeEvent;
+package net.icelane.lolplayer.player;
 
 import java.util.ArrayList;
 import java.util.Random;
+
+import net.icelane.lolplayer.player.listener.PlayerListener;
+import net.icelane.lolplayer.player.listener.PlaylistEvent;
+import net.icelane.lolplayer.player.listener.PlaylistIndexChangeEvent;
 
 
 /**
@@ -164,6 +164,10 @@ public class AudioPlaylist {
         content.add(af);
         for (PlayerListener l : listener)
             l.onPlaylistFileAdd(new PlaylistEvent(this, af, content.size() - 1));
+    }
+    
+    public void addNoEvent(AudioFile af){
+        content.add(af);
     }
     
     public void remove(AudioFile af){

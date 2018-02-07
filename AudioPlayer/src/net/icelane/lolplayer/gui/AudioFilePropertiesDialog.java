@@ -1,4 +1,4 @@
-package audioplayer.gui;
+package net.icelane.lolplayer.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -8,7 +8,7 @@ import java.awt.Toolkit;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 
-import audioplayer.player.AudioFile;
+import net.icelane.lolplayer.player.AudioFile;
 
 /**
  *  LoLPlayer II - Audio-Player Project

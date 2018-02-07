@@ -1,4 +1,4 @@
-package audioplayer.player.analyzer.components;
+package net.icelane.lolplayer.player.analyzer.render;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;

@@ -1,12 +1,12 @@
-package audioplayer.player.codec;
+package net.icelane.lolplayer.player.codec;
 
 import java.io.File;
 import java.io.FilenameFilter;
 
 import javax.swing.filechooser.FileFilter;
 
-import audioplayer.player.codec.MPEG.MPEGAudioType;
-import audioplayer.player.codec.WAVE.WAVEAudioType;
+import net.icelane.lolplayer.player.codec.MPEG.MPEGAudioType;
+import net.icelane.lolplayer.player.codec.WAVE.WAVEAudioType;
 
 /**
  *  LoLPlayer II - Audio-Player Project
@@ -62,9 +62,18 @@ public abstract class AudioType extends FileFilter{
 	}
 	
 	public static AudioType getAudioType(File file){
-		for (AudioType at : types) {
-			if (at.isSupported(file)) return at;
-		}
+//		for (AudioType at : types) {
+//			if (at.isSupported(file)) return at;
+//		}
+		if (file.getName().toLowerCase().endsWith(".mp1") ||
+			file.getName().toLowerCase().endsWith(".mp2") ||
+			file.getName().toLowerCase().endsWith(".mp3"))
+				return new MPEGAudioType();
+		
+		if (file.getName().toLowerCase().endsWith(".aiff") ||
+			file.getName().toLowerCase().endsWith(".wave"))
+				return new WAVEAudioType();
+		
 		return new UNKNOWAudioType();
 	}
 	

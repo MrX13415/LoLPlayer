@@ -1,4 +1,4 @@
-package audioplayer;
+package net.icelane.lolplayer;
 
 import java.awt.BorderLayout;
 import java.awt.event.KeyAdapter;
@@ -17,38 +17,38 @@ import javax.swing.event.CaretListener;
 import javax.swing.filechooser.FileFilter;
 
 import javazoom.jl.decoder.JavaLayerException;
+import net.icelane.lolplayer.gui.AboutDialog;
+import net.icelane.lolplayer.gui.AnalyzerSettingsDialog;
+import net.icelane.lolplayer.gui.AudioFilePropertiesDialog;
+import net.icelane.lolplayer.gui.ColorDialog;
+import net.icelane.lolplayer.gui.UserInterface;
+import net.icelane.lolplayer.medialibary.DesignMedienPlayer;
+import net.icelane.lolplayer.medialibary.DesignMedienPlayerDB;
+import net.icelane.lolplayer.medialibary.DesignerMedienPlayerSortby;
+import net.icelane.lolplayer.player.AudioFile;
+import net.icelane.lolplayer.player.AudioPlaylist;
+import net.icelane.lolplayer.player.AudioFile.UnsupportedFileFormatException;
+import net.icelane.lolplayer.player.analyzer.Analyzer;
+import net.icelane.lolplayer.player.analyzer.device.AudioCapture;
+import net.icelane.lolplayer.player.analyzer.render.GraphRender;
+import net.icelane.lolplayer.player.analyzer.render.GraphRender.DisplayMode;
+import net.icelane.lolplayer.player.analyzer.render.GraphRender.DrawMode;
+import net.icelane.lolplayer.player.codec.AudioProcessingLayer;
+import net.icelane.lolplayer.player.codec.AudioType;
+import net.icelane.lolplayer.player.device.AudioDeviceLayer;
+import net.icelane.lolplayer.player.device.FrequencyGenerator;
+import net.icelane.lolplayer.player.listener.PlayerEvent;
+import net.icelane.lolplayer.player.listener.PlayerListener;
+import net.icelane.lolplayer.player.listener.PlaylistEvent;
+import net.icelane.lolplayer.player.listener.PlaylistIndexChangeEvent;
+import net.icelane.lolplayer.process.GetherAudioFileInfoProcess;
+import net.icelane.lolplayer.process.LoadDirProcess;
+import net.icelane.lolplayer.process.LoadFilesProcess;
+import net.icelane.lolplayer.process.LoadPlaylistProcess;
+import net.icelane.lolplayer.process.SavePlaylistProcess;
+import net.icelane.lolplayer.process.SearchPlaylistProcess;
+import net.icelane.lolplayer.process.api.Process;
 import net.mrx13415.searchcircle.swing.JSearchCircle;
-import audioplayer.gui.AboutDialog;
-import audioplayer.gui.AnalyzerSettingsDialog;
-import audioplayer.gui.AudioFilePropertiesDialog;
-import audioplayer.gui.ColorDialog;
-import audioplayer.gui.UserInterface;
-import audioplayer.medialibary.DesignMedienPlayer;
-import audioplayer.medialibary.DesignMedienPlayerDB;
-import audioplayer.medialibary.DesignerMedienPlayerSortby;
-import audioplayer.player.AudioFile;
-import audioplayer.player.AudioFile.UnsupportedFileFormatException;
-import audioplayer.player.AudioPlaylist;
-import audioplayer.player.analyzer.Analyzer;
-import audioplayer.player.analyzer.components.JGraph;
-import audioplayer.player.analyzer.components.JGraph.DrawMode;
-import audioplayer.player.analyzer.device.AudioCapture;
-import audioplayer.player.codec.AudioProcessingLayer;
-import audioplayer.player.codec.AudioType;
-import audioplayer.player.device.AudioDeviceLayer;
-import audioplayer.player.listener.PlayerEvent;
-import audioplayer.player.listener.PlayerListener;
-import audioplayer.player.listener.PlaylistEvent;
-import audioplayer.player.listener.PlaylistIndexChangeEvent;
-import audioplayer.process.GetherAudioFileInfoProcess;
-import audioplayer.process.LoadDirProcess;
-import audioplayer.process.LoadFilesProcess;
-import audioplayer.process.LoadPlaylistDBProcess;
-import audioplayer.process.LoadPlaylistProcess;
-import audioplayer.process.Process;
-import audioplayer.process.SavePlaylistDBProcess;
-import audioplayer.process.SavePlaylistProcess;
-import audioplayer.process.SearchPlaylistProcess;
 
 /**
  * LoLPlayer II - Audio-Player Project
@@ -56,7 +56,7 @@ import audioplayer.process.SearchPlaylistProcess;
  * @author Oliver Daus
  * 
  */
-public class PlayerControl extends UserInterface implements PlayerListener {
+public class AppCore extends UserInterface implements PlayerListener {
 
 	/**
 	 * 
@@ -80,11 +80,11 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	/**
 	 * Start a new Instance of the AudioPlayer ...
 	 */
-	public PlayerControl() {
+	public AppCore() {
 		
 		currentPlaylist.addPlayerListener(this);
 		
-		loadPlaylistFromDB();
+		//loadPlaylistFromDB();
 		new LoadPlaylistProcess(this);
 		new GetherAudioFileInfoProcess(this);
 		
@@ -92,7 +92,10 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 //		analyzer.setDefaultChannelGraphColor(1, Colors.color_graph_defaultChannelGraphColor5);
 		analyzer.setMergedChannels(false);
 		initUIupdaterThread();
-
+		
+		// set default analyzer device 
+		AudioDeviceLayer.getInstance().setAnalyzer(analyzer);		
+		
 		try {
 			System.out.print("Test audio device ...\t\t\t");
 			AudioDeviceLayer.getInstance().test();
@@ -102,7 +105,7 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 		} 
 
 		if (!audioPlaylist.isEmpty()) {
-			initAudioFile(); // autoplay on startup if playlist had content ...
+			initAudioFile(); // autoplay on startup if playlist has content ...
 		}
 		
 		//playlist search ..
@@ -137,8 +140,14 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 			}
 		});
 		
+		// init and register the audio capture (default mic)
 		AudioCapture ac = new AudioCapture(analyzer);
 		ac.start();
+		
+		// init and register the sine wave gen ...
+		FrequencyGenerator fg = FrequencyGenerator.getInstance();
+		fg.setAnalyzer(analyzer);
+		fg.start();
 	}
 
 	public void onSearchPlaylist(){
@@ -204,21 +213,6 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 		this.autoPlay = autoPlay;
 		new LoadFilesProcess(this, file);
 		new GetherAudioFileInfoProcess(this);
-	}
-
-	public void loadPlaylistFromDB() {
-		new LoadPlaylistDBProcess(this);
-		new GetherAudioFileInfoProcess(this);
-	}
-
-	public SavePlaylistDBProcess savePlaylistToDB() {
-		Process p = getStatusbar().getProcess();
-		if (p == null || !(p instanceof SavePlaylistDBProcess)) {
-			getStatusbar().stopAllProcess();
-			return new SavePlaylistDBProcess(this);
-		} else if (p instanceof SavePlaylistDBProcess)
-			return (SavePlaylistDBProcess) p;
-		return null;
 	}
 	
 	public SavePlaylistProcess savePlaylistToDataFile() {
@@ -318,12 +312,20 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 		audioProcessingLayer.initialzePlayer(af);
 		audioProcessingLayer.setPostion(0);
 
+		// Synchronize the audio device and the analyzer ...
+		if (audioProcessingLayer.getAudioDevice().getAnalyzer() != analyzer){
+			audioProcessingLayer.getAudioDevice().setAnalyzer(analyzer);
+			audioProcessingLayer.getAudioDevice().setAnalyzerActive();
+		}
+
 		oldppl.cleanInstance();
 		oldppl = null;
 	}
 
 	private Runnable getUIupdater() {
-
+		
+		//TODO: use swingworker and improve gui updates ...
+		
 		return new Runnable() {
 
 			@Override
@@ -338,16 +340,12 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 							Application.isDebug());
 
 					try {
-						Thread.sleep(16); //60 FPS
+						Thread.sleep(10); //60 FPS
 					} catch (InterruptedException e) {
 					}
                                         
 					if (audioProcessingLayer == null)
 						continue;
-
-					// Synchronize the audio device and the analyzer ...
-					if (audioProcessingLayer.getAudioDevice().getAnalyzer() != analyzer)
-						audioProcessingLayer.getAudioDevice().setAnalyzer(analyzer);
 
 					// Update the song frequency in the statistic ...
 					long time = audioProcessingLayer.getTimePosition();
@@ -359,10 +357,10 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 						} catch (Exception e) {}					
 					}
 					
-//					SwingUtilities.invokeLater(new Runnable() {
-//
-//						@Override
-//						public void run() {
+					SwingUtilities.invokeLater(new Runnable() {
+
+						@Override
+						public void run() {
 
 							if (audioProcessingLayer.isNew())
 								getPlayerControlInterface().getSearchBar()
@@ -386,8 +384,8 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 										.setButtonValueButEvent(
 												audioProcessingLayer
 														.getTimePosition());
-//						}
-//					});
+						}
+					});
 				}
 			}
 		};
@@ -683,14 +681,14 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	
 	@Override
 	public void onMenu_graph_enabled() {
-		JGraph jg = getPlayerControlInterface().getPlayerInterfaceGraph();
+		GraphRender jg = getPlayerControlInterface().getPlayerInterfaceGraph();
 		jg.setEnabledDrawing(!jg.isEnabledDrawing());
 		analyzer.setEnabled(!analyzer.isEnabled());
 	}
 	
 	@Override
 	public void onMenu_graph_fps() {
-		JGraph jg = getPlayerControlInterface().getPlayerInterfaceGraph();
+		GraphRender jg = getPlayerControlInterface().getPlayerInterfaceGraph();
 		jg.setShowFPS(!jg.isShowFPS());
 		
 	}
@@ -698,6 +696,12 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	@Override
 	public void onMenu_graph_merge() {
 		analyzer.setMergedChannels(!analyzer.isMergedChannels());
+	}
+
+	@Override
+	public void onMenu_graph_displaymode(DisplayMode mode) {
+		getPlayerControlInterface().getPlayerInterfaceGraph().setDisplayMode(mode);
+		System.out.println("Graph display mode set to: "+ mode.toString());
 	}
 
 	@Override
@@ -717,7 +721,7 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 	}
 	
 	@Override
-	public void onMenu_graph_dmode_change(DrawMode mode) {
+	public void onMenu_graph_drawmode(DrawMode mode) {
 		getPlayerControlInterface().getPlayerInterfaceGraph().setDrawMode(mode);
 		System.out.println("Graph drawing mode set to: "+ mode.toString());
 	}
@@ -730,6 +734,10 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 		new AboutDialog(this);
 	}
 
+	public void onMenu_help_console() {
+		Application.getApplication().getConsole().show();
+	}
+	
 	private JFileChooser initOpenDialog() {
 		JFileChooser fc = new JFileChooser(new File(
 				System.getProperty("user.home")));
@@ -796,8 +804,6 @@ public class PlayerControl extends UserInterface implements PlayerListener {
 
 		getPlaylistInterface().getPlaylistTableModel().insertData(event.getAudioFile());
 		
-		System.out.println("Added to playlist: " + event.getAudioFile().getFile().getAbsolutePath());
-
 		if (aplwasEmpty) {
 			audioPlaylist.resetToFirstIndex();
 			if (autoPlay) initAudioFileAutoPlay();

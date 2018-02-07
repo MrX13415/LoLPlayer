@@ -1,34 +1,42 @@
-package audioplayer;
-
-import javax.sound.sampled.AudioSystem;
-import javax.swing.UIManager;
-
-import net.mrx13415.searchcircle.imageutil.color.HSB;
-import audioplayer.database.sql.LoLPlayerDB;
-import audioplayer.desing.Colors;
-import audioplayer.font.FontLoader;
-import audioplayer.gui.AboutDialog;
-import audioplayer.gui.ui.UIFrame;
-import audioplayer.images.ImageLoader;
-import audioplayer.process.SavePlaylistProcess;
+package net.icelane.lolplayer;
 
 import java.awt.Color;
-import java.lang.reflect.Field;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.net.URL;
+import java.security.CodeSource;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import javax.swing.JComponent;
+import javax.swing.Timer;
+import javax.swing.UIManager;
+
+import net.icelane.lolplayer.database.sql.LoLPlayerDB;
+import net.icelane.lolplayer.design.Colors;
+import net.icelane.lolplayer.font.FontLoader;
+import net.icelane.lolplayer.gui.AboutDialog;
+import net.icelane.lolplayer.gui.console.JConsole;
+import net.icelane.lolplayer.images.ImageLoader;
+import net.icelane.lolplayer.images.Images;
+import net.icelane.lolplayer.process.SavePlaylistProcess;
 
 /**
  *  LoLPlayer II - Audio-Player Project
  * 
  * @author Oliver Daus
- * @version 0.1.6.15
+ * @version 0.1.8.2
  */ 
 public class Application {
 
 	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.6.15 beta";
+	public static String App_Version = "0.1.8.2";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
 	public static String App_Author = "Oliver Daus";	
 	public static String App_License = "CC BY-NC-SA 3.0";
@@ -41,8 +49,8 @@ public class Application {
         
 	private LoLPlayerDB database;
 	
-    private PlayerControl control;
-
+    private AppCore control;
+    private JConsole console;
     
     private static Colors colors = new Colors();
             
@@ -52,17 +60,122 @@ public class Application {
 	 *            the command line arguments
 	 */
 	public static void main(String[] args) {
-		System.out.println(App_Name_Version);
-			
-		proccessCommands(args);
-		
-		registerDEBUGclasses();
-			
 		application = new Application();
 		application.initialize();
-	}
+		application.proccessCommands(args);
+		application.registerDEBUGclasses();
+		application.run();
 		
-	public static void proccessCommands(String[] args){
+//		loadClasses(net.icelane.lolplayer.gui.UserInterface.class);
+    }
+	
+	
+//	public static <T> void loadClasses(Class<T> _Class){
+//
+//		String packagePath = _Class.getPackage().getName();
+//		while (packagePath.contains(".")) packagePath = packagePath.replace(".", "/"); 
+//		
+//		String[] acceptedImgFileTypes = { ".class" };
+//
+//		try {
+//			System.out.println("Load ...\t\t\t");
+//			CodeSource src = _Class.getProtectionDomain().getCodeSource();
+//
+//			if (src != null) {
+//				URL jar = src.getLocation();
+//				File dir = new File(jar.getPath() + packagePath + "/");
+//
+//				if (dir.canRead() && dir.isDirectory()) {
+//
+//					for (File file : dir.listFiles()) {
+//						for (String type : acceptedImgFileTypes) {
+//							if (file.getPath().endsWith(type)) {
+//
+//								String resourceFileName = file.getPath().substring(file.getPath().lastIndexOf("/") + 1);
+//								
+//								if (resourceFileName.contains("\\"))
+//									resourceFileName = resourceFileName.substring(resourceFileName.lastIndexOf("\\") + 1);
+//								
+//								String pkg = packagePath + "." + resourceFileName;
+//								pkg = pkg.replace("/", ".");
+//								pkg = pkg.replace(".class", "");
+//								
+//								try {
+//									Class.forName(pkg);
+//									System.out.println("    OK : " + pkg);
+//								} catch (Exception e) {
+//									System.out.println(" ERROR : " + pkg + " : " + e);
+//								}
+//							}
+//						}
+//					}
+//
+//				} else {
+//					ZipInputStream zip = new ZipInputStream(jar.openStream());
+//
+//					ZipEntry ze = null;
+//					while ((ze = zip.getNextEntry()) != null) {
+//						if (ze.getName().startsWith(packagePath)) {
+//							for (String type : acceptedImgFileTypes) {
+//								if (ze.getName().endsWith(type)) {
+//									
+//									String resourceFileName = ze.getName().substring(ze.getName().lastIndexOf("/") + 1);
+//									
+//									if (resourceFileName.contains("\\"))
+//										resourceFileName = resourceFileName.substring(resourceFileName.lastIndexOf("\\") + 1);
+//
+//									String pkg = ze.getName(); //packagePath + "." + resourceFileName;
+//									pkg = pkg.replace("/", ".");
+//									pkg = pkg.replace(".class", "");
+//									
+//									try {
+//										Class.forName(pkg);
+//										System.out.println("    OK : " + pkg);
+//									} catch (Exception e) {
+//										System.out.println(" ERROR : " + pkg + " : " + e);
+//									}
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
+//			System.out.println("Load...\t\t\tOK\n");
+//		} catch (Exception e) {
+//			System.out.println("Load...\t\t\tERROR: " + e);
+//		}
+//	}
+
+	public void initialize(){
+		try {
+			console = new JConsole();
+			console.setVisible(true);			
+
+		} catch (Exception e) {
+			System.out.println("ERROR: Can't setup console: " + e);
+		}
+
+		System.out.println(App_Name_Version);
+	}
+	
+	public static void drawReflectionEffect(JComponent c, Graphics g){
+		drawReflectionEffect(c, g, 0.7f);
+	}
+	
+	public static void drawReflectionEffect(JComponent c, Graphics g, float transp){
+		Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        int w = c.getWidth();
+        int h = c.getHeight();
+        
+        Color color1 = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+        Color color2 = new Color(1.0f, 1.0f, 1.0f, 0.8f);
+        GradientPaint gp = new GradientPaint(0, 0, color1, 0, h, color2);
+        g2d.setPaint(gp);
+        g2d.fillRect(0, 0, w, (h/100)*59);
+	}
+	
+	public void proccessCommands(String[] args){
 		if (args.length <= 0) return;
 		
 		for (String cmdarg : args) {
@@ -81,25 +194,25 @@ public class Application {
 		}
 	}
 	
-	public static void registerDEBUGclasses(){
-		ClassLoader loader = ClassLoader.getSystemClassLoader();		
-		Class<? extends ClassLoader> clclass = loader.getClass();
-				
-		Vector<?> classes = null;
-        
-		try {
-			Field fldclasses = clclass.getDeclaredField("classes");
-	        fldclasses.setAccessible(true);
-			classes = (Vector<?>) fldclasses.get(loader);        
-		} catch (Exception e) {
-			System.out.println("ERROR: get loaded classes");
-		}
-	
-		if(classes == null) return;
-		
-        for (Iterator<?> iter = classes.iterator(); iter.hasNext();) {
-            System.out.println("   Loaded " + iter.next());
-        }
+	public void registerDEBUGclasses(){
+//		ClassLoader loader = ClassLoader.getSystemClassLoader();		
+//		Class<? extends ClassLoader> clclass = loader.getClass();
+//				
+//		Vector<?> classes = null;
+//        
+//		try {
+//			Field fldclasses = clclass.getDeclaredField("classes");
+//	        fldclasses.setAccessible(true);
+//			classes = (Vector<?>) fldclasses.get(loader);        
+//		} catch (Exception e) {
+//			System.out.println("ERROR: get loaded classes");
+//		}
+//	
+//		if(classes == null) return;
+//		
+//        for (Iterator<?> iter = classes.iterator(); iter.hasNext();) {
+//            System.out.println("   Loaded " + iter.next());
+//        }
 		
 	}
 	
@@ -123,8 +236,8 @@ public class Application {
 	/**
 	 * Start a new Instance of the AudioPlayer ...
 	 */
-	public void initialize() {
-
+	public void run() {
+		
 //      UIManager.put("TabbedPane.selected", Color.GREEN);
 //		UIManager.put("MenuItem.selectionBackground", Color.GREEN);
 //		UIManager.put("MenuItem.selectionForeground", Color.BLUE);
@@ -133,18 +246,23 @@ public class Application {
 //		UIManager.put("MenuBar.selectionBackground", Color.GREEN);
 //		UIManager.put("MenuBar.selectionForeground", Color.BLUE);
                
+		
 		try {
 			System.out.print("Load Nimubs Look and Feel (L&F) ...\t");
-			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel"); //com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
 			System.out.println("OK");
 		} catch (Exception ex) {
 			System.out.println("ERROR");
 			System.err.println("Error: " + ex);
 		}
 
-		initDB();
+		//initDB();
 
 		FontLoader.loadFonts();
+
+		net.icelane.lolplayer.util.imageloader.ImageLoader.loadImages(Images.class);
+		
+		ImageLoader.loadImageResourcesList();
 		ImageLoader.loadImages();
 
 		colors.importData();
@@ -152,7 +270,7 @@ public class Application {
 		AboutDialog.loadAboutText();
 		                
 		try {
-			control = new PlayerControl();
+			control = new AppCore();
 			colors.initRainbowColorThread();
 		} catch (Exception e) {
 			System.out.println("Unexpected Error");
@@ -167,15 +285,6 @@ public class Application {
 
 	public static boolean isDebug() {
 		return debug;
-	}
-
-	/**
-	 * Initialize the database connection informations.
-	 */
-	private void initDB() {
-		database = new LoLPlayerDB();
-		database.loadConfig();
-		database.getConnection().connectDB();
 	}
 
 	public static void exit() {
@@ -216,8 +325,11 @@ public class Application {
         return database;
     }
 
-    public PlayerControl getControl() {
+    public AppCore getControl() {
         return control;
     }
-        
+
+	public JConsole getConsole() {
+		return console;
+	}   
 }

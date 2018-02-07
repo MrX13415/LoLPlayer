@@ -1,4 +1,4 @@
-package audioplayer.gui.components;
+package net.icelane.lolplayer.gui.components;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

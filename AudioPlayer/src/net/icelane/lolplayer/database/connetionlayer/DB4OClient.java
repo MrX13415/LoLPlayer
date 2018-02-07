@@ -1,4 +1,4 @@
-package audioplayer.database.connetionlayer;
+package net.icelane.lolplayer.database.connetionlayer;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,4 +1,4 @@
-package audioplayer.gui.components;
+package net.icelane.lolplayer.gui.components;
 
 import java.awt.Color;
 import java.awt.event.ActionListener;
@@ -10,10 +10,11 @@ import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 import javax.swing.JMenuItem;
 
-import audioplayer.Application;
-import audioplayer.desing.Colors;
-import audioplayer.player.analyzer.components.JGraph;
-import audioplayer.player.analyzer.components.JGraph.DrawMode;
+import net.icelane.lolplayer.Application;
+import net.icelane.lolplayer.design.Colors;
+import net.icelane.lolplayer.player.analyzer.render.opengl.GL11Graph;
+import net.icelane.lolplayer.player.analyzer.render.GraphRender.DisplayMode;
+import net.icelane.lolplayer.player.analyzer.render.GraphRender.DrawMode;
 
 
 /**
@@ -55,12 +56,14 @@ public class MenuBar extends JMenuBar {
 	private JMenuItem menu_graph_enabled;
 	private JMenuItem menu_graph_fps;
 	private JMenuItem menu_graph_merge;
+	private JMenuItem menu_graph_displaymode;
 	private JMenuItem menu_graph_bfilter;
 	private JMenuItem menu_graph_geffect;
-	private JMenuItem menu_graph_dmode;
+	private JMenuItem menu_graph_drawmode;
 	
 	private JMenu menu_help;
 	private JMenuItem menu_help_about;
+	private JMenuItem menu_help_console;
 	
 	public MenuBar(ActionListener actionListener) {
 		JSeparator separator = new JSeparator();
@@ -253,6 +256,25 @@ public class MenuBar extends JMenuBar {
 		menu_graph_merge.setBackground(Application.getColors().color_menu_background1);
 		menu_graph_merge.setForeground(Application.getColors().color_menu_forground1);
 
+		menu_graph_displaymode = new Menu();
+		menu_graph_displaymode.setText("Display mode");
+		menu_graph_displaymode.addActionListener(actionListener);
+		menu_graph_displaymode.setBackground(Application.getColors().color_menu_background1);
+		menu_graph_displaymode.setForeground(Application.getColors().color_menu_forground1);
+
+		for (DisplayMode mode : DisplayMode.values()) {
+			MenuItem menu_graph_dmode_mode = new MenuItem();
+			menu_graph_dmode_mode.setText(mode.toString());
+			menu_graph_dmode_mode.addActionListener(actionListener);
+
+			menu_graph_dmode_mode.setBackground(Application.getColors().color_menu_background1);
+			menu_graph_dmode_mode.setForeground(Application.getColors().color_menu_forground1);
+
+			menu_graph_dmode_mode.setActionCommand("SetGraphDisplayMode:" + mode.name()); 
+			menu_graph_displaymode.add(menu_graph_dmode_mode);
+		}
+		
+		
 		menu_graph_bfilter = new MenuItem();
 		menu_graph_bfilter.setText("Toggle blur filter");
 		menu_graph_bfilter.addActionListener(actionListener);
@@ -265,11 +287,11 @@ public class MenuBar extends JMenuBar {
 		menu_graph_geffect.setBackground(Application.getColors().color_menu_background1);
 		menu_graph_geffect.setForeground(Application.getColors().color_menu_forground1);
 		
-		menu_graph_dmode = new Menu();
-		menu_graph_dmode.setText("Drawing mode");
-		menu_graph_dmode.addActionListener(actionListener);
-		menu_graph_dmode.setBackground(Application.getColors().color_menu_background1);
-		menu_graph_dmode.setForeground(Application.getColors().color_menu_forground1);
+		menu_graph_drawmode = new Menu();
+		menu_graph_drawmode.setText("Drawing mode");
+		menu_graph_drawmode.addActionListener(actionListener);
+		menu_graph_drawmode.setBackground(Application.getColors().color_menu_background1);
+		menu_graph_drawmode.setForeground(Application.getColors().color_menu_forground1);
 
 		for (DrawMode mode : DrawMode.values()) {
 			MenuItem menu_graph_dmode_mode = new MenuItem();
@@ -279,8 +301,8 @@ public class MenuBar extends JMenuBar {
 			menu_graph_dmode_mode.setBackground(Application.getColors().color_menu_background1);
 			menu_graph_dmode_mode.setForeground(Application.getColors().color_menu_forground1);
 
-			menu_graph_dmode_mode.setActionCommand("SetJGraphDrawingMODE:" + mode.name()); 
-			menu_graph_dmode.add(menu_graph_dmode_mode);
+			menu_graph_dmode_mode.setActionCommand("SetGraphDrawMode:" + mode.name()); 
+			menu_graph_drawmode.add(menu_graph_dmode_mode);
 		}
 		
 		menu_graph = new Menu();
@@ -296,34 +318,37 @@ public class MenuBar extends JMenuBar {
 		menu_graph.add(menu_graph_fps);
 		menu_graph.add(separator);
 		menu_graph.add(menu_graph_merge);
+		menu_graph.add(menu_graph_displaymode);
 		menu_graph.add(separator);
 		menu_graph.add(menu_graph_bfilter);
 		menu_graph.add(menu_graph_geffect);
 		menu_graph.add(separator);
-		menu_graph.add(menu_graph_dmode);
+		menu_graph.add(menu_graph_drawmode);
 
 		menu_graph.getPopupMenu().setBackground(Application.getColors().color_menu_background1);
 		menu_graph.getPopupMenu().setBorder(BorderFactory.createRaisedBevelBorder());
+
+		menu_help_console = new MenuItem();
+		menu_help_console.setText("View Console");
+		menu_help_console.addActionListener(actionListener);
+		menu_help_console.setBackground(Application.getColors().color_menu_background1);
+		menu_help_console.setForeground(Application.getColors().color_menu_forground1);
 		
 		menu_help_about = new MenuItem();
 		menu_help_about.setText("About");
 		menu_help_about.addActionListener(actionListener);
-
 		menu_help_about.setBackground(Application.getColors().color_menu_background1);
 		menu_help_about.setForeground(Application.getColors().color_menu_forground1);
 
-		
 		menu_help = new Menu();
 		menu_help.setText("?");
-
 		menu_help.setBackground(Application.getColors().color_menu_background1);
 		menu_help.setForeground(Application.getColors().color_menu_forground1);
-
 		menu_help.setBorder(BorderFactory.createRaisedBevelBorder());
+		menu_help.add(menu_help_console);
 		menu_help.add(menu_help_about);
 
 		menu_help.getPopupMenu().setBackground(Application.getColors().color_menu_background1);
-
 		menu_help.getPopupMenu().setBorder(BorderFactory.createRaisedBevelBorder());
 		
 		add(menu_file);
@@ -390,6 +415,10 @@ public class MenuBar extends JMenuBar {
 		return menu_graph_merge;
 	}
 
+	public JMenuItem getMenu_graph_displaymode() {
+		return menu_graph_displaymode;
+	}
+	
 	public JMenuItem getMenu_graph_bfilter() {
 		return menu_graph_bfilter;
 	}
@@ -398,8 +427,12 @@ public class MenuBar extends JMenuBar {
 		return menu_graph_geffect;
 	}
 
-	public JMenuItem getMenu_graph_dmode() {
-		return menu_graph_dmode;
+	public JMenuItem getMenu_help_console() {
+		return menu_help_console;
+	}
+
+	public JMenuItem getMenu_graph_drawmode() {
+		return menu_graph_drawmode;
 	}
 
 	public JMenuItem getMenu_file_opendir() {

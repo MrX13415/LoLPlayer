@@ -2,12 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package audioplayer.process;
-
-import audioplayer.PlayerControl;
-import audioplayer.player.AudioFile;
+package net.icelane.lolplayer.process;
 
 import java.io.File;
+
+import net.icelane.lolplayer.AppCore;
+import net.icelane.lolplayer.player.AudioFile;
+import net.icelane.lolplayer.process.api.Process;
 
 /**
  * LoLPlayer II - Audio-Player Project
@@ -19,7 +20,7 @@ public class LoadFilesProcess extends Process {
 
 	private File[] file;
 
-	public LoadFilesProcess(PlayerControl control, File[] file) {
+	public LoadFilesProcess(AppCore control, File[] file) {
 		super(control);
 		this.file = file;
 	}

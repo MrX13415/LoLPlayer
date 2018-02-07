@@ -1,22 +1,18 @@
-package audioplayer.gui;
+package net.icelane.lolplayer.gui;
 
-import audioplayer.Application;
-import audioplayer.desing.Colors;
-import audioplayer.gui.ui.UIFrame;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.IOException;
-
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
+import net.icelane.lolplayer.Application;
+import net.icelane.lolplayer.gui.ui.UIFrame;
 
 /**
  *  LoLPlayer II - Audio-Player Project

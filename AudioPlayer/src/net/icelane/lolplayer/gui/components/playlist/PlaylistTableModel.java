@@ -2,16 +2,19 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package audioplayer.gui.components.playlist;
+package net.icelane.lolplayer.gui.components.playlist;
 
 import java.awt.Color;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.util.Arrays;
 import java.util.List;
 
-import audioplayer.player.AudioFile;
-import audioplayer.player.AudioPlaylist;
-
 import javax.swing.table.AbstractTableModel;
+
+import net.icelane.lolplayer.player.AudioFile;
+import net.icelane.lolplayer.player.AudioPlaylist;
 
 /**
  *  LoLPlayer II - Audio-Player Project

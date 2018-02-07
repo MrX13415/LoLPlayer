@@ -1,4 +1,4 @@
-package audioplayer.gui.components.playlist;
+package net.icelane.lolplayer.gui.components.playlist;
 
 import java.awt.Component;
 

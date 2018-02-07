@@ -1,11 +1,12 @@
-package audioplayer.process;
+package net.icelane.lolplayer.process;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 
-import audioplayer.PlayerControl;
-import audioplayer.player.AudioFile;
+import net.icelane.lolplayer.AppCore;
+import net.icelane.lolplayer.player.AudioFile;
+import net.icelane.lolplayer.process.api.Process;
 
 
 /**
@@ -20,7 +21,7 @@ public class LoadPlaylistProcess extends Process{
 	private String resource = "playlist.dat";
 	private String header = "LoLPlayer_Playlist_ObjectDataFile#1.0.0.0";
 	
-	public LoadPlaylistProcess(PlayerControl control) {
+	public LoadPlaylistProcess(AppCore control) {
 		super(control);
 	}
 

@@ -1,9 +1,10 @@
-package audioplayer.gui.components.frame;
+package net.icelane.lolplayer.gui.components.frame;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -16,9 +17,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import audioplayer.Application;
-import audioplayer.font.FontLoader;
-import audioplayer.gui.components.playlist.PlaylistToggleArea;
+import net.icelane.lolplayer.Application;
+import net.icelane.lolplayer.font.FontLoader;
 
 public class TitleFrameBorder extends JPanel implements MouseMotionListener, MouseListener {
 
@@ -38,12 +38,9 @@ public class TitleFrameBorder extends JPanel implements MouseMotionListener, Mou
 	private JLabel closeButton;
 		
 	private JFrame frame;
-	private PlaylistToggleArea pta;
-	
+
 	private Dimension normalSize;
 	private Point location;
-	private boolean setStateOnce;
-	private boolean ptaShow;
 	
 	private int priorFrameState = Frame.NORMAL;
 	
@@ -202,7 +199,7 @@ public class TitleFrameBorder extends JPanel implements MouseMotionListener, Mou
 		this.setLayout(new BorderLayout());
 		this.add(main, BorderLayout.NORTH);
 	}
-
+	
 	public TitleFrameResizeHandler getResizehandler() {
 		return resizehandler;
 	}
@@ -211,6 +208,13 @@ public class TitleFrameBorder extends JPanel implements MouseMotionListener, Mou
 		this.resizehandler = resizehandler;
 	}
 
+	@Override
+    protected void paintComponent(Graphics g) {
+		//TODO
+        super.paintComponent(g);
+        Application.drawReflectionEffect(this, g);
+    }
+	
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		if (!mousePressed) return;

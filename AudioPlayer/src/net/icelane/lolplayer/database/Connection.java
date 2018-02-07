@@ -1,4 +1,4 @@
-package audioplayer.database;
+package net.icelane.lolplayer.database;
 
 import java.io.File;
 import java.io.IOException;
