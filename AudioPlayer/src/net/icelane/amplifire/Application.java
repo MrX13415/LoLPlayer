@@ -1,45 +1,36 @@
-package net.icelane.lolplayer;
+package net.icelane.amplifire;
 
 import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.net.URL;
-import java.security.CodeSource;
-import java.util.ArrayList;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import javax.swing.JComponent;
-import javax.swing.Timer;
 import javax.swing.UIManager;
 
-import net.icelane.lolplayer.database.sql.LoLPlayerDB;
-import net.icelane.lolplayer.design.Colors;
-import net.icelane.lolplayer.font.FontLoader;
-import net.icelane.lolplayer.gui.AboutDialog;
-import net.icelane.lolplayer.gui.console.JConsole;
-import net.icelane.lolplayer.images.ImageLoader;
-import net.icelane.lolplayer.images.Images;
-import net.icelane.lolplayer.process.SavePlaylistProcess;
+import net.icelane.amplifire.database.sql.LoLPlayerDB;
+import net.icelane.amplifire.design.Colors;
+import net.icelane.amplifire.font.FontLoader;
+import net.icelane.amplifire.images.ImageLoader;
+import net.icelane.amplifire.images.Images;
+import net.icelane.amplifire.process.SavePlaylistProcess;
+import net.icelane.amplifire.ui.AboutDialog;
+import net.icelane.amplifire.ui.console.JConsole;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
- * @version 0.1.8.2
+ * @version 0.1.9
  */ 
 public class Application {
 
-	public static String App_Name = "LoLPlayer II";
-	public static String App_Version = "0.1.8.2";
+	public static String App_Name = "amplifier";
+	public static String App_Version = "0.1.9";
 	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
 	public static String App_Author = "Oliver Daus";	
-	public static String App_License = "CC BY-NC-SA 3.0";
+	public static String App_License = "MIT License";
     public static String App_License_Link = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         
     private static boolean debug = false;
@@ -224,7 +215,7 @@ public class Application {
 	
 	public static String getCmdHelp(){
 		return "\n" +
-				"usage: java -jar LoLPlayer II.jar [options]\n" +
+				"usage: java -jar amplifier.jar [options]\n" +
 				"\n" +
 				"   option:\t\tdescription:\n" +
 				"\n" +
@@ -260,7 +251,7 @@ public class Application {
 
 		FontLoader.loadFonts();
 
-		net.icelane.lolplayer.util.imageloader.ImageLoader.loadImages(Images.class);
+		net.icelane.amplifire.util.imageloader.ImageLoader.loadImages(Images.class);
 		
 		ImageLoader.loadImageResourcesList();
 		ImageLoader.loadImages();
@@ -293,7 +284,7 @@ public class Application {
 		SavePlaylistProcess spdbp = null;
 		
 		try {
-			spdbp = getApplication().control.savePlaylistToDataFile();
+			spdbp = get().control.savePlaylistToDataFile();
 		} catch (Exception e) {}
 		
 		final SavePlaylistProcess fspdbp = spdbp;
@@ -317,7 +308,7 @@ public class Application {
 		}).start();
 	}
 
-    public static Application getApplication() {
+    public static Application get() {
         return application;
     }
 
@@ -325,7 +316,7 @@ public class Application {
         return database;
     }
 
-    public AppCore getControl() {
+    public AppCore control() {
         return control;
     }
 
