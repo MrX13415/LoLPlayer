@@ -670,7 +670,9 @@ public class AppCore extends UserInterface implements PlayerListener {
 		GraphRender jg = getPlayerControlInterface().getGraphRenderer();
 		if (jg.isActive()) jg.stop();
 		else jg.start();
-		analyzer.setEnabled(!analyzer.isEnabled());
+		
+		if (analyzer.isActive()) analyzer.stop();
+		else analyzer.start();
 	}
 	
 	@Override

@@ -88,6 +88,7 @@ public abstract class GLWRender extends GraphRender {
 		if (window == NULL)
 			throw new RuntimeException("Failed to create the GLFW window");
 
+		System.out.println("[GLWRender]  -> Setup key callbacks ...");
 		// Setup a key callback. It will be called every time a key is pressed, repeated
 		// or released.
 		glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
@@ -95,6 +96,7 @@ public abstract class GLWRender extends GraphRender {
 				glfwSetWindowShouldClose(window, true); // We will detect this in our rendering loop
 		});
 
+		System.out.println("[GLWRender]  -> Configurating settings ...");
 		// Get the resolution of the primary monitor
 		GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 		// Center our window
@@ -116,6 +118,7 @@ public abstract class GLWRender extends GraphRender {
 		// bindings available for use.
 		GL.createCapabilities();
 
+		System.out.println("[GLWRender]  -> startup ...");
 		// additional GL startup instructions ...
 		gl_startup();
 	}
@@ -145,9 +148,11 @@ public abstract class GLWRender extends GraphRender {
 
 	@Override
 	public void shutdown() {
+		System.out.println("[GLWRender]  -> shutdown ...");		
 		// shutdown additional GL things first ...
 		gl_shutdown();
 
+		System.out.println("[GLWRender]  -> destroy window ...");
 		// Free the window callbacks and destroy the window
 		glfwFreeCallbacks(window);
 		glfwDestroyWindow(window);
@@ -155,6 +160,8 @@ public abstract class GLWRender extends GraphRender {
 
 	@Override
 	public void cleanup() {
+		System.out.println("[GLWRender]  -> cleanup ...");
+		
 		// Terminate GLFW and free the error callback
 		glfwTerminate();
 		glfwSetErrorCallback(null).free();

@@ -280,7 +280,9 @@ public class Application {
 
 	public static void exit() {
 		if (waitForExit) return;
-		
+	
+		get().control().getAnalyzer().stopWait();
+
 		SavePlaylistProcess spdbp = null;
 		
 		try {

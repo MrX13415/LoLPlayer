@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import net.icelane.amplifire.analyzer.AudioGraph;
-import net.icelane.amplifire.analyzer.Graph;
 import net.icelane.amplifire.analyzer.render.GraphRender;
 
 /**
@@ -36,7 +35,7 @@ import net.icelane.amplifire.analyzer.render.GraphRender;
  * 
  * A simple panel to display Graphs
  */
-public class JGraph extends GraphRender implements Graph{
+public class JGraph extends GraphRender {
 
 	/**
 	 * 

@@ -146,8 +146,6 @@ public class GLGraph extends GLWRender {
 		glDeleteVertexArrays(vao);
 		glDeleteProgram(program);
 		glDeleteVertexArrays(vao);
-		
-		super.shutdown();
 	}
 
 }

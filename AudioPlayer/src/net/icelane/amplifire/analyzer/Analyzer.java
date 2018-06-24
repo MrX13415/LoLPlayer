@@ -8,13 +8,11 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import javax.sound.sampled.AudioFormat;
 
-import org.lwjgl.system.CallbackI.F;
 import org.magicwerk.brownies.collections.GapList;
 
 import net.icelane.amplifire.Application;
 import net.icelane.amplifire.analyzer.render.GraphRender;
 import net.icelane.amplifire.analyzer.render.RenderComponent;
-import net.icelane.amplifire.analyzer.render.opengl.GL11Graph;
 import net.icelane.amplifire.analyzer.source.AnalyzerSourceDevice;
 
 /**
@@ -28,7 +26,8 @@ public class Analyzer {
 	
 	private Thread analyzerThread = new Thread();
 	private Thread initNormalizerThread = new Thread();
-
+	private Object lock = new Object();
+	
 	private volatile AudioFormat format;
 
 	private static volatile ArrayList<AnalyzerSourceDevice> devices = new ArrayList<>();
@@ -37,7 +36,7 @@ public class Analyzer {
 	private volatile Normalizer normalizer;
 
 	private volatile RenderComponent renderer;
-	private volatile Graph g;
+	private volatile GraphRender gr;
 
 	private HashMap<Integer, Color> graphSettingsColor = new HashMap<Integer, Color>();
 	private Color mergedGraphSettingsColor;
@@ -51,7 +50,7 @@ public class Analyzer {
 	private volatile int buffermax = 25;
 	private volatile ArrayBlockingQueue<PCMData> toAnalyze = new ArrayBlockingQueue<PCMData>(initCapacity);
 	
-	private volatile boolean enabled;
+	private volatile boolean active;
 	private volatile boolean initNormalizerActive;
 
 	private boolean mergedChannels;
@@ -82,32 +81,54 @@ public class Analyzer {
 		resetDefaultMergedChannelGraphColor();
 
 		this.renderer = renderComponent;
-		this.g = renderComponent.getRenderer();
+		this.gr = renderComponent.getRenderer();
 
 		//start analyzer
-		setEnabled(true);
-		
-		init();
-	}
-
-	public void switchRenderer(Class<? extends GraphRender> rendererClass) {
-		setEnabled(false);
-		while (analyzerThread.isAlive()) {}
-		initNormalizerActive = false;
-		while (initNormalizerThread.isAlive()) {}
-		normalizer = null;
-				
-		renderer.switchRenderer(rendererClass);
-		this.g = renderer.getRenderer();
-		
-		//start analyzer
-		setEnabled(true);
+		start();
 		
 		init();
 	}
 	
+	public void start() {
+		this.active = true;
+		initAnalyzerThread();
+	}
+
+	public void stop() {
+		getGraph().stop();
+		this.active = false;		
+	}
+	
+	public void stopWait() {
+		getGraph().stopWait();
+		this.active = false;
+		try {
+			synchronized (lock) {
+				lock.wait(3000);
+			}
+		} catch (InterruptedException e) { }
+	}
+	
+	public boolean isActive() {
+		return active;
+	}
+
+	public boolean isAlive() {
+		return analyzerThread.isAlive();
+	}
+	
+	public void switchRenderer(Class<? extends GraphRender> rendererClass) {
+		stopWait();
+			
+		renderer.switchRenderer(rendererClass);
+		this.gr = renderer.getRenderer();
+		
+		init();
+		start();
+	}
+	
 	public void setDefaultGraphs(int count) {
-		g.clearGraphs();
+		gr.clearGraphs();
 		for (int i = 0; i < count; i++) {
 			Color color = getDefaultChannelGraphColor(count);
 			if (color == null)
@@ -120,7 +141,7 @@ public class Analyzer {
 			ag.clear();
 			ag.addValue(Float.MAX_VALUE);
 			ag.setName(getDefaulltGraphName(i, count));
-			g.addGraph(ag);
+			gr.addGraph(ag);
 			defaultGraphsSet = true;
 		}
 	}
@@ -325,14 +346,18 @@ public class Analyzer {
 		return speed;
 	}
 
-	public Graph getGraph() {
-		return g;
+	public GraphRender getGraph() {
+		return gr;
 	}
 
-	public void setGraph(Graph g) {
-		this.g = g;
+	public void setGraph(GraphRender gr) {
+		this.gr = gr;
 	}
 
+	public RenderComponent getRenderer() {
+		return renderer;
+	}
+	
 	public ArrayList<AudioGraph> getChannelGraphs() {
 		synchronized (channelGraphs) {
 			return channelGraphs;
@@ -347,28 +372,12 @@ public class Analyzer {
 		this.format = format;
 	}
 
-	public boolean isEnabled() {
-		return enabled;
-	}
-
-	public void setEnabled(boolean enabled) {
-		if (this.enabled && enabled) return;
-		
-		this.enabled = enabled;
-		
-		if (enabled) initAnalyzerThread();
-	}
-
 	public int getBufferMax() {
 		return buffermax;
 	}
 	
 	public int getBufferSize(){
 		return initCapacity - toAnalyze.remainingCapacity();
-	}
-
-	protected void stop() {
-		enabled = false;
 	}
 
 	public boolean isMergedChannels() {
@@ -384,7 +393,7 @@ public class Analyzer {
 
 	public void clearGraphs() {
 		synchronized (channelGraphs) {
-			g.clearGraphs();
+			gr.clearGraphs();
 			channelGraphs.clear();
 			normalizer = null;
 			defaultGraphsSet = false;
@@ -481,17 +490,17 @@ public class Analyzer {
 
 	public void clearData() {
 		toAnalyze.clear();
-		for (AudioGraph g : g.getGraphs()) {
+		for (AudioGraph g : gr.getGraphs()) {
 			g.clear();
 		}
 	}
 
 	private void initMergedChannelGraph() {
 		synchronized (channelGraphs) {
-			g.clearGraphs();
+			gr.clearGraphs();
 			AudioGraph ag = new AudioGraph(mergedGraphSettingsColor, mergedGraphSettingsYOffset);
 			channelGraphs.add(ag);
-			g.addGraph(ag);
+			gr.addGraph(ag);
 		}
 	}
 
@@ -506,7 +515,7 @@ public class Analyzer {
 	private void initChannelGraphs() {
 		synchronized (channelGraphs) {
 			if (defaultGraphsSet){
-				g.clearGraphs();
+				gr.clearGraphs();
 				defaultGraphsSet = false;
 			}
 			
@@ -529,25 +538,23 @@ public class Analyzer {
 				ag.setName(getDefaulltGraphName(index, channels));
 
 				channelGraphs.add(ag);
-				g.addGraph(ag);
+				gr.addGraph(ag);
 			}
 		}
 	}
 
 	public void initAnalyzerThread() {
-		if (this.isEnabled() || analyzerThread.isAlive())
-			this.stop();
-		
-		
+		if (analyzerThread.isAlive()) return;
+
 		analyzerThread = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
-				enabled = true;
+				active = true;
 				long fclast = System.currentTimeMillis();
 				int fcIndex = 0;
 				int fCount = 0;
-				while (enabled) {
+				while (active) {
 
 					long s = System.nanoTime();
 
@@ -709,7 +716,13 @@ public class Analyzer {
 										speed);
 				}
 				System.err.println("WARNING: The thread \"AnalyzerThread\" has stopped!");
+				
+				// notify for stopWait();
+				synchronized (lock) {
+					lock.notify();
+				}
 			}
+			
 		});
 		analyzerThread.setName ("AnalyzerThread");
 		analyzerThread.start();

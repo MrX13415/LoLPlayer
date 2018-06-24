@@ -9,6 +9,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import javax.sound.sampled.AudioFormat;
 
 import net.icelane.amplifire.Application;
+import net.icelane.amplifire.analyzer.render.GraphRender;
 import net.icelane.amplifire.analyzer.source.AnalyzerSourceDevice;
 
 /**
@@ -30,7 +31,7 @@ public class COPYAnalyzer {
 	
 	private volatile Normalizer normalizer;
 
-	private volatile Graph g;
+	private volatile GraphRender g;
 
 	private HashMap<Integer, Color> graphSettingsColor = new HashMap<Integer, Color>();
 	private Color mergedGraphSettingsColor;
@@ -63,7 +64,7 @@ public class COPYAnalyzer {
 	private boolean DEBUG = false;
 	private boolean defaultGraphsSet;
 
-	public COPYAnalyzer(Graph g) {
+	public COPYAnalyzer(GraphRender g) {
 		super();
 
 		// define class defaults ...
@@ -297,11 +298,11 @@ public class COPYAnalyzer {
 		return speed;
 	}
 
-	public Graph getGraph() {
+	public GraphRender getGraph() {
 		return g;
 	}
 
-	public void setGraph(Graph g) {
+	public void setGraph(GraphRender g) {
 		this.g = g;
 	}
 

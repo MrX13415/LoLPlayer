@@ -1,11 +1,5 @@
 package net.icelane.amplifire.analyzer.render;
 
-import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
-import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
-import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
-import static org.lwjgl.glfw.GLFW.glfwTerminate;
-
-import java.awt.Container;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
@@ -14,10 +8,7 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
-import org.lwjgl.Version;
-
 import net.icelane.amplifire.analyzer.AudioGraph;
-import net.icelane.amplifire.analyzer.Graph;
 
 
 /**
@@ -28,7 +19,7 @@ import net.icelane.amplifire.analyzer.Graph;
  * 
  * A graph render using OpenGL (Version 1.1)
  */
-public abstract class GraphRender extends JPanel implements Graph{
+public abstract class GraphRender extends JPanel{
 
 	/**
 	 * 
@@ -79,7 +70,8 @@ public abstract class GraphRender extends JPanel implements Graph{
 	}
 	
 	private Thread renderThread = new Thread();
-    private boolean active = false;
+    private Object lock = new Object();
+	private boolean active = false;
     
 	private ArrayList<AudioGraph> graphs = new ArrayList<AudioGraph>();
 
@@ -110,10 +102,15 @@ public abstract class GraphRender extends JPanel implements Graph{
 			@Override
 			public void run() {
 				active = true;
+				boolean firstRun = true;
 				
 				while(active){
+					if (!firstRun) System.out.printf("Restarting Thread: \"%s\" ...\n", renderThread.getName());
+					else System.out.printf("Starting Thread: \"%s\" ...\n", renderThread.getName());
+					firstRun = false;
+					
 					boolean error = false;
-					System.err.println("--------------------------------------- " + Thread.currentThread().getId());
+
 					try {
 						renderer();
 					}
@@ -133,7 +130,10 @@ public abstract class GraphRender extends JPanel implements Graph{
 					}
 					
 					System.out.printf("Thread \"%s\" has stopped\n", renderThread.getName());
-					System.out.printf("Restarting Thread: \"%s\" ...\n", renderThread.getName());
+					
+					synchronized (lock) {
+						lock.notify();
+					}
 				}
 			}
 		});
@@ -179,44 +179,42 @@ public abstract class GraphRender extends JPanel implements Graph{
 		if (renderThread == null) return false;
 		return renderThread.isAlive();
 	}
-
-	public final void setActiv(boolean active) {
-		this.active = active;
-		if (this.active) initRenderThread();
-	}
 	
 	public final void start() {
-		setActiv(true);
+		this.active = true;
+		initRenderThread();
 	}
 	
 	public final void stop() {
-		setActiv(false);
+		this.active = false;
 	}
 
-
+	public final void stopWait() {
+		this.active = false;
+		try {
+			synchronized (lock) {
+				lock.wait(3000);
+			}
+		} catch (InterruptedException e) { }
+	}
 	
-	@Override
 	public synchronized void addGraph(AudioGraph graph){
 		graphs.add(graph);
 	}
 	
-	@Override
 	public synchronized void removeGraph(AudioGraph graph){
 		graphs.remove(graph);
 	}
 	
-	@Override
 	public void clearGraphs() {
 		graphs.clear();
 		
 	}
 	
-	@Override
 	public synchronized AudioGraph getGraph(int index){
 		return graphs.get(index);
 	}
 	
-	@Override
 	public synchronized ArrayList<AudioGraph> getGraphs() {
 		return graphs;
 	}

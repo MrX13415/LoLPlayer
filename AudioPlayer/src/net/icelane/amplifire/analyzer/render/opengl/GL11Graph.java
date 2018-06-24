@@ -38,7 +38,6 @@ import org.lwjgl.opengl.GL;
 import net.icelane.amplifire.AppCore;
 import net.icelane.amplifire.Application;
 import net.icelane.amplifire.analyzer.AudioGraph;
-import net.icelane.amplifire.analyzer.Graph;
 import net.icelane.amplifire.analyzer.render.GraphRender;
 
 import static org.lwjgl.glfw.Callbacks.*;
@@ -55,7 +54,7 @@ import static org.lwjgl.system.MemoryUtil.*;
  * 
  * A graph render using OpenGL (Version 1.1)
  */
-public class GL11Graph extends GraphRender implements Graph{
+public class GL11Graph extends GraphRender{
 
 	/**
 	 * 
