@@ -1,8 +1,15 @@
 package net.icelane.amplifire.analyzer.render.opengl;
 
+import static org.lwjgl.opengl.GL11.GL_LINE_STRIP;
+import static org.lwjgl.opengl.GL11.glDrawArrays;
+import static org.lwjgl.opengl.GL11.glPointSize;
+import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.glBufferSubData;
+
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -23,7 +30,7 @@ import net.icelane.amplifire.analyzer.AudioGraph;
  *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
- * @version 2.4
+ * @version 1.3
  * 
  * A simple panel to display Graphs
  */
@@ -34,36 +41,9 @@ public class GL45Graph extends GLGraph{
 	 */
 	private static final long serialVersionUID = -8370043378690135186L;
 		
-	private ArrayList<AudioGraph> graphs = new ArrayList<AudioGraph>();
 	
 	private VolatileImage backBuffer;
 
-	private Stroke graphStroke = new BasicStroke(1f);
-	private Stroke effetcStroke1 = new BasicStroke(15f);
-//	private Stroke effetcStroke2 = new BasicStroke(10f);
-//	private Stroke effetcStroke3 = new BasicStroke(6f);
-	
-	private volatile float fps = 0;
-	private long fpsUpdateT = System.currentTimeMillis();
-	
-//	private float getHeightLevel() = 0.4f;
-//	private int getZoomlLevel() = 1;
-	
-	 // We need to strongly reference callback instances.
-    private GLFWErrorCallback errorCallback;
-    private GLFWKeyCallback   keyCallback;
- 
-    // The window handle
-    private long window;
- 
-
-    
-    
-    
-    
-    
-    
-    
     
     
 	@Override
@@ -72,70 +52,124 @@ public class GL45Graph extends GLGraph{
 	}
 	
 	@Override
-	public int getNum(){
-		try {
-			graphs.get(0).syncBufferSize(2000);
-			graphs.get(1).syncBufferSize(2000);
-			int num = graphs.get(0).size() + graphs.get(1).size();
-			return num;	
-		} catch (Exception e) {
-			return 1;
+	public void gl_renderLoop() {
+		for (AudioGraph graph : getGraphs()) {
+			graph.syncBufferSize(GetSize().width);
+
+			gl_renderData(getBackgorundData(graph), 2);
+			
+			// render data ...
+			gl_renderData(getData(graph), graph.size());
 		}
 	}
 	
-	@Override
-	public float[] getData(){
-		try {
-			int samples = 0;
-			for (AudioGraph g : graphs) {
-				samples += g.size();
+	public float[] getBackgorundData(AudioGraph g){
+		float yOffset = 0;
+		
+		// determine display mode to set graph position ...
+		switch (getDisplayMode()) {
+		case CENTERED: break;
+		case NORMAL:
+		default: //NORMAL
+			// set graph positions ...
+			if (getGraphs().size() > 1){
+				int gindex = getGraphs().indexOf(g);
+				if (gindex == 0){
+					yOffset = 0.5f;
+				}
+				if (gindex == 1){
+					yOffset = -0.5f;
+				}
 			}
-			
+			break;
+		}
+		
+		float data[] = new float[12];
+		
+		//x
+		data[0] = -1f;
+		//y
+		data[1] = yOffset;
+
+		//r
+		data[2] = Color.darkGray.getRGBComponents(null)[0];
+		//g
+		data[3] = Color.darkGray.getRGBComponents(null)[1]; 
+		//b
+		data[4] = Color.darkGray.getRGBComponents(null)[2];
+		//a
+		data[5] = Color.darkGray.getRGBComponents(null)[3];
+
+		//x
+		data[6] = 1f - 0.02f; // 0.02f => right bounds TODO
+		//y
+		data[7] = yOffset;
+
+		//r
+		data[8] = data[2];
+		data[9] = data[3]; 
+		data[10] = data[4];
+		data[11] = data[5];
+		
+		return data;
+	}
+	
+	
+	public float[] getData(AudioGraph g){
+		try {
+			int samples = g.size();
 			int index = 0;
 			float data[] = new float[samples * 6];
-			float pre_x = 0 - 1f;
-			float pre_y = 0;
 			
-			// Data: [L:<x><y><rgba>][R:<x><y><rgba>][<CHn>:<x><y><rgba>] 
-			for (AudioGraph g : graphs) {
-				int num = g.size();
+			// Data: [<x><y><rgba>] 
+			for(int i = 0; i < samples; i++){
 				
-				for(int i = 0; i < num; i++){
-					
-					if (index >= data.length) {
-						System.out.println("[OpenGL] Warning: Data gathering aborted, due to settings change!");
-						break;
-					}
-					
-					//x (previous point)
-//						data[index+0] = pre_x;
-//						//y (previous point)
-//						data[index+1] = pre_y;						
-					//x
-					data[index+0] = (2f/num) * i - 1f + (1f/num);
-					//y
-					data[index+1] = g.getValue(i) * getHeightLevel();
-					//r
-					data[index+2] = g.getColor().getRGBComponents(null)[0];
-					//g
-					data[index+3] = g.getColor().getRGBComponents(null)[1]; 
-					//b
-					data[index+4] = g.getColor().getRGBComponents(null)[2];
-					//a
-					data[index+5] = g.getColor().getRGBComponents(null)[3];
-					
-					pre_x = data[index+2];
-					pre_y = data[index+3];
-					index += 6;
+				if (index >= data.length) {
+					System.out.println("[OpenGL] Warning: Data gathering aborted, due to settings change!");
+					break;
 				}
-				break;
+				
+				
+				float yOffset = 0;
+				
+				// determine display mode to set graph position ...
+				switch (getDisplayMode()) {
+				case CENTERED: break;
+				case NORMAL:
+				default: //NORMAL
+					// set graph positions ...
+					if (getGraphs().size() > 1){
+						int gindex = getGraphs().indexOf(g);
+						if (gindex == 0){
+							yOffset = 0.5f;
+						}
+						if (gindex == 1){
+							yOffset = -0.5f;
+						}
+					}
+					break;
+				}
+				
+				//x
+				data[index+0] = (2f/samples) * i - 1f + (1f/samples);
+				//y
+				data[index+1] = g.getValue(i) * getHeightLevel() + yOffset;
+
+				//r
+				data[index+2] = g.getColor().getRGBComponents(null)[0];
+				//g
+				data[index+3] = g.getColor().getRGBComponents(null)[1]; 
+				//b
+				data[index+4] = g.getColor().getRGBComponents(null)[2];
+				//a
+				data[index+5] = g.getColor().getRGBComponents(null)[3];
+
+				index += 6;
 			}
 
 			return data;
 		} catch (Exception e) {
-			 
 			throw e;
-			//return new float[] {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 		}
 	}
 
@@ -172,20 +206,13 @@ public class GL45Graph extends GLGraph{
 				//draw label ...
 				g.setColor(Color.darkGray);
 				g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
-				g.drawString(String.format("%s", (Math.round(GetFPS()))), 10, 20);
+				g.drawString(String.format("%s", (Math.round(getFPS()))), 10, 20);
 	        }
 			
 			// show the back backBuffer on the screen ...
 			if (backBuffer != null) g.drawImage(backBuffer, 0, 0, null);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-
-		// Update the current FPS ... 
-		if (System.currentTimeMillis() - fpsUpdateT > 250) {
-			//fpsUpdateT = System.currentTimeMillis();
-			//long tDelta = System.nanoTime() - renderStart;
-			//fps = 1000000000f / (float) tDelta; // 1000000000 = 1s
 		}
     }
 	
@@ -248,31 +275,6 @@ public class GL45Graph extends GLGraph{
 			e.printStackTrace();
 		}	
 
-	}
-	
-	@Override
-	public synchronized void addGraph(AudioGraph graph){
-		graphs.add(graph);
-	}
-	
-	@Override
-	public synchronized void removeGraph(AudioGraph graph){
-		graphs.remove(graph);
-	}
-	
-	@Override
-	public void clearGraphs() {
-		graphs.clear();
-	}
-	
-	@Override
-	public synchronized AudioGraph getGraph(int index){
-		return graphs.get(index);
-	}
-	
-	@Override
-	public synchronized ArrayList<AudioGraph> getGraphs() {
-		return graphs;
 	}
 		
 }

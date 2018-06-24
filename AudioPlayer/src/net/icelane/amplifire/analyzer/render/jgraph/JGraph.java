@@ -16,12 +16,9 @@ import java.awt.Stroke;
 import java.awt.Transparency;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.VolatileImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
+import java.awt.image.VolatileImage;
 
 import net.icelane.amplifire.analyzer.AudioGraph;
 import net.icelane.amplifire.analyzer.render.GraphRender;
@@ -41,11 +38,6 @@ public class JGraph extends GraphRender {
 	 */
 	private static final long serialVersionUID = -8370043378690135186L;
 	
-	private ArrayList<AudioGraph> graphs = new ArrayList<AudioGraph>();
-
-	private VolatileImage backgroundBuffer;
-	private VolatileImage graphBuffer;
-	
 	private VolatileImage backBuffer;
 	private VolatileImage screenBuffer;
 
@@ -55,10 +47,6 @@ public class JGraph extends GraphRender {
 	private Stroke effetcStroke1 = new BasicStroke(15f);
 //	private Stroke effetcStroke2 = new BasicStroke(10f);
 //	private Stroke effetcStroke3 = new BasicStroke(6f);
-	
-
-	private volatile float fps = 0;
-	private long fpsUpdateT = System.currentTimeMillis();
 	
 //	private float heightLevel = 0.4f;
 //	private int getZoomlLevel() = 1;
@@ -81,53 +69,14 @@ public class JGraph extends GraphRender {
     	if (!isActive()) return;
     	if(!this.isShowing()) return;
 
-    	// render startTime
-		long renderStart = System.nanoTime();
-
 		try {
-			// render the image ...
-			repaintGraphs();
-		
 			// show the back backBuffer on the screen ...
-			if (backBuffer != null) g.drawImage(backBuffer, 0, 0, null);
+			if (screenBuffer != null) g.drawImage(screenBuffer, 0, 0, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		// Update the current FPS ... 
-		if (System.currentTimeMillis() - fpsUpdateT > 250) {
-			fpsUpdateT = System.currentTimeMillis();
-			long tDelta = System.nanoTime() - renderStart;
-			fps = 1000000000f / (float) tDelta; // 1000000000 = 1s
-		}
     }
-            
-	@Override
-	public synchronized void addGraph(AudioGraph graph){
-		graphs.add(graph);
-	}
-	
-	@Override
-	public synchronized void removeGraph(AudioGraph graph){
-		graphs.remove(graph);
-	}
-	
-	@Override
-	public void clearGraphs() {
-		graphs.clear();
-		
-	}
-	
-	@Override
-	public synchronized AudioGraph getGraph(int index){
-		return graphs.get(index);
-	}
-	
-	@Override
-	public synchronized ArrayList<AudioGraph> getGraphs() {
-		return graphs;
-	}
-	
+                	
 	/**
 	 * Obtain the default system graphics device
 	 * 	 * @return  
@@ -184,7 +133,13 @@ public class JGraph extends GraphRender {
 	    return img;
 	}
 
-	private void repaintGraphs(){
+	private void switchBuffers() {
+		VolatileImage buffer = screenBuffer;
+		screenBuffer = backBuffer;
+		backBuffer = buffer;
+	}
+	
+	private void render(){
 		
 		int height = this.getHeight();
 		int width = this.getWidth();
@@ -271,12 +226,12 @@ public class JGraph extends GraphRender {
 		int heightCenter = (Math.round(height + getHeightLevel())) >> 1;
 		int maxPointCount = width * getZoomlLevel();
 		
-		for (int i = 0; i < graphs.size(); i++) {
-			AudioGraph graph = graphs.get(i);
+		for (int i = 0; i < getGraphs().size(); i++) {
+			AudioGraph graph = getGraphs().get(i);
 			
 			// set graph positions ...
-			if (graphs.size() > 1){
-				int index = graphs.indexOf(graph);
+			if (getGraphs().size() > 1){
+				int index = getGraphs().indexOf(graph);
 				if (index == 0){
 					graph.setYOffset( height / 4 );
 				}
@@ -313,7 +268,7 @@ public class JGraph extends GraphRender {
 				//draw label ...
 				g.setColor(Color.darkGray);
 				g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
-				g.drawString(String.format("%s", (Math.round(fps))), 10, 20);
+				g.drawString(String.format("%s", (Math.round(getFPS()))), 10, 20);
 	        }
 		}
 	}
@@ -420,11 +375,10 @@ public class JGraph extends GraphRender {
 
 	@Override
 	public void renderloop() {
-		try {
-			Thread.sleep(10); //lock to 100 FPS
-		} catch (InterruptedException e) {}
-		
+		render();
+		switchBuffers();
 		repaint();
+		//TODO: 
 	}
 
 	@Override

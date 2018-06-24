@@ -291,11 +291,11 @@ public class PlayerControlInterface extends JPanel{
             graphdetail.setValue(1);
             graphdetail.addChangeListener(changeListener);
 
-            heightlevel = new JSlider(0, 100000); 
+            heightlevel = new JSlider(0, 10000); 
             heightlevel.setPreferredSize(new Dimension(16, 0));
             heightlevel.setOpaque(false);
             heightlevel.setOrientation(JSlider.VERTICAL);
-            heightlevel.setValue(400);
+            heightlevel.setValue(1000);
             heightlevel.addChangeListener(changeListener);
             
             zoomlevel = new JSlider(1, 500); 

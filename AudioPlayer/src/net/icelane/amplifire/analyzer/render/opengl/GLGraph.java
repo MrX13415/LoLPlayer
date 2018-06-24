@@ -1,8 +1,5 @@
 package net.icelane.amplifire.analyzer.render.opengl;
 
-import static org.lwjgl.opengl.GL11.GL_COLOR;
-import static org.lwjgl.opengl.GL11.GL_POINTS;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
 import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
 import static org.lwjgl.opengl.GL20.glAttachShader;
@@ -101,22 +98,27 @@ public class GLGraph extends GLWRender {
 		
 		glBindVertexArray(vao);
 		glEnableVertexAttribArray(0);
-		
-		//x
-		//positionData[0] = ((float)Math.sin(time));
-		//y
-		//positionData[1] = 0; //Math.abs(((float)Math.sin(time + (Math.PI/2)))) - 0.5f;
-		
-		//pass data to shader 
-		glBufferSubData(GL_ARRAY_BUFFER, 0, getData());
-	
-		glDrawArrays(GL_POINT_BIT, 0, getNum());   //number of points
-		glPointSize(getPointSize());
+
+		// render the data arrays ...
+		gl_renderLoop();
 		
 		// Put everything back to default (deselect)
 		glDisableVertexAttribArray(0);
 		glBindVertexArray(0);
 	}
+
+	public void gl_renderLoop() {
+		gl_renderData(getData(), getNum());
+	}
+	
+	public void gl_renderData(float[] data, int num) {
+		// pass data to shader 
+		glBufferSubData(GL_ARRAY_BUFFER, 0, data);
+		// define what and how many to draw ..
+		glDrawArrays(GL_LINE_STRIP, 0, num);   //number of points
+		glPointSize(getPointSize());	
+	}
+	
 	
 	public float getPointSize(){
 		return 0.5f;

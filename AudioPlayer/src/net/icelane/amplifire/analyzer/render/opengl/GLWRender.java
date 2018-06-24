@@ -10,6 +10,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
 import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
 import static org.lwjgl.glfw.GLFW.glfwDefaultWindowHints;
 import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
+import static org.lwjgl.glfw.GLFW.glfwGetFramebufferSize;
 import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
 import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
 import static org.lwjgl.glfw.GLFW.glfwInit;
@@ -28,7 +29,9 @@ import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 import java.awt.Dimension;
+import java.nio.IntBuffer;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -45,15 +48,12 @@ public abstract class GLWRender extends GraphRender {
 	private static final long serialVersionUID = -7772425053152866187L;
 	
 	private int fps_avgWindow = 100;
-	private MovingAverage fps_avg = new MovingAverage(fps_avgWindow);
-	private double fps_tick;
-	private volatile double fps;
 
 	private long window;
 	private String title = "OpenGL Render";
 	private Dimension size = new Dimension(1000, 480); // pixel
 
-	private int settings_swapInterval = 0;
+	private int settings_swapInterval = 1;  // v-sync
 
 	// private Thread renderThread;
 
@@ -132,8 +132,6 @@ public abstract class GLWRender extends GraphRender {
 
 	@Override
 	public void renderloop() {
-		tick();
-
 		gl_render(GLFW.glfwGetTime());
 
 		glfwSwapBuffers(window);
@@ -141,9 +139,6 @@ public abstract class GLWRender extends GraphRender {
 		// Poll for window events. The key callback above will only be
 		// invoked during this call.
 		glfwPollEvents();
-
-		fps_avg.put(tock());
-		fps = 1.0 / fps_avg.getAverage();
 	}
 
 	@Override
@@ -167,12 +162,9 @@ public abstract class GLWRender extends GraphRender {
 		glfwSetErrorCallback(null).free();
 	}
 
-	private void tick() {
-		this.fps_tick = GLFW.glfwGetTime();
-	}
-
-	private double tock() {
-		return GLFW.glfwGetTime() - this.fps_tick;
+	@Override
+	public double tick() {
+		return GLFW.glfwGetTime();
 	}
 
 	public abstract void gl_startup();
@@ -181,10 +173,13 @@ public abstract class GLWRender extends GraphRender {
 
 	public abstract void gl_shutdown();
 
-	public double GetFPS() {
-		return this.fps;
+	public Dimension GetSize(){	
+		IntBuffer glww = BufferUtils.createIntBuffer(1);
+		IntBuffer glwh = BufferUtils.createIntBuffer(1);
+		glfwGetFramebufferSize(window, glww, glwh);
+		return new Dimension(glww.get(0), glwh.get(0));
 	}
-
+	
 	public String GetTitle() {
 		return this.title;
 	}

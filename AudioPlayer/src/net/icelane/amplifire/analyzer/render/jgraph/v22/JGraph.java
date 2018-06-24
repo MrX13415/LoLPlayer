@@ -15,7 +15,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
-import java.util.ArrayList;
 
 import net.icelane.amplifire.analyzer.AudioGraph;
 import net.icelane.amplifire.analyzer.render.GraphRender;
@@ -34,8 +33,6 @@ public class JGraph extends GraphRender {
 	 * 
 	 */
 	private static final long serialVersionUID = -8370043378690135186L;
-		
-	private volatile ArrayList<AudioGraph> graphs = new ArrayList<AudioGraph>();
 
 	private BufferedImage graphImage;	//the graphs
 	private BufferedImage effectsImage;	//the background	
@@ -49,9 +46,7 @@ public class JGraph extends GraphRender {
 	private Stroke effetcStroke1 = new BasicStroke(15f);
 //	private Stroke effetcStroke2 = new BasicStroke(10f);
 //	private Stroke effetcStroke3 = new BasicStroke(6f);
-	
-	private volatile float fps = 0;
-	
+
 //	private float getHeightLevel() = 0.4f;
 //	private int getZoomlLevel() = 1;
 
@@ -80,34 +75,9 @@ public class JGraph extends GraphRender {
 			//draw label ...
 			g.setColor(Color.darkGray);
 			g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
-			g.drawString(String.format("%s", (Math.round(fps))), 10, 20);
+			g.drawString(String.format("%s", (Math.round(getFPS()))), 10, 20);
         }
     }
-            
-	@Override
-	public synchronized void addGraph(AudioGraph graph){
-		graphs.add(graph);
-	}
-	
-	@Override
-	public synchronized void removeGraph(AudioGraph graph){
-		graphs.remove(graph);
-	}
-	
-	@Override
-	public void clearGraphs() {
-		graphs.clear();
-	}
-	
-	@Override
-	public synchronized AudioGraph getGraph(int index){
-		return graphs.get(index);
-	}
-	
-	@Override
-	public synchronized ArrayList<AudioGraph> getGraphs() {
-		return graphs;
-	}
 	
 	private BufferedImage createBackBuffer(int width, int height, int transparency){
 		// obtain the current system graphical settings
@@ -128,11 +98,11 @@ public class JGraph extends GraphRender {
 		}
 		
 		try {
-			for (AudioGraph ag : graphs) {
+			for (AudioGraph ag : getGraphs()) {
 				ag.syncBufferSize(this.getWidth() * getZoomlLevel());
 				
-				if (graphs.size() > 1){
-					int index = graphs.indexOf(ag);
+				if (getGraphs().size() > 1){
+					int index = getGraphs().indexOf(ag);
 					if (index == 0){
 						ag.setYOffset( this.getHeight() / 4 );
 					}
@@ -149,14 +119,14 @@ public class JGraph extends GraphRender {
 				
 		if(this.getWidth() > 0 && this.getHeight() > 0){
 			
-//			if (isGlowEffect()) {				
-//				effectsImage = getLinearBlurOp(2, 2, .2f).filter(effectsImage, null);
-//			}
-//			
-//			if(isBlurFilter()){
-//				graphImage = getLinearBlurOp(2, 2, .6f).filter(graphImage, null);
-//			}			
-//			
+			if (isGlowEffect()) {				
+				effectsImage = getLinearBlurOp(2, 2, .2f).filter(effectsImage, null);
+			}
+			
+			if(isBlurFilter()){
+				graphImage = getLinearBlurOp(2, 2, .6f).filter(graphImage, null);
+			}			
+	
 			finalBackImage = backImage;
 			finalEffectsImage = effectsImage;
 			finalGraphImage = graphImage; 
@@ -342,21 +312,8 @@ public class JGraph extends GraphRender {
 
 	@Override
 	public void renderloop() {
-		long tStart = System.nanoTime();
-
 		repaintGraphs();
-
-//		try {
-			long sleepT = 33 - ((System.nanoTime() - tStart) / 1000000);
-			sleepT = sleepT > 0 ? sleepT : 15;
-//			Thread.sleep(sleepT); //max 50 FPS
-//		} catch (InterruptedException e) {}	
 		
-//		if(System.currentTimeMillis() - fpsUpdateT > 500) {
-//			fpsUpdateT = System.currentTimeMillis();
-//			long tDelta = System.nanoTime()- tStart;
-//			fps = 1000000000f / (float)tDelta; //1000000000 = 1s
-//		}
 	}
 
 	@Override

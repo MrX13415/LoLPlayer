@@ -24,9 +24,7 @@ public class AudioGraph{
 	private volatile GapList<Float> buffer = new GapList<Float>();
 	private volatile int id = (int) System.currentTimeMillis() + new Random().nextInt(500);
 	
-	private volatile VolatileImage renderSnapshot;
-	
-	private volatile int shownValues = 1000; //TODO: auto determine value !
+	private volatile int shownValues = 1000;
 	private volatile Color color = Color.red;
 	private volatile int yOffset = 0;
 	private volatile String name = "";
@@ -108,6 +106,8 @@ public class AudioGraph{
 	}
 	
 	public void syncBufferSize(int size){
+		if (size < 1) return;
+		
 		shownValues = size;
 		while (buffer.size() > shownValues) {
 			buffer.removeFirst();

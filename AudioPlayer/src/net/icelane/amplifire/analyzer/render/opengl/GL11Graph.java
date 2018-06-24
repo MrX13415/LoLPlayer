@@ -1,5 +1,51 @@
 package net.icelane.amplifire.analyzer.render.opengl;
 
+import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
+import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
+import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
+import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
+import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
+import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
+import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
+import static org.lwjgl.glfw.GLFW.glfwDefaultWindowHints;
+import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
+import static org.lwjgl.glfw.GLFW.glfwGetFramebufferSize;
+import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
+import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
+import static org.lwjgl.glfw.GLFW.glfwGetWindowSize;
+import static org.lwjgl.glfw.GLFW.glfwInit;
+import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
+import static org.lwjgl.glfw.GLFW.glfwPollEvents;
+import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
+import static org.lwjgl.glfw.GLFW.glfwShowWindow;
+import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
+import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
+import static org.lwjgl.glfw.GLFW.glfwTerminate;
+import static org.lwjgl.glfw.GLFW.glfwWindowHint;
+import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_LINES;
+import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
+import static org.lwjgl.opengl.GL11.GL_POINTS;
+import static org.lwjgl.opengl.GL11.GL_PROJECTION;
+import static org.lwjgl.opengl.GL11.glBegin;
+import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11.glColor3d;
+import static org.lwjgl.opengl.GL11.glColor3f;
+import static org.lwjgl.opengl.GL11.glEnd;
+import static org.lwjgl.opengl.GL11.glLoadIdentity;
+import static org.lwjgl.opengl.GL11.glMatrixMode;
+import static org.lwjgl.opengl.GL11.glOrtho;
+import static org.lwjgl.opengl.GL11.glVertex3d;
+import static org.lwjgl.opengl.GL11.glViewport;
+import static org.lwjgl.system.MemoryUtil.NULL;
+
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -8,49 +54,32 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.Transparency;
-import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.VolatileImage;
-import java.awt.image.ConvolveOp;
-import java.awt.image.Kernel;
-import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 
-import javax.swing.JPanel;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.LinkedList;
-import java.util.Queue;
-
-import org.lwjgl.*;
-import org.lwjgl.glfw.*;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.Version;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWKeyCallback;
+import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
-import net.icelane.amplifire.AppCore;
 import net.icelane.amplifire.Application;
 import net.icelane.amplifire.analyzer.AudioGraph;
 import net.icelane.amplifire.analyzer.render.GraphRender;
-
-import static org.lwjgl.glfw.Callbacks.*;
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryUtil.*;
 
 
 /**
  *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
- * @version 1.0
+ * @version 1.2
  * 
  * A graph render using OpenGL (Version 1.1)
  */
@@ -61,23 +90,12 @@ public class GL11Graph extends GraphRender{
 	 */
 	private static final long serialVersionUID = -8370043378690135186L;
 	
-	private ArrayList<AudioGraph> graphs = new ArrayList<AudioGraph>();
-
 	private VolatileImage backBuffer;
 
 	private Stroke graphStroke = new BasicStroke(1f);
 	private Stroke effetcStroke1 = new BasicStroke(15f);
 //	private Stroke effetcStroke2 = new BasicStroke(10f);
 //	private Stroke effetcStroke3 = new BasicStroke(6f);
-	
-	private volatile float fps = 0;
-	private long fpsUpdateT = System.currentTimeMillis();
-	
-//	private float getHeightLevel() = 0.4f;
-//	private int getZoomlLevel() = 1;
-
-	MovingAverage avg = new MovingAverage(3);
-
 	
 	 // We need to strongly reference callback instances.
     private GLFWErrorCallback errorCallback;
@@ -190,10 +208,6 @@ public class GL11Graph extends GraphRender{
             // Poll for window events. The key callback above will only be
             // invoked during this call.
             glfwPollEvents();
-            
-            long fps_delta = System.nanoTime() - fps_time_start;
-            avg.put(fps_delta);
-            fps = Math.round(1000000000f / avg.getAverage());
         }
 	}
 
@@ -212,10 +226,7 @@ public class GL11Graph extends GraphRender{
         glfwTerminate();
         glfwSetErrorCallback(null).free();
 	}
-	
-	
-	
-		
+
 	public int[] getGLSize(){
 		IntBuffer w = BufferUtils.createIntBuffer(1);
         IntBuffer h = BufferUtils.createIntBuffer(1);
@@ -282,20 +293,13 @@ public class GL11Graph extends GraphRender{
 				//draw label ...
 				g.setColor(Color.darkGray);
 				g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
-				g.drawString(String.format("%s", (Math.round(fps))), 10, 20);
+				g.drawString(String.format("%s", (Math.round(getFPS()))), 10, 20);
 	        }
 			
 			// show the back backBuffer on the screen ...
 			if (backBuffer != null) g.drawImage(backBuffer, 0, 0, null);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-
-		// Update the current FPS ... 
-		if (System.currentTimeMillis() - fpsUpdateT > 250) {
-			//fpsUpdateT = System.currentTimeMillis();
-			//long tDelta = System.nanoTime() - renderStart;
-			//fps = 1000000000f / (float) tDelta; // 1000000000 = 1s
 		}
     }
 	
@@ -375,8 +379,8 @@ public class GL11Graph extends GraphRender{
 		int heightCenter = (Math.round(height + getHeightLevel())) >> 1;
 		int maxPointCount = width * getZoomlLevel();
 		
-		for (int i = 0; i < graphs.size(); i++) {
-			AudioGraph graph = graphs.get(i);
+		for (int i = 0; i < getGraphs().size(); i++) {
+			AudioGraph graph = getGraphs().get(i);
 
 			// determine display mode to set graph position ...
 			switch (getDisplayMode()) {
@@ -388,8 +392,8 @@ public class GL11Graph extends GraphRender{
 				
 			default: //NORMAL
 				// set graph positions ...
-				if (graphs.size() > 1){
-					int index = graphs.indexOf(graph);
+				if (getGraphs().size() > 1){
+					int index = getGraphs().indexOf(graph);
 					if (index == 0){
 						graph.setYOffset( height / 4 );
 					}
@@ -402,7 +406,7 @@ public class GL11Graph extends GraphRender{
 			}
 			
 			//sync graph buffer size ... 
-			graph.syncBufferSize(width == 0 ? 500 : width * getZoomlLevel());
+			graph.syncBufferSize(width * getZoomlLevel());
 			
 			//*** Mathematics ************************************
 			int graphcenterY = heightCenter + graph.getYOffset();
@@ -430,7 +434,7 @@ public class GL11Graph extends GraphRender{
 
 	        	g.setColor(Color.darkGray);
 				g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
-				g.drawString(String.format("%s", (Math.round(fps))), 10, 20);
+				g.drawString(String.format("%s", (Math.round(getFPS()))), 10, 20);
 				
 	        }
 		}
@@ -489,7 +493,7 @@ public class GL11Graph extends GraphRender{
 						
 			//add Y-Offset ...
 			point_y += graph.getYOffset();
-			
+
 			//calculate x coordinate;
 			detailC++;
 			
@@ -535,31 +539,4 @@ public class GL11Graph extends GraphRender{
 		}
 	}
         
-	@Override
-	public synchronized void addGraph(AudioGraph graph){
-		graphs.add(graph);
-	}
-	
-	@Override
-	public synchronized void removeGraph(AudioGraph graph){
-		graphs.remove(graph);
-	}
-	
-	@Override
-	public void clearGraphs() {
-		graphs.clear();
-		
-	}
-	
-	@Override
-	public synchronized AudioGraph getGraph(int index){
-		return graphs.get(index);
-	}
-	
-	@Override
-	public synchronized ArrayList<AudioGraph> getGraphs() {
-		return graphs;
-	}
-
-
 }

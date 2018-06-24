@@ -8,7 +8,10 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
+import org.lwjgl.glfw.GLFW;
+
 import net.icelane.amplifire.analyzer.AudioGraph;
+import net.icelane.amplifire.analyzer.render.opengl.MovingAverage;
 
 
 /**
@@ -73,10 +76,17 @@ public abstract class GraphRender extends JPanel{
     private Object lock = new Object();
 	private boolean active = false;
     
+	private int fps_avgWindow = 100;
+	private MovingAverage fps_avg = new MovingAverage(fps_avgWindow);
+	private double fps_tick;
+	private volatile double fps;
+	
+	
 	private ArrayList<AudioGraph> graphs = new ArrayList<AudioGraph>();
 
 	private GraphicsDevice currentDevice = getDefaultGraphicsDevice();
 
+	
 	private boolean showFPS = false;
 	private boolean blurFilter = true;
 	private boolean glowEffect = true;
@@ -84,7 +94,7 @@ public abstract class GraphRender extends JPanel{
 	private volatile DisplayMode displayMode = DisplayMode.NORMAL;
 	private volatile DrawMode drawMode = DrawMode.STRAIGHT;
 
-	private float heightLevel = 0.4f;
+	private float heightLevel = 1f;
 	private int zoomlLevel = 1;
 	
 	
@@ -145,15 +155,32 @@ public abstract class GraphRender extends JPanel{
     	startup();
     	
     	while (rendercondition()) {
+    		this.fps_tick = tick();
+    		
     		renderloop();
+    		
+    		fps_avg.put(tock());
+    		fps = 1.0 / fps_avg.getAverage();
 		}
     	        
         shutdown();
     }
 
+    public double tick() {
+		return System.nanoTime()/1000000000d;
+	}
+
+    public double tock() {
+		return tick() - this.fps_tick;
+	}
+    	
     public boolean rendercondition() {
     	return isActive();
     }
+   	
+	public double getFPS() {
+		return fps;
+	}
 
     public abstract void startup();
     
@@ -197,7 +224,7 @@ public abstract class GraphRender extends JPanel{
 			}
 		} catch (InterruptedException e) { }
 	}
-	
+
 	public synchronized void addGraph(AudioGraph graph){
 		graphs.add(graph);
 	}

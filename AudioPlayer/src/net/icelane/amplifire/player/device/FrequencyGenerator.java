@@ -163,6 +163,7 @@ public class FrequencyGenerator extends AudioDeviceLayer {
 			volLabel.setForeground(Application.getColors().color_forground1);
 			
 			freqSilder = new JSlider(1, 1000, lastFreqency);
+			freqSilder.setOpaque(false);
 			freqSilder.addChangeListener(this);
 			
 			freqTextField = new JTextField();
@@ -171,6 +172,7 @@ public class FrequencyGenerator extends AudioDeviceLayer {
 			freqTextField.setText(String.valueOf(lastFreqency) + " Hz");
 			
 			volSilder = new JSlider(0, 100, lastVolume);
+			volSilder.setOpaque(false);
 			volSilder.addChangeListener(this);
 			
 			JPanel freqPanel = new JPanel(new BorderLayout());
