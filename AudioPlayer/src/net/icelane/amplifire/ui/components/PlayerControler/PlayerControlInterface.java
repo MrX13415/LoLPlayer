@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.gui.components.PlayerControler;
+package net.icelane.amplifire.ui.components.PlayerControler;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -20,13 +20,15 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeListener;
 
-import net.icelane.lolplayer.Application;
-import net.icelane.lolplayer.font.FontLoader;
-import net.icelane.lolplayer.images.ImageLoader;
-import net.icelane.lolplayer.player.analyzer.render.GraphRender;
-import net.icelane.lolplayer.player.analyzer.render.opengl.GL11Graph;
-import net.icelane.lolplayer.player.analyzer.render.opengl.GL45Graph;
-import net.icelane.lolplayer.player.codec.AudioProcessingLayer;
+import net.icelane.amplifire.Application;
+import net.icelane.amplifire.analyzer.render.GraphRender;
+import net.icelane.amplifire.analyzer.render.RenderComponent;
+import net.icelane.amplifire.analyzer.render.jgraph.JGraph;
+import net.icelane.amplifire.analyzer.render.opengl.GL11Graph;
+import net.icelane.amplifire.analyzer.render.opengl.GL45Graph;
+import net.icelane.amplifire.font.FontLoader;
+import net.icelane.amplifire.images.ImageLoader;
+import net.icelane.amplifire.player.codec.AudioProcessingLayer;
 import net.icelane.searchcircle.event.SearchCircleListener;
 import net.mrx13415.searchcircle.imageutil.ImageModifier;
 import net.mrx13415.searchcircle.imageutil.color.HSB;
@@ -34,7 +36,7 @@ import net.mrx13415.searchcircle.swing.JSearchCircle;
 import net.mrx13415.searchcircle.swing.JSearchCircle.Anchor;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 
@@ -46,7 +48,7 @@ public class PlayerControlInterface extends JPanel{
 	 */
 	private static final long serialVersionUID = -2926358910478096155L;
 
-	private GraphRender playerInterfaceGraph;
+	private RenderComponent renderComponent;
         
 	private JPanel playerControls;
 	private JPanel playerButtons;
@@ -275,23 +277,21 @@ public class PlayerControlInterface extends JPanel{
             //register searchBar as mouse event source from volume 
             volume.addParentMouseListener(searchBar);
 
-            playerInterfaceGraph = new GL45Graph();
-            playerInterfaceGraph.setLayout(null);
-            playerInterfaceGraph.setBlurFilter(true);
-            playerInterfaceGraph.setGlowEffect(true);
-            playerInterfaceGraph.setOpaque(false);
-            playerInterfaceGraph.setLayout(new GridLayout(0, 1, 5, 5));
-            playerInterfaceGraph.add(searchBar, BorderLayout.CENTER);
-            playerInterfaceGraph.setBackground(Application.getColors().color_background1);
+            renderComponent = new RenderComponent(new GL45Graph());
+//            renderComponent.getRenderer().setBlurFilter(true);
+//            renderComponent.getRenderer().setGlowEffect(true);
+            renderComponent.setOpaque(false);
+            renderComponent.add(searchBar);
+            renderComponent.setBackground(Application.getColors().color_background1);
             
-            graphdetail = new JSlider(0, 1000); 
+            graphdetail = new JSlider(1, 250); 
             graphdetail.setPreferredSize(new Dimension(16, 0));
             graphdetail.setOpaque(false);
             graphdetail.setOrientation(JSlider.VERTICAL);
-            graphdetail.setValue(40);
+            graphdetail.setValue(1);
             graphdetail.addChangeListener(changeListener);
 
-            heightlevel = new JSlider(0, 5000); 
+            heightlevel = new JSlider(0, 100000); 
             heightlevel.setPreferredSize(new Dimension(16, 0));
             heightlevel.setOpaque(false);
             heightlevel.setOrientation(JSlider.VERTICAL);
@@ -312,7 +312,7 @@ public class PlayerControlInterface extends JPanel{
             sliderPanel.setOpaque(false);
 	
             this.setLayout(new BorderLayout());
-            this.add(playerInterfaceGraph, BorderLayout.CENTER);
+            this.add(renderComponent, BorderLayout.CENTER);
             this.add(sliderPanel, BorderLayout.WEST);
             this.setPreferredSize(new Dimension(400, 400));
             this.setBackground(new Color(30, 30, 30));
@@ -487,8 +487,12 @@ public class PlayerControlInterface extends JPanel{
 
 	}
 	
-	public GraphRender getPlayerInterfaceGraph() {
-		return playerInterfaceGraph;
+	public RenderComponent getRenderComponent() {
+		return renderComponent;
+	}
+	
+	public GraphRender getGraphRenderer() {
+		return renderComponent.getRenderer();
 	}
 
 	public JPanel getPlayerControls() {

@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.player.analyzer;
+package net.icelane.amplifire.analyzer;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -8,13 +8,17 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import javax.sound.sampled.AudioFormat;
 
-import net.icelane.lolplayer.Application;
-import net.icelane.lolplayer.player.analyzer.data.PCMData;
-import net.icelane.lolplayer.player.analyzer.device.AnalyzerSourceDevice;
-import net.icelane.lolplayer.player.analyzer.render.opengl.GL11Graph;
+import org.lwjgl.system.CallbackI.F;
+import org.magicwerk.brownies.collections.GapList;
+
+import net.icelane.amplifire.Application;
+import net.icelane.amplifire.analyzer.render.GraphRender;
+import net.icelane.amplifire.analyzer.render.RenderComponent;
+import net.icelane.amplifire.analyzer.render.opengl.GL11Graph;
+import net.icelane.amplifire.analyzer.source.AnalyzerSourceDevice;
 
 /**
- * LoLPlayer II - Audio-Player Project
+ * amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 
@@ -32,6 +36,7 @@ public class Analyzer {
 	
 	private volatile Normalizer normalizer;
 
+	private volatile RenderComponent renderer;
 	private volatile Graph g;
 
 	private HashMap<Integer, Color> graphSettingsColor = new HashMap<Integer, Color>();
@@ -50,9 +55,10 @@ public class Analyzer {
 	private volatile boolean initNormalizerActive;
 
 	private boolean mergedChannels;
-	private int detailLevel = 40;
+	private int detailLevel = 10;
 
-	private volatile float[] channelsValueSum;
+	//private volatile float[] channelsValueSum;
+	private volatile GapList<Float>[] channelsValueWindow;
 	private volatile int[] chennalsDetailIndex;
 
 	private int sleepTime = 16; // (50 FPS) in ms ; must be max 25 ms, otherwise
@@ -65,7 +71,7 @@ public class Analyzer {
 	private boolean DEBUG = false;
 	private boolean defaultGraphsSet;
 
-	public Analyzer(Graph g) {
+	public Analyzer(RenderComponent renderComponent) {
 		super();
 
 		// define class defaults ...
@@ -75,14 +81,31 @@ public class Analyzer {
 
 		resetDefaultMergedChannelGraphColor();
 
-		this.g = g;
+		this.renderer = renderComponent;
+		this.g = renderComponent.getRenderer();
 
 		//start analyzer
 		setEnabled(true);
-
-		setDefaultGraphs(2);
+		
+		init();
 	}
 
+	public void switchRenderer(Class<? extends GraphRender> rendererClass) {
+		setEnabled(false);
+		while (analyzerThread.isAlive()) {}
+		initNormalizerActive = false;
+		while (initNormalizerThread.isAlive()) {}
+		normalizer = null;
+				
+		renderer.switchRenderer(rendererClass);
+		this.g = renderer.getRenderer();
+		
+		//start analyzer
+		setEnabled(true);
+		
+		init();
+	}
+	
 	public void setDefaultGraphs(int count) {
 		g.clearGraphs();
 		for (int i = 0; i < count; i++) {
@@ -386,11 +409,11 @@ public class Analyzer {
 	}
 	
 	public void init() {
-		//clearGraphs();
-		//setDefaultGraphs(2);
+		clearGraphs();
+		setDefaultGraphs(2);
 		
+		if (getActiveDevice() == null) return;
 		this.format = getActiveDevice().getAudioFormat();
-		
 		initNormalizer();
 	}
 
@@ -399,6 +422,7 @@ public class Analyzer {
 			initNormalizerThread = new Thread(new Runnable() {
 				@Override
 				public void run() {
+					normalizer = null;
 					initNormalizerActive = true;
 					while (normalizer == null && initNormalizerActive) {
 
@@ -409,7 +433,12 @@ public class Analyzer {
 
 						try {
 							normalizer = new Normalizer(format);
-							channelsValueSum = new float[format.getChannels()];
+							//channelsValueSum = new float[format.getChannels()];
+							//channelsValueWindow = 
+							channelsValueWindow = (GapList<Float>[])new GapList[format.getChannels()];
+							for (int i = 0; i < channelsValueWindow.length; i++) {
+								channelsValueWindow[i] = new GapList<>();
+							}
 							chennalsDetailIndex = new int[format.getChannels()];
 
 							if (mergedChannels) {
@@ -508,12 +537,16 @@ public class Analyzer {
 	public void initAnalyzerThread() {
 		if (this.isEnabled() || analyzerThread.isAlive())
 			this.stop();
-
+		
+		
 		analyzerThread = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 				enabled = true;
+				long fclast = System.currentTimeMillis();
+				int fcIndex = 0;
+				int fCount = 0;
 				while (enabled) {
 
 					long s = System.nanoTime();
@@ -619,22 +652,41 @@ public class Analyzer {
 										graph = channelGraphs.get(j);
 									}
 
-									channelsValueSum[j] += sample;
-									chennalsDetailIndex[j]++;
-
-									if (chennalsDetailIndex[j] >= detailLevel) {
-
-										float valueSum = channelsValueSum[j];
-										int detailIndex = chennalsDetailIndex[j];
-
-										float averageValue = (valueSum / (float) detailIndex);
-
-										// send value to the graph
-										graph.addValue(averageValue);
-
-										chennalsDetailIndex[j] = 0;
-										channelsValueSum[j] = 0;
+									GapList<Float> channelsValueWindowJ = channelsValueWindow[j];
+									
+									//channelsValueSum[j] += sample;
+									channelsValueWindowJ.add(sample);
+									//chennalsDetailIndex[j]++;
+									
+									while (channelsValueWindowJ.size() > detailLevel) {
+										channelsValueWindowJ.remove();
 									}
+									
+
+									float valueSum = 0; //channelsValueSum[j];
+									//int detailIndex = chennalsDetailIndex[j];
+									
+									for (int k = 0; k < channelsValueWindowJ.size(); k++) {
+										valueSum += channelsValueWindowJ.get(k);
+									}
+										
+									float averageValue = (valueSum / (float) detailLevel);
+
+									// send value to the graph
+									graph.addValue(averageValue);
+									
+									if (DEBUG) {
+										fcIndex++;
+										if((System.currentTimeMillis() - fclast) > 1000) {
+											fclast = System.currentTimeMillis();
+											fCount = fcIndex;
+											fcIndex = 0;
+											System.out.println(String.format("Calls/s: %s | Avg Val: %s | Window Size: %s | Buffer: %s/%s", fCount, averageValue, channelsValueWindowJ.size(), bx, getBufferSize()));
+										}
+									}
+																		
+									//chennalsDetailIndex[j] = 0;
+									//channelsValueSum[j] = 0;
 								}
 
 							} catch (Exception e) {

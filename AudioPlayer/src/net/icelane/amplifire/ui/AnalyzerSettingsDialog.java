@@ -1,7 +1,9 @@
-package net.icelane.lolplayer.gui;
+package net.icelane.amplifire.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -11,10 +13,12 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import net.icelane.lolplayer.Application;
-import net.icelane.lolplayer.gui.ui.UIFrame;
-import net.icelane.lolplayer.player.analyzer.Analyzer;
-import net.icelane.lolplayer.player.analyzer.device.AnalyzerSourceDevice;
+import net.icelane.amplifire.AppCore;
+import net.icelane.amplifire.Application;
+import net.icelane.amplifire.analyzer.Analyzer;
+import net.icelane.amplifire.analyzer.render.GraphRender;
+import net.icelane.amplifire.analyzer.source.AnalyzerSourceDevice;
+import net.icelane.amplifire.ui.ui.UIFrame;
 
 public class AnalyzerSettingsDialog extends UIFrame implements ActionListener {
 
@@ -23,6 +27,7 @@ public class AnalyzerSettingsDialog extends UIFrame implements ActionListener {
 	 */
 	private static final long serialVersionUID = -5359730769550465456L;
 
+	private JComboBox<String> renderer;
 	private JComboBox<String> sources;
 	private JLabel sourceDeviceDesc; 
 
@@ -32,6 +37,23 @@ public class AnalyzerSettingsDialog extends UIFrame implements ActionListener {
 //		super(parent);
 	
 		this.analyzer = analyzer;
+		
+		JLabel renderLabel = new JLabel("Renderer: ");
+		renderLabel.setForeground(Application.getColors().color_forground1);
+		
+		renderer = new JComboBox<>();
+		renderer.addItem("JGraph v2.2");
+		renderer.addItem("JGraph v2.3");
+		renderer.addItem("JGraph v2.4");
+		renderer.addItem("OpenGL 1.1 Renderer");
+		renderer.addItem("OpenGL 4.5 Renderer");
+		renderer.addActionListener(this);
+
+		JPanel rr = new JPanel(new BorderLayout());
+		rr.setOpaque(false);
+		rr.add(renderLabel, BorderLayout.NORTH);
+		rr.add(renderer, BorderLayout.CENTER);
+		rr.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 		
 		JLabel sourceLabel = new JLabel("Analyzer source device: ");
 		sourceLabel.setForeground(Application.getColors().color_forground1);
@@ -50,12 +72,25 @@ public class AnalyzerSettingsDialog extends UIFrame implements ActionListener {
 		curSelDescPanel.add(deviceDescLabel, BorderLayout.NORTH);
 		curSelDescPanel.add(sourceDeviceDesc, BorderLayout.CENTER);
 		
-		JPanel mp = new JPanel(new BorderLayout());
+		JPanel asrc = new JPanel(new BorderLayout());
+		asrc.setOpaque(false);
+		asrc.add(sourceLabel, BorderLayout.NORTH);
+		asrc.add(sources, BorderLayout.CENTER);
+		asrc.add(curSelDescPanel, BorderLayout.SOUTH);
+		asrc.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+		
+		JPanel mp = new JPanel(new GridBagLayout());
 		mp.setOpaque(false);
-		mp.add(sourceLabel, BorderLayout.NORTH);
-		mp.add(sources, BorderLayout.CENTER);
-		mp.add(curSelDescPanel, BorderLayout.SOUTH);
-		mp.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.gridx = 0;
+		c.gridy = 0;
+		mp.add(rr, c);
+		c.gridy = 1;
+		mp.add(asrc, c);
+		mp.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 
 		this.getTitleFrame().getResizeButton().setVisible(false);
 		this.getResizeHandler().setBlocked(true);
@@ -112,6 +147,33 @@ public class AnalyzerSettingsDialog extends UIFrame implements ActionListener {
 			
 			reinitDeviceList();
 			updateToCurrentDevice();
+		}
+		if (e.getSource().equals(renderer)){
+			int sIndex = renderer.getSelectedIndex();
+			
+			Class<? extends GraphRender> renderClass = null;		
+			switch (sIndex) {
+			case 0:
+				renderClass = net.icelane.amplifire.analyzer.render.jgraph.v22.JGraph.class;
+				break;
+			case 1:
+				renderClass = net.icelane.amplifire.analyzer.render.jgraph.v23.JGraph.class;
+				break;
+			case 2:
+				renderClass = net.icelane.amplifire.analyzer.render.jgraph.JGraph.class;
+				break;
+			case 3:
+				renderClass = net.icelane.amplifire.analyzer.render.opengl.GL11Graph.class;
+				break;
+			case 4:
+				renderClass = net.icelane.amplifire.analyzer.render.opengl.GL45Graph.class;
+				break;
+			}
+			
+			if (renderClass != null) {
+				analyzer.switchRenderer(renderClass);
+			}
+
 		}
 	}
 
