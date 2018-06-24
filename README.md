@@ -13,6 +13,7 @@ A audio player written in java.
 #### **[DOWNLOAD](https://github.com/MrX13415/LoLPlayer/releases)**
 
 Runs on Windows/Linux/macOS. (Linux/macOS are untested at the moment)
+The MPEG (mp3) and WAVE (.wav) audio file formats are supported.
 
 
 
