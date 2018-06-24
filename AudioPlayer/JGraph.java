@@ -27,7 +27,7 @@ import audioplayer.player.analyzer.AudioGraph;
 import audioplayer.player.analyzer.Graph;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * @version 2.3

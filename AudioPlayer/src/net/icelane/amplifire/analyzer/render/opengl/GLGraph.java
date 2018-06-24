@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.player.analyzer.render.opengl;
+package net.icelane.amplifire.analyzer.render.opengl;
 
 import static org.lwjgl.opengl.GL11.GL_COLOR;
 import static org.lwjgl.opengl.GL11.GL_POINTS;
@@ -14,24 +14,46 @@ import static org.lwjgl.opengl.GL20.glUseProgram;
 import static org.lwjgl.opengl.GL30.glClearBufferfv;
 import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 
+import net.icelane.amplifire.Application;
+
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 
-import net.icelane.lolplayer.Application;
+public class GLGraph extends GLWRender {
 
-public class GLGraph extends GLWRender implements GLRender{
-
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1670118782697659663L;
+	
 	private int program;
 	private int vao;
 	private int vbo;
-	
 
 	float databuffer[] = new float[1000000 * 6 * 2];
 	
+	
+	private int createProgram(){
+		String shader_root = "/net/icelane/amplifire/analyzer/render/opengl/shaders";
+
+		int vertex_shader   = GL.loadShader_fromPackage(shader_root + "/main.vsh", GL_VERTEX_SHADER); 
+		int fragment_shader = GL.loadShader_fromPackage(shader_root + "/main.fsh", GL_FRAGMENT_SHADER); 
+		
+		int program = glCreateProgram();
+		glAttachShader(program, vertex_shader);
+		glAttachShader(program, fragment_shader);
+		glLinkProgram(program);
+		
+		glDeleteShader(vertex_shader);
+		glDeleteShader(fragment_shader);
+		
+		return program;
+	}
+
 	@Override
-	public void startup() {
+	public void gl_startup() {
 		this.program = createProgram();
 		
 		// Bind index 0 to the shader input variable "vertexPos"
@@ -69,26 +91,9 @@ public class GLGraph extends GLWRender implements GLRender{
 		glVertexAttribPointer(color_attribute, 4, GL_FLOAT, false,  stride, offsetColor);
 		glEnableVertexAttribArray(color_attribute);
 	}
-	
-	private int createProgram(){
-		String shader_root = "/net/icelane/lolplayer/player/analyzer/render/opengl/shaders";
-
-		int vertex_shader   = GL.loadShader_fromPackage(shader_root + "/main.vsh", GL_VERTEX_SHADER); 
-		int fragment_shader = GL.loadShader_fromPackage(shader_root + "/main.fsh", GL_FRAGMENT_SHADER); 
-		
-		int program = glCreateProgram();
-		glAttachShader(program, vertex_shader);
-		glAttachShader(program, fragment_shader);
-		glLinkProgram(program);
-		
-		glDeleteShader(vertex_shader);
-		glDeleteShader(fragment_shader);
-		
-		return program;
-	}
 
 	@Override
-	public void render(double time) {
+	public void gl_render(double time) {
 		float[] clearColor = Application.getColors().SETTING_color_aboutpage_background1.getRGBColorComponents(null);
 		glClearBufferfv(GL_COLOR, 0, clearColor);
 
@@ -105,7 +110,7 @@ public class GLGraph extends GLWRender implements GLRender{
 		//pass data to shader 
 		glBufferSubData(GL_ARRAY_BUFFER, 0, getData());
 	
-		glDrawArrays(GL_POINTS, 0, getNum());   //number of points
+		glDrawArrays(GL_POINT_BIT, 0, getNum());   //number of points
 		glPointSize(getPointSize());
 		
 		// Put everything back to default (deselect)
@@ -126,7 +131,7 @@ public class GLGraph extends GLWRender implements GLRender{
 	}
 
 	@Override
-	public void shutdown() {
+	public void gl_shutdown() {
 		// Disable the VBO index from the VAO attributes list
 		glDisableVertexAttribArray(0);
 		 
@@ -141,6 +146,8 @@ public class GLGraph extends GLWRender implements GLRender{
 		glDeleteVertexArrays(vao);
 		glDeleteProgram(program);
 		glDeleteVertexArrays(vao);
+		
+		super.shutdown();
 	}
 
 }

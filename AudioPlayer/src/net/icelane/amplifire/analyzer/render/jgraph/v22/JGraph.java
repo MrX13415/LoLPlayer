@@ -1,6 +1,5 @@
-package audioplayer.player.analyzer.components;
+package net.icelane.amplifire.analyzer.render.jgraph.v22;
 
-import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -16,64 +15,29 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import javax.swing.JPanel;
-
-import net.mrx13415.searchcircle.imageutil.ImageModifier;
-import audioplayer.player.analyzer.AudioGraph;
-import audioplayer.player.analyzer.Graph;
+import net.icelane.amplifire.analyzer.AudioGraph;
+import net.icelane.amplifire.analyzer.Graph;
+import net.icelane.amplifire.analyzer.render.GraphRender;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
- * @version 2.3
+ * @version 2.2
  * 
  * A simple panel to display Graphs
  */
-public class JGraph extends JPanel implements Graph{
+public class JGraph extends GraphRender implements Graph{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -8370043378690135186L;
-	
-	public enum DrawMode{
-		STRAIGHT{
-			@Override
-			public String toString() {
-				return super.toString().substring(0,1).toUpperCase() + super.toString().substring(1).toLowerCase();
-			}
-		},
-		DOTS{
-			@Override
-			public String toString() {
-				return super.toString().substring(0,1).toUpperCase() + super.toString().substring(1).toLowerCase();
-			}
-		},
-		LINES{
-			@Override
-			public String toString() {
-				return super.toString().substring(0,1).toUpperCase() + super.toString().substring(1).toLowerCase();
-			}
-		},
-		DOUBLE_LINES{
-			@Override
-			public String toString() {
-				String t = super.toString().replace("_", " ");
-				return t.substring(0,1).toUpperCase() + t.substring(1).toLowerCase();
-			}
-		};
-	}
-	
-	private Thread graphRepaintThread = new Thread();
-    
+		
 	private volatile ArrayList<AudioGraph> graphs = new ArrayList<AudioGraph>();
 
-	private volatile boolean enabledDrawing = false;
-	
 	private BufferedImage graphImage;	//the graphs
 	private BufferedImage effectsImage;	//the background	
 	private BufferedImage backImage;	//the background	
@@ -87,29 +51,21 @@ public class JGraph extends JPanel implements Graph{
 //	private Stroke effetcStroke2 = new BasicStroke(10f);
 //	private Stroke effetcStroke3 = new BasicStroke(6f);
 	
-	private volatile boolean showFPS = false;
-	private volatile boolean blurFilter = true;
-	private volatile boolean glowEffect = true;
-
-	private volatile DrawMode drawMode = DrawMode.STRAIGHT;
 	private volatile float fps = 0;
 	
-	private float heightLevel = 0.4f;
-	private int zoomlLevel = 1;
+//	private float getHeightLevel() = 0.4f;
+//	private int getZoomlLevel() = 1;
 
 	public JGraph() {
 		super();
 		
-		//start DrawingThread
-        setEnabledDrawing(true);
-        
-        this.setOpaque(false);
+		start();
 	}
 	
     public void paintComponent(Graphics g ) {
     	super.paintComponent(g);
     	
-    	if (!enabledDrawing) return;
+    	if (!isActive()) return;
     	
     	int x = 0;
     	int y = 0;
@@ -118,7 +74,7 @@ public class JGraph extends JPanel implements Graph{
         g.drawImage(finalEffectsImage, x, y, null);
         g.drawImage(finalGraphImage, x, y, null);
 
-        if (showFPS){
+        if (isShowFPS()){
 			((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 			((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 	
@@ -174,7 +130,7 @@ public class JGraph extends JPanel implements Graph{
 		
 		try {
 			for (AudioGraph ag : graphs) {
-				ag.setShownValues(this.getWidth() * zoomlLevel);
+				ag.syncBufferSize(this.getWidth() * getZoomlLevel());
 				
 				if (graphs.size() > 1){
 					int index = graphs.indexOf(ag);
@@ -235,10 +191,10 @@ public class JGraph extends JPanel implements Graph{
 		Graphics2D g = backImage.createGraphics();
 		
 		//define height ...
-		int height = Math.round(this.getHeight() + heightLevel);
+		int height = Math.round(this.getHeight() + getHeightLevel());
 		int h = height >> 1;
 				
-		int graphcenterY = Math.round((0 * (float)(h * heightLevel)) + h) + graph.getYOffset();;
+		int graphcenterY = Math.round((0 * (float)(h * getHeightLevel())) + h) + graph.getYOffset();;
 
 		//metric of the label text
 		LineMetrics metrics = g.getFontMetrics().getLineMetrics(graph.getName(), g);
@@ -279,20 +235,20 @@ public class JGraph extends JPanel implements Graph{
 
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
-		if(graph.getValues().size() < 1) return;
+		if(graph.size() < 1) return;
 		
 		//define height ...
-		int height = Math.round(this.getHeight() + heightLevel);
+		int height = Math.round(this.getHeight() + getHeightLevel());
 		int h = height >> 1;
 		
 		//define max point count
-		int pointCount = this.getWidth() * zoomlLevel;
+		int pointCount = this.getWidth() * getZoomlLevel();
 		
 		//calculate min index ...
-		int minIndex = graph.getValues().size() - (pointCount); 
+		int minIndex = graph.size() - (pointCount); 
 			minIndex = (minIndex < 0 ? 0 : minIndex);
 
-		int graphcenterY = Math.round((0 * (float)(h * heightLevel)) + h) + graph.getYOffset();;
+		int graphcenterY = Math.round((0 * (float)(h * getHeightLevel())) + h) + graph.getYOffset();;
 		
 		Color c = graph.getColor();
 		c = new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);			
@@ -303,7 +259,7 @@ public class JGraph extends JPanel implements Graph{
 				
 		//define first point ...
 		int lastPoint_x = 0;
-		int lastPoint_y = Math.round((graph.getValue(minIndex) * (float)(h * heightLevel)) + h) + graph.getYOffset();
+		int lastPoint_y = Math.round((graph.getValue(minIndex) * (float)(h * getHeightLevel())) + h) + graph.getYOffset();
 
 		//current point 
 		int point_x = 0;
@@ -319,10 +275,10 @@ public class JGraph extends JPanel implements Graph{
 //		GeneralPath path = new GeneralPath();
 //		path.moveTo(lastPoint_x, lastPoint_y);
 				
-		for (int i = minIndex; i < graph.getValues().size(); i++) {				
+		for (int i = minIndex; i < graph.size(); i++) {				
 
 			//calculate the y coordinates of the next point
-			point_y = Math.round((graph.getValue(i) * (float)(h * heightLevel)) + h);
+			point_y = Math.round((graph.getValue(i) * (float)(h * getHeightLevel())) + h);
 						
 			//add Y-Offset ...
 			point_y += graph.getYOffset();
@@ -330,33 +286,33 @@ public class JGraph extends JPanel implements Graph{
 			//calculate x coordinate;
 			detailC++;
 			
-			if (detailC >= zoomlLevel) {
+			if (detailC >= getZoomlLevel()) {
 				point_x++;
 				detailC = 0;
 			}
 
 			//draw a line from the last point to the current one ...			
-			if (drawMode == DrawMode.STRAIGHT){
+			if (getDrawMode() == DrawMode.STRAIGHT){
 				g.drawLine(lastPoint_x, lastPoint_y, point_x, point_y);
 //				path.lineTo(point_x, point_y);
 			}
 			
-			if (drawMode == DrawMode.DOTS){
+			if (getDrawMode() == DrawMode.DOTS){
 				g.drawLine(point_x, point_y, point_x, point_y);
 			}
 			
-			if (drawMode == DrawMode.LINES){
+			if (getDrawMode() == DrawMode.LINES){
 				int offset = 0;
 
-				if (detailC == 0 && (i - zoomlLevel * 3) == lastI){
+				if (detailC == 0 && (i - getZoomlLevel() * 3) == lastI){
 					offset = 16;
 					lastI = i;
 					g.drawLine(point_x, point_y - offset/2, point_x, point_y + offset/2);
 				}
 			}
 			
-			if (drawMode == DrawMode.DOUBLE_LINES){
-				if (detailC == 0 && (i - zoomlLevel * 3) == lastI){
+			if (getDrawMode() == DrawMode.DOUBLE_LINES){
+				if (detailC == 0 && (i - getZoomlLevel() * 3) == lastI){
 					lastI = i;
 					if(point_y <= graphcenterY){
 						g.drawLine(point_x, point_y - 5, point_x, point_y - 16);
@@ -373,104 +329,47 @@ public class JGraph extends JPanel implements Graph{
 			lastPoint_y = point_y;
 		}
 		
-//		if (drawMode == DrawMode.STRAIGHT){
+//		if (getDrawMode() == DrawMode.STRAIGHT){
 //			g.draw(path);
 //		}
 
 		g.dispose();
 	}
 
-	private synchronized void initGraphRepaintThread(){
-		graphRepaintThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				
-				long fpsUpdateT = System.currentTimeMillis();
-				
-				while (enabledDrawing) {
-					long tStart = System.nanoTime();
-
-					try{
-						repaintGraphs();
-					}catch(Exception e){
-						e.printStackTrace();
-					}
-					
-//					try {
-						long sleepT = 33 - ((System.nanoTime() - tStart) / 1000000);
-						sleepT = sleepT > 0 ? sleepT : 15;
-//						Thread.sleep(sleepT); //max 50 FPS
-//					} catch (InterruptedException e) {}	
-					
-					if(System.currentTimeMillis() - fpsUpdateT > 500) {
-						fpsUpdateT = System.currentTimeMillis();
-						long tDelta = System.nanoTime()- tStart;
-						fps = 1000000000f / (float)tDelta; //1000000000 = 1s
-					}
-				}
-			}
-		});
-		graphRepaintThread.setName("GraphRepaintThread");
-		graphRepaintThread.start();
+	@Override
+	public void startup() {
+		//long fpsUpdateT = System.currentTimeMillis();
 	}
 
-	public boolean isEnabledDrawing() {
-		return enabledDrawing;
-	}
+	@Override
+	public void renderloop() {
+		long tStart = System.nanoTime();
 
-	public void setEnabledDrawing(boolean enabledDrawing) {
-		if (this.enabledDrawing && enabledDrawing) return;
-		 		
-		this.enabledDrawing = enabledDrawing;
+		repaintGraphs();
+
+//		try {
+			long sleepT = 33 - ((System.nanoTime() - tStart) / 1000000);
+			sleepT = sleepT > 0 ? sleepT : 15;
+//			Thread.sleep(sleepT); //max 50 FPS
+//		} catch (InterruptedException e) {}	
 		
-		if (enabledDrawing) initGraphRepaintThread();
+//		if(System.currentTimeMillis() - fpsUpdateT > 500) {
+//			fpsUpdateT = System.currentTimeMillis();
+//			long tDelta = System.nanoTime()- tStart;
+//			fps = 1000000000f / (float)tDelta; //1000000000 = 1s
+//		}
 	}
 
-	public boolean isShowFPS() {
-		return showFPS;
+	@Override
+	public void shutdown() {
+		// TODO Auto-generated method stub
+		
 	}
 
-	public void setShowFPS(boolean showFPS) {
-		this.showFPS = showFPS;
+	@Override
+	public void cleanup() {
+		// TODO Auto-generated method stub
+		
 	}
 
-	public float getHeightLevel() {
-		return heightLevel;
-	}
-
-	public void setHeightLevel(float heightLevel) {
-		this.heightLevel = heightLevel;
-	}
-
-	public int getZoomlLevel() {
-		return zoomlLevel;
-	}
-
-	public void setZoomlLevel(int zoomlLevel) {
-		this.zoomlLevel = zoomlLevel;
-	}
-
-	public boolean isBlurFilter() {
-		return blurFilter;
-	}
-
-	public void setBlurFilter(boolean blurfilter) {
-		this.blurFilter = blurfilter;
-	}
-	
-	public boolean isGlowEffect() {
-		return glowEffect;
-	}
-
-	public void setGlowEffect(boolean glowEffect) {
-		this.glowEffect = glowEffect;
-	}
-
-	public DrawMode getDrawMode() {
-		return drawMode;
-	}
-
-	public void setDrawMode(DrawMode drawMode) {
-		this.drawMode = drawMode;
-	}
 }

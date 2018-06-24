@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.player.analyzer.render.opengl;
+package net.icelane.amplifire.analyzer.render.opengl;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
@@ -35,176 +35,167 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
-public class GLWRender implements GLRender {
+import net.icelane.amplifire.analyzer.render.GraphRender;
 
+public abstract class GLWRender extends GraphRender {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7772425053152866187L;
+	
 	private int fps_avgWindow = 100;
 	private MovingAverage fps_avg = new MovingAverage(fps_avgWindow);
 	private double fps_tick;
 	private volatile double fps;
-	
+
 	private long window;
 	private String title = "OpenGL Render";
-	private Dimension size = new Dimension(1000, 480); //pixel
-	
-    private int settings_swapInterval = 0;
-    
-    private Thread renderThread;
-    
-    
-    public GLWRender() {
-    	
+	private Dimension size = new Dimension(1000, 480); // pixel
+
+	private int settings_swapInterval = 0;
+
+	// private Thread renderThread;
+
+	public GLWRender() {
+
 	}
-    
-    public void start(){
-    	System.out.println("GLWRender: LWJGL " + Version.getVersion());
-		
-    	try {
-	        init();
-	        loop();
 
-	        // Free the window callbacks and destroy the window
-	        glfwFreeCallbacks(window);
-	        glfwDestroyWindow(window);
-	    } finally {
-	        // Terminate GLFW and free the error callback
-	        glfwTerminate();
-	        glfwSetErrorCallback(null).free();
-	    } 		    
-    }
-    
-    public void startThread()
-    {
-    	if (renderThread != null) return;
+	@Override
+	public void startup() {
+		System.out.println("[GLWRender] LWJGL " + Version.getVersion());
+		System.out.println("[GLWRender] Initializing ...");
 
-    	renderThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				start();
-				renderThread = null;
-			}
-		});
-    	renderThread.setName("OpenGL-GLWRender");
-		renderThread.start();
-    }
-    
-    private void tick(){
-    	this.fps_tick = GLFW.glfwGetTime();
-    }
-    
-    private double tock(){
-    	return GLFW.glfwGetTime() - this.fps_tick;
-    }
-    
-    private void init(){
+		System.out.println("[GLWRender]  -> Err callback ...");
 		// Setup an error callback. The default implementation
-        // will print the error message in System.err.
-        GLFWErrorCallback.createPrint(System.err).set();
- 
-        // Initialize GLFW. Most GLFW functions will not work before doing this.
-        if (!glfwInit()) throw new IllegalStateException("Unable to initialize GLFW");
- 
-        // Configure our window
-        glfwDefaultWindowHints(); // optional, the current window hints are already the default
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
- 
-        // Create the window
-        window = glfwCreateWindow(this.size.width, this.size.height, this.title, NULL, NULL);
-        if (window == NULL) throw new RuntimeException("Failed to create the GLFW window");
- 
-        // Setup a key callback. It will be called every time a key is pressed, repeated or released.
-        glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-            if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
-                glfwSetWindowShouldClose(window, true); // We will detect this in our rendering loop
-        });
- 
-        // Get the resolution of the primary monitor
-        GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        // Center our window
-        glfwSetWindowPos(
-            window,
-            (vidmode.width() - this.size.width) / 2,
-            (vidmode.height() - this.size.height) / 2
-        );
- 
-        // Make the OpenGL context current
-        glfwMakeContextCurrent(window);
-        
-        // Enable v-sync
-        glfwSwapInterval(settings_swapInterval);
- 
-        // Make the window visible
-        glfwShowWindow(window);
-	}
-	
-	private void loop() {
+		// will print the error message in System.err.
+		GLFWErrorCallback.createPrint(System.err).set();
+
+		System.out.println("[GLWRender]  -> Initialize GLFW ...");
+		// Initialize GLFW. Most GLFW functions will not work before doing this.
+		if (!glfwInit())
+			throw new IllegalStateException("Unable to initialize GLFW");
+
+		System.out.println("[GLWRender]  -> Initialize Window ...");
+		// Configure our window
+		glfwDefaultWindowHints(); // optional, the current window hints are already the default
+		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
+
+		System.out.println("[GLWRender]  -> Create Window ...");
+		// Create the window
+		window = glfwCreateWindow(this.size.width, this.size.height, this.title, NULL, NULL);
+		if (window == NULL)
+			throw new RuntimeException("Failed to create the GLFW window");
+
+		// Setup a key callback. It will be called every time a key is pressed, repeated
+		// or released.
+		glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
+			if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
+				glfwSetWindowShouldClose(window, true); // We will detect this in our rendering loop
+		});
+
+		// Get the resolution of the primary monitor
+		GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		// Center our window
+		glfwSetWindowPos(window, (vidmode.width() - this.size.width) / 2, (vidmode.height() - this.size.height) / 2);
+
+		// Make the OpenGL context current
+		glfwMakeContextCurrent(window);
+
+		// Enable v-sync
+		glfwSwapInterval(settings_swapInterval);
+
+		// Make the window visible
+		glfwShowWindow(window);
+
 		// This line is critical for LWJGL's interoperation with GLFW's
-        // OpenGL context, or any context that is managed externally.
-        // LWJGL detects the context that is current in the current thread,
-        // creates the GLCapabilities instance and makes the OpenGL
-        // bindings available for use.
-        GL.createCapabilities();
- 
-        startup();
-        
+		// OpenGL context, or any context that is managed externally.
+		// LWJGL detects the context that is current in the current thread,
+		// creates the GLCapabilities instance and makes the OpenGL
+		// bindings available for use.
+		GL.createCapabilities();
+
+		// additional GL startup instructions ...
+		gl_startup();
+	}
+
+	@Override
+	public boolean rendercondition() {
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.
-		while ( !glfwWindowShouldClose(window) ) {
-			tick();
-			
-			render(GLFW.glfwGetTime());
-
-    		glfwSwapBuffers(window);
- 
-            // Poll for window events. The key callback above will only be
-            // invoked during this call.
-            glfwPollEvents();
-            
-            fps_avg.put(tock());
-            fps = 1.0 / fps_avg.getAverage();
-        }
-		
-		shutdown();
-		
-    }
-    
-	public void startup(){
-		
+		return !glfwWindowShouldClose(window) && super.rendercondition();
 	}
 
-	public void render(double time){
-		
+	@Override
+	public void renderloop() {
+		tick();
+
+		gl_render(GLFW.glfwGetTime());
+
+		glfwSwapBuffers(window);
+
+		// Poll for window events. The key callback above will only be
+		// invoked during this call.
+		glfwPollEvents();
+
+		fps_avg.put(tock());
+		fps = 1.0 / fps_avg.getAverage();
 	}
-	
-	public void shutdown(){
-		
+
+	@Override
+	public void shutdown() {
+		// shutdown additional GL things first ...
+		gl_shutdown();
+
+		// Free the window callbacks and destroy the window
+		glfwFreeCallbacks(window);
+		glfwDestroyWindow(window);
 	}
-	
-	public double GetFPS(){
+
+	@Override
+	public void cleanup() {
+		// Terminate GLFW and free the error callback
+		glfwTerminate();
+		glfwSetErrorCallback(null).free();
+	}
+
+	private void tick() {
+		this.fps_tick = GLFW.glfwGetTime();
+	}
+
+	private double tock() {
+		return GLFW.glfwGetTime() - this.fps_tick;
+	}
+
+	public abstract void gl_startup();
+
+	public abstract void gl_render(double time);
+
+	public abstract void gl_shutdown();
+
+	public double GetFPS() {
 		return this.fps;
 	}
-	
-	public String GetTitle(){
+
+	public String GetTitle() {
 		return this.title;
 	}
-	
-	public void SetTitle(String title){
+
+	public void SetTitle(String title) {
 		this.title = title;
 	}
-	
-	public Thread GetRenderThread(){
-		return this.renderThread;
-	}
 
-	public boolean IsVSyncEnabled(){
+	public boolean IsVSyncEnabled() {
 		return this.settings_swapInterval == 1;
 	}
-	
-	public void SetVSyncEnabled(boolean enabled){
+
+	public void SetVSyncEnabled(boolean enabled) {
 		this.settings_swapInterval = enabled ? 1 : 0;
 	}
-	
-	public long GetWindowHandle(){
+
+	public long GetWindowHandle() {
 		return this.window;
 	}
+
 }

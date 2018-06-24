@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.player.analyzer.render.opengl;
+package net.icelane.amplifire.analyzer.render.opengl;
 
 import static org.lwjgl.opengl.GL20.*;
 
