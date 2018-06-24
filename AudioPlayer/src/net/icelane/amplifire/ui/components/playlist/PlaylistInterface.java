@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.icelane.lolplayer.gui.components.playlist;
+package net.icelane.amplifire.ui.components.playlist;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -25,15 +25,15 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import net.icelane.lolplayer.Application;
-import net.icelane.lolplayer.font.FontLoader;
-import net.icelane.lolplayer.images.ImageLoader;
+import net.icelane.amplifire.Application;
+import net.icelane.amplifire.font.FontLoader;
+import net.icelane.amplifire.images.ImageLoader;
 import net.mrx13415.searchcircle.imageutil.ImageModifier;
 import net.mrx13415.searchcircle.imageutil.color.HSB;
 
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

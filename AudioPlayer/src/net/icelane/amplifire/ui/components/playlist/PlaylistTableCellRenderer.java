@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.gui.components.playlist;
+package net.icelane.amplifire.ui.components.playlist;
 
 import java.awt.Component;
 

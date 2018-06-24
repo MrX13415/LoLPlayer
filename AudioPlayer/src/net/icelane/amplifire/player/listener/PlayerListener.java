@@ -1,7 +1,7 @@
-package net.icelane.lolplayer.player.listener;
+package net.icelane.amplifire.player.listener;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

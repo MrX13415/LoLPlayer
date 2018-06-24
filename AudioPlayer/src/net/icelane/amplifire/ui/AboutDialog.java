@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.gui;
+package net.icelane.amplifire.ui;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -11,11 +11,11 @@ import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-import net.icelane.lolplayer.Application;
-import net.icelane.lolplayer.gui.ui.UIFrame;
+import net.icelane.amplifire.Application;
+import net.icelane.amplifire.ui.ui.UIFrame;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

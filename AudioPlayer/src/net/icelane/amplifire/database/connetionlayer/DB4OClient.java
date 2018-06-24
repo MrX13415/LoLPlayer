@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.database.connetionlayer;
+package net.icelane.amplifire.database.connetionlayer;
 
 import java.util.ArrayList;
 import java.util.Arrays;

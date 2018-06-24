@@ -2,6 +2,7 @@
 
 // main vertext shader
 
+//in vec2 prePos;
 in vec2 vertexPos;
 in vec4 color;
 out vec4 color_from_vshader;

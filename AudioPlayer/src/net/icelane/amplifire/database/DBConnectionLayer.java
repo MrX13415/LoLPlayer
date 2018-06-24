@@ -1,9 +1,9 @@
-package net.icelane.lolplayer.database;
+package net.icelane.amplifire.database;
 
 import java.sql.DriverManager;
 
-import net.icelane.lolplayer.database.connetionlayer.DB4OClient;
-import net.icelane.lolplayer.database.connetionlayer.DB4OServer;
+import net.icelane.amplifire.database.connetionlayer.DB4OClient;
+import net.icelane.amplifire.database.connetionlayer.DB4OServer;
 
 
 public class DBConnectionLayer {

@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.gui;
+package net.icelane.amplifire.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -25,16 +25,16 @@ import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.icelane.lolplayer.Application;
-import net.icelane.lolplayer.gui.components.MenuBar;
-import net.icelane.lolplayer.gui.components.PlayerControler.PlayerControlInterface;
-import net.icelane.lolplayer.gui.components.frame.TitleFrameResizeHandler.Direction;
-import net.icelane.lolplayer.gui.components.playlist.PlaylistInterface;
-import net.icelane.lolplayer.gui.components.playlist.PlaylistToggleArea;
-import net.icelane.lolplayer.gui.ui.UIFrame;
-import net.icelane.lolplayer.player.analyzer.render.GraphRender.DisplayMode;
-import net.icelane.lolplayer.player.analyzer.render.GraphRender.DrawMode;
-import net.icelane.lolplayer.process.api.gui.StatusBar;
+import net.icelane.amplifire.Application;
+import net.icelane.amplifire.analyzer.render.GraphRender.DisplayMode;
+import net.icelane.amplifire.analyzer.render.GraphRender.DrawMode;
+import net.icelane.amplifire.process.api.gui.StatusBar;
+import net.icelane.amplifire.ui.components.MenuBar;
+import net.icelane.amplifire.ui.components.PlayerControler.PlayerControlInterface;
+import net.icelane.amplifire.ui.components.frame.TitleFrameResizeHandler.Direction;
+import net.icelane.amplifire.ui.components.playlist.PlaylistInterface;
+import net.icelane.amplifire.ui.components.playlist.PlaylistToggleArea;
+import net.icelane.amplifire.ui.ui.UIFrame;
 import net.icelane.searchcircle.event.SearchCircleChangeEvent;
 import net.icelane.searchcircle.event.SearchCircleKeyEvent;
 import net.icelane.searchcircle.event.SearchCircleListener;
@@ -42,7 +42,7 @@ import net.icelane.searchcircle.event.SearchCircleMouseEvent;
 import net.mrx13415.searchcircle.swing.JSearchCircle;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

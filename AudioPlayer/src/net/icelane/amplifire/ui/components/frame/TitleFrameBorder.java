@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.gui.components.frame;
+package net.icelane.amplifire.ui.components.frame;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -17,8 +17,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import net.icelane.lolplayer.Application;
-import net.icelane.lolplayer.font.FontLoader;
+import net.icelane.amplifire.Application;
+import net.icelane.amplifire.font.FontLoader;
 
 public class TitleFrameBorder extends JPanel implements MouseMotionListener, MouseListener {
 

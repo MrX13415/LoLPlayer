@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.player.analyzer.data;
+package net.icelane.amplifire.analyzer;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioFormat.Encoding;

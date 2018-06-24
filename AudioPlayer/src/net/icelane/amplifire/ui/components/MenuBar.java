@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.gui.components;
+package net.icelane.amplifire.ui.components;
 
 import java.awt.Color;
 import java.awt.event.ActionListener;
@@ -8,17 +8,18 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
-import javax.swing.JMenuItem;
 
-import net.icelane.lolplayer.Application;
-import net.icelane.lolplayer.design.Colors;
-import net.icelane.lolplayer.player.analyzer.render.opengl.GL11Graph;
-import net.icelane.lolplayer.player.analyzer.render.GraphRender.DisplayMode;
-import net.icelane.lolplayer.player.analyzer.render.GraphRender.DrawMode;
+import net.icelane.amplifire.Application;
+import net.icelane.amplifire.analyzer.render.GraphRender.DisplayMode;
+import net.icelane.amplifire.analyzer.render.GraphRender.DrawMode;
+import net.icelane.amplifire.analyzer.render.opengl.GL11Graph;
+import net.icelane.amplifire.design.Colors;
+
+import javax.swing.JMenuItem;
 
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

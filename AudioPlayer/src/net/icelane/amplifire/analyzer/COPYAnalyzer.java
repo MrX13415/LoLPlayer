@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.player.analyzer;
+package net.icelane.amplifire.analyzer;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -8,11 +8,11 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import javax.sound.sampled.AudioFormat;
 
-import net.icelane.lolplayer.Application;
-import net.icelane.lolplayer.player.analyzer.device.AnalyzerSourceDevice;
+import net.icelane.amplifire.Application;
+import net.icelane.amplifire.analyzer.source.AnalyzerSourceDevice;
 
 /**
- * LoLPlayer II - Audio-Player Project
+ * amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

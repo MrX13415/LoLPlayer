@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.player.analyzer.device;
+package net.icelane.amplifire.analyzer.source;
 
 import javax.sound.sampled.AudioFormat;
 import javax.swing.JFrame;

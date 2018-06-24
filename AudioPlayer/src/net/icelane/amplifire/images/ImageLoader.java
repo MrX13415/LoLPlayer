@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.images;
+package net.icelane.amplifire.images;
 
 import java.awt.Image;
 import java.io.File;
@@ -14,11 +14,11 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 
-import net.icelane.lolplayer.Application;
+import net.icelane.amplifire.Application;
 import net.mrx13415.searchcircle.imageutil.ImageModifier;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

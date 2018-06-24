@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.player.analyzer.render.opengl;
+package net.icelane.amplifire.analyzer.render.opengl;
 
 import java.util.LinkedList;
 
@@ -27,8 +27,8 @@ public class MovingAverage {
     	if (window.isEmpty()) return 0.0;
     	
     	double sum = 0.0;
-    	for(int index = 0; index < period; index++){
-    		sum += (1.0 / period) * window.get(index);
+    	for(int index = 0; index < window.size(); index++){
+    		sum += (1d / (double)window.size()) * window.get(index);
     	}
     	
         return sum;

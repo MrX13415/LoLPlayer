@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.gui.components;
+package net.icelane.amplifire.ui.components;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -12,11 +12,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-import net.icelane.lolplayer.Application;
-import net.icelane.lolplayer.design.Colors;
+import net.icelane.amplifire.Application;
+import net.icelane.amplifire.design.Colors;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

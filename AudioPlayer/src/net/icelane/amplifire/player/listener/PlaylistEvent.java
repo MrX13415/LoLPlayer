@@ -1,10 +1,10 @@
-package net.icelane.lolplayer.player.listener;
+package net.icelane.amplifire.player.listener;
 
-import net.icelane.lolplayer.player.AudioFile;
-import net.icelane.lolplayer.player.AudioPlaylist;
+import net.icelane.amplifire.player.AudioFile;
+import net.icelane.amplifire.player.AudioPlaylist;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

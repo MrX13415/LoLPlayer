@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.database;
+package net.icelane.amplifire.database;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -7,11 +7,11 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import net.icelane.lolplayer.database.sql.PostgresSQLConnectionLayer;
-import net.icelane.lolplayer.player.AudioFile;
+import net.icelane.amplifire.database.sql.PostgresSQLConnectionLayer;
+import net.icelane.amplifire.player.AudioFile;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

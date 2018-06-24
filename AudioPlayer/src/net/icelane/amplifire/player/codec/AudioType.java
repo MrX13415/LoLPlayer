@@ -1,15 +1,15 @@
-package net.icelane.lolplayer.player.codec;
+package net.icelane.amplifire.player.codec;
 
 import java.io.File;
 import java.io.FilenameFilter;
 
 import javax.swing.filechooser.FileFilter;
 
-import net.icelane.lolplayer.player.codec.MPEG.MPEGAudioType;
-import net.icelane.lolplayer.player.codec.WAVE.WAVEAudioType;
+import net.icelane.amplifire.player.codec.MPEG.MPEGAudioType;
+import net.icelane.amplifire.player.codec.WAVE.WAVEAudioType;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

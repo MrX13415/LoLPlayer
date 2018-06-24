@@ -2,16 +2,16 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.icelane.lolplayer.process;
+package net.icelane.amplifire.process;
 
-import net.icelane.lolplayer.AppCore;
-import net.icelane.lolplayer.gui.components.playlist.PlaylistTableModel;
-import net.icelane.lolplayer.player.AudioFile;
-import net.icelane.lolplayer.player.AudioPlaylist;
-import net.icelane.lolplayer.process.api.Process;
+import net.icelane.amplifire.AppCore;
+import net.icelane.amplifire.player.AudioFile;
+import net.icelane.amplifire.player.AudioPlaylist;
+import net.icelane.amplifire.process.api.Process;
+import net.icelane.amplifire.ui.components.playlist.PlaylistTableModel;
 
 /**
- * LoLPlayer II - Audio-Player Project
+ * amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

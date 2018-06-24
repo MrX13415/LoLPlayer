@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.database.sql;
+package net.icelane.amplifire.database.sql;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,7 +8,7 @@ import java.sql.Statement;
 import java.util.Properties;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

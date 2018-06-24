@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.player.analyzer;
+package net.icelane.amplifire.analyzer;
 
 import java.awt.Color;
 import java.awt.image.VolatileImage;
@@ -9,7 +9,7 @@ import org.magicwerk.brownies.collections.GapList;
 
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 
@@ -48,14 +48,14 @@ public class AudioGraph{
 		this.id = id;
 	}
         
-        public AudioGraph(int yOffset, Color color, int id) {
-		this(color, id);
-                this.yOffset = yOffset;
+    public AudioGraph(int yOffset, Color color, int id) {
+    	this(color, id);
+        this.yOffset = yOffset;
 	}
         
-        public AudioGraph(int yOffset, Color color) {
-		this(color);
-                this.yOffset = yOffset;
+    public AudioGraph(int yOffset, Color color) {
+    	this(color);
+        this.yOffset = yOffset;
 	}
         
     public void clear(){

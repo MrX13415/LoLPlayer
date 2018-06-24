@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.player.codec;
+package net.icelane.amplifire.player.codec;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -6,15 +6,15 @@ import java.util.ArrayList;
 
 import javax.activity.InvalidActivityException;
 
-import net.icelane.lolplayer.player.AudioFile;
-import net.icelane.lolplayer.player.device.AudioDevice;
-import net.icelane.lolplayer.player.device.AudioDeviceLayer;
-import net.icelane.lolplayer.player.listener.PlayerEvent;
-import net.icelane.lolplayer.player.listener.PlayerListener;
 import javazoom.jl.decoder.BitstreamException;
+import net.icelane.amplifire.player.AudioFile;
+import net.icelane.amplifire.player.device.AudioDevice;
+import net.icelane.amplifire.player.device.AudioDeviceLayer;
+import net.icelane.amplifire.player.listener.PlayerEvent;
+import net.icelane.amplifire.player.listener.PlayerListener;
 
 /**
- * LoLPlayer II - Audio-Player Project
+ * amplifier - Audio-Player Project
  * 
  * Base audio processing layer interface
  * 

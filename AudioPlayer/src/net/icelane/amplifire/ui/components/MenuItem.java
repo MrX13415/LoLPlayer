@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.gui.components;
+package net.icelane.amplifire.ui.components;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -6,7 +6,7 @@ import java.awt.Graphics2D;
 import javax.swing.JMenuItem;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

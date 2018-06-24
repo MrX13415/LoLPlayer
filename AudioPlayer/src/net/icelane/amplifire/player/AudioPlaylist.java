@@ -1,15 +1,15 @@
-package net.icelane.lolplayer.player;
+package net.icelane.amplifire.player;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-import net.icelane.lolplayer.player.listener.PlayerListener;
-import net.icelane.lolplayer.player.listener.PlaylistEvent;
-import net.icelane.lolplayer.player.listener.PlaylistIndexChangeEvent;
+import net.icelane.amplifire.player.listener.PlayerListener;
+import net.icelane.amplifire.player.listener.PlaylistEvent;
+import net.icelane.amplifire.player.listener.PlaylistIndexChangeEvent;
 
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

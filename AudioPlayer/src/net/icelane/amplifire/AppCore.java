@@ -1,6 +1,5 @@
-package net.icelane.lolplayer;
+package net.icelane.amplifire;
 
-import java.awt.BorderLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -8,7 +7,6 @@ import java.io.File;
 import javax.activity.InvalidActivityException;
 import javax.sound.sampled.LineUnavailableException;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JSlider;
 import javax.swing.SwingUtilities;
@@ -16,42 +14,38 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.filechooser.FileFilter;
 
-import javazoom.jl.decoder.JavaLayerException;
-import net.icelane.lolplayer.gui.AboutDialog;
-import net.icelane.lolplayer.gui.AnalyzerSettingsDialog;
-import net.icelane.lolplayer.gui.AudioFilePropertiesDialog;
-import net.icelane.lolplayer.gui.ColorDialog;
-import net.icelane.lolplayer.gui.UserInterface;
-import net.icelane.lolplayer.medialibary.DesignMedienPlayer;
-import net.icelane.lolplayer.medialibary.DesignMedienPlayerDB;
-import net.icelane.lolplayer.medialibary.DesignerMedienPlayerSortby;
-import net.icelane.lolplayer.player.AudioFile;
-import net.icelane.lolplayer.player.AudioPlaylist;
-import net.icelane.lolplayer.player.AudioFile.UnsupportedFileFormatException;
-import net.icelane.lolplayer.player.analyzer.Analyzer;
-import net.icelane.lolplayer.player.analyzer.device.AudioCapture;
-import net.icelane.lolplayer.player.analyzer.render.GraphRender;
-import net.icelane.lolplayer.player.analyzer.render.GraphRender.DisplayMode;
-import net.icelane.lolplayer.player.analyzer.render.GraphRender.DrawMode;
-import net.icelane.lolplayer.player.codec.AudioProcessingLayer;
-import net.icelane.lolplayer.player.codec.AudioType;
-import net.icelane.lolplayer.player.device.AudioDeviceLayer;
-import net.icelane.lolplayer.player.device.FrequencyGenerator;
-import net.icelane.lolplayer.player.listener.PlayerEvent;
-import net.icelane.lolplayer.player.listener.PlayerListener;
-import net.icelane.lolplayer.player.listener.PlaylistEvent;
-import net.icelane.lolplayer.player.listener.PlaylistIndexChangeEvent;
-import net.icelane.lolplayer.process.GetherAudioFileInfoProcess;
-import net.icelane.lolplayer.process.LoadDirProcess;
-import net.icelane.lolplayer.process.LoadFilesProcess;
-import net.icelane.lolplayer.process.LoadPlaylistProcess;
-import net.icelane.lolplayer.process.SavePlaylistProcess;
-import net.icelane.lolplayer.process.SearchPlaylistProcess;
-import net.icelane.lolplayer.process.api.Process;
+import net.icelane.amplifire.analyzer.Analyzer;
+import net.icelane.amplifire.analyzer.render.GraphRender;
+import net.icelane.amplifire.analyzer.render.GraphRender.DisplayMode;
+import net.icelane.amplifire.analyzer.render.GraphRender.DrawMode;
+import net.icelane.amplifire.analyzer.source.AudioCapture;
+import net.icelane.amplifire.player.AudioFile;
+import net.icelane.amplifire.player.AudioFile.UnsupportedFileFormatException;
+import net.icelane.amplifire.player.AudioPlaylist;
+import net.icelane.amplifire.player.codec.AudioProcessingLayer;
+import net.icelane.amplifire.player.codec.AudioType;
+import net.icelane.amplifire.player.device.AudioDeviceLayer;
+import net.icelane.amplifire.player.device.FrequencyGenerator;
+import net.icelane.amplifire.player.listener.PlayerEvent;
+import net.icelane.amplifire.player.listener.PlayerListener;
+import net.icelane.amplifire.player.listener.PlaylistEvent;
+import net.icelane.amplifire.player.listener.PlaylistIndexChangeEvent;
+import net.icelane.amplifire.process.GetherAudioFileInfoProcess;
+import net.icelane.amplifire.process.LoadDirProcess;
+import net.icelane.amplifire.process.LoadFilesProcess;
+import net.icelane.amplifire.process.LoadPlaylistProcess;
+import net.icelane.amplifire.process.SavePlaylistProcess;
+import net.icelane.amplifire.process.SearchPlaylistProcess;
+import net.icelane.amplifire.process.api.Process;
+import net.icelane.amplifire.ui.AboutDialog;
+import net.icelane.amplifire.ui.AnalyzerSettingsDialog;
+import net.icelane.amplifire.ui.AudioFilePropertiesDialog;
+import net.icelane.amplifire.ui.ColorDialog;
+import net.icelane.amplifire.ui.UserInterface;
 import net.mrx13415.searchcircle.swing.JSearchCircle;
 
 /**
- * LoLPlayer II - Audio-Player Project
+ * amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 
@@ -87,10 +81,8 @@ public class AppCore extends UserInterface implements PlayerListener {
 		//loadPlaylistFromDB();
 		new LoadPlaylistProcess(this);
 		new GetherAudioFileInfoProcess(this);
-		
-		analyzer = new Analyzer(getPlayerControlInterface().getPlayerInterfaceGraph());
-//		analyzer.setDefaultChannelGraphColor(1, Colors.color_graph_defaultChannelGraphColor5);
-		analyzer.setMergedChannels(false);
+
+		initAnalyzer();
 		initUIupdaterThread();
 		
 		// set default analyzer device 
@@ -148,6 +140,12 @@ public class AppCore extends UserInterface implements PlayerListener {
 		FrequencyGenerator fg = FrequencyGenerator.getInstance();
 		fg.setAnalyzer(analyzer);
 		fg.start();
+	}
+	
+	public void initAnalyzer() {
+		analyzer = new Analyzer(getPlayerControlInterface().getRenderComponent());
+//		analyzer.setDefaultChannelGraphColor(1, Colors.color_graph_defaultChannelGraphColor5);
+		analyzer.setMergedChannels(false);
 	}
 
 	public void onSearchPlaylist(){
@@ -353,7 +351,7 @@ public class AppCore extends UserInterface implements PlayerListener {
 					double posperc = Math.round(100d / (double) lenght * (double) time * 10d) / 10d;
 					if (posperc > 20f){
 						try {
-							Application.getApplication().getDatabase().updateFrequency(audioProcessingLayer.getAudioFile().getId());
+							Application.get().getDatabase().updateFrequency(audioProcessingLayer.getAudioFile().getId());
 						} catch (Exception e) {}					
 					}
 					
@@ -655,19 +653,7 @@ public class AppCore extends UserInterface implements PlayerListener {
 	
 	@Override
 	public void onMenu_media_library() {
-		DesignMedienPlayer mlib = new DesignMedienPlayer();
-		DesignerMedienPlayerSortby mlibs = new DesignerMedienPlayerSortby();
-		DesignMedienPlayerDB mlibdb = new DesignMedienPlayerDB();
-		
-		JFrame mlibf = new JFrame("Media Library");
-		mlibf.setLayout(new BorderLayout());
-		mlibf.getContentPane().add(mlib, BorderLayout.NORTH);
-		mlibf.getContentPane().add(mlibdb, BorderLayout.CENTER);
-		mlibf.getContentPane().add(mlibs, BorderLayout.SOUTH);
-		
-		mlibf.pack();
-		mlibf.setVisible(true);
-		
+
 	}
 	
 	@Override
@@ -681,14 +667,15 @@ public class AppCore extends UserInterface implements PlayerListener {
 	
 	@Override
 	public void onMenu_graph_enabled() {
-		GraphRender jg = getPlayerControlInterface().getPlayerInterfaceGraph();
-		jg.setEnabledDrawing(!jg.isEnabledDrawing());
+		GraphRender jg = getPlayerControlInterface().getGraphRenderer();
+		if (jg.isActive()) jg.stop();
+		else jg.start();
 		analyzer.setEnabled(!analyzer.isEnabled());
 	}
 	
 	@Override
 	public void onMenu_graph_fps() {
-		GraphRender jg = getPlayerControlInterface().getPlayerInterfaceGraph();
+		GraphRender jg = getPlayerControlInterface().getGraphRenderer();
 		jg.setShowFPS(!jg.isShowFPS());
 		
 	}
@@ -700,29 +687,29 @@ public class AppCore extends UserInterface implements PlayerListener {
 
 	@Override
 	public void onMenu_graph_displaymode(DisplayMode mode) {
-		getPlayerControlInterface().getPlayerInterfaceGraph().setDisplayMode(mode);
+		getPlayerControlInterface().getGraphRenderer().setDisplayMode(mode);
 		System.out.println("Graph display mode set to: "+ mode.toString());
 	}
 
 	@Override
 	public void onMenu_graph_bfilter() {
-		getPlayerControlInterface().getPlayerInterfaceGraph()
+		getPlayerControlInterface().getGraphRenderer()
 				.setBlurFilter(
-						!getPlayerControlInterface().getPlayerInterfaceGraph()
+						!getPlayerControlInterface().getGraphRenderer()
 								.isBlurFilter());
 	}
 	
 	@Override
 	public void onMenu_graph_geffect() {
-		getPlayerControlInterface().getPlayerInterfaceGraph()
+		getPlayerControlInterface().getGraphRenderer()
 				.setGlowEffect(
-						!getPlayerControlInterface().getPlayerInterfaceGraph()
+						!getPlayerControlInterface().getGraphRenderer()
 								.isGlowEffect());
 	}
 	
 	@Override
 	public void onMenu_graph_drawmode(DrawMode mode) {
-		getPlayerControlInterface().getPlayerInterfaceGraph().setDrawMode(mode);
+		getPlayerControlInterface().getGraphRenderer().setDrawMode(mode);
 		System.out.println("Graph drawing mode set to: "+ mode.toString());
 	}
 
@@ -735,7 +722,7 @@ public class AppCore extends UserInterface implements PlayerListener {
 	}
 
 	public void onMenu_help_console() {
-		Application.getApplication().getConsole().show();
+		Application.get().getConsole().show();
 	}
 	
 	private JFileChooser initOpenDialog() {
@@ -870,10 +857,10 @@ public class AppCore extends UserInterface implements PlayerListener {
 				.println("DetailLevel: " + value + " HeightModifier: " + hval);
 
 		analyzer.setDetailLevel(value);
-		getPlayerControlInterface().getPlayerInterfaceGraph().setHeightLevel(
-				hval);
-		this.getPlayerControlInterface().getHeightlevel()
-				.setValue((int) (hval * 1000));
+//		getPlayerControlInterface().getPlayerInterfaceGraph().setHeightLevel(
+//				hval);
+//		this.getPlayerControlInterface().getHeightlevel()
+//				.setValue((int) (hval * 1000));
 	}
 
 	@Override
@@ -881,7 +868,7 @@ public class AppCore extends UserInterface implements PlayerListener {
 		int value = heightLevelBar.getValue();
 		float hval = (value / 1000f);
 		System.out.println("HeightModifier: " + hval);
-		getPlayerControlInterface().getPlayerInterfaceGraph().setHeightLevel(
+		getPlayerControlInterface().getGraphRenderer().setHeightLevel(
 				hval);
 	}
 	
@@ -889,7 +876,7 @@ public class AppCore extends UserInterface implements PlayerListener {
 	public void onZoomLevelBarChange(JSlider zoomLevelBar) {
 		int value = zoomLevelBar.getValue();
 		System.out.println("ZoomLevel: " + value);
-		getPlayerControlInterface().getPlayerInterfaceGraph().setZoomlLevel(value);
+		getPlayerControlInterface().getGraphRenderer().setZoomlLevel(value);
 	}
 
 }

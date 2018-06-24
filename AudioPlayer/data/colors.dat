@@ -1,5 +1,5 @@
 rainbowColor                                      	= boolean{true}
-rainbowHue                                        	= float{0.6579951}
+rainbowHue                                        	= float{0.13000008}
 rainbowSaturation                                 	= float{0.0}
 rainbowBrightness                                 	= float{0.0}
 color_uiframe_title_forground                     	= RGBA{130, 038, 038, 255}

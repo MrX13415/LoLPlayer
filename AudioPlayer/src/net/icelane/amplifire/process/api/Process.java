@@ -1,7 +1,7 @@
-package net.icelane.lolplayer.process.api;
+package net.icelane.amplifire.process.api;
 
-import net.icelane.lolplayer.Application;
-import net.icelane.lolplayer.AppCore;
+import net.icelane.amplifire.AppCore;
+import net.icelane.amplifire.Application;
 
 /**
  *

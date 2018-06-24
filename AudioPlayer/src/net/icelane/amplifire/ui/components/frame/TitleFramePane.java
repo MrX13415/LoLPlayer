@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.gui.components.frame;
+package net.icelane.amplifire.ui.components.frame;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -8,7 +8,7 @@ import java.awt.LayoutManager;
 
 import javax.swing.JPanel;
 
-import net.icelane.lolplayer.Application;
+import net.icelane.amplifire.Application;
 
 public class TitleFramePane extends JPanel{
 

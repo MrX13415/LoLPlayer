@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.gui;
+package net.icelane.amplifire.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -16,8 +16,8 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.icelane.lolplayer.Application;
-import net.icelane.lolplayer.gui.ui.UIFrame;
+import net.icelane.amplifire.Application;
+import net.icelane.amplifire.ui.ui.UIFrame;
 import net.mrx13415.searchcircle.imageutil.color.HSB;
 
 public class ColorDialog extends UIFrame implements ActionListener,

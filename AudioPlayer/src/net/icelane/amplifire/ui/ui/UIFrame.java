@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.gui.ui;
+package net.icelane.amplifire.ui.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -16,11 +16,11 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 
-import net.icelane.lolplayer.Application;
-import net.icelane.lolplayer.gui.components.frame.TitleFrameBorder;
-import net.icelane.lolplayer.gui.components.frame.TitleFramePane;
-import net.icelane.lolplayer.gui.components.frame.TitleFrameResizeHandler;
-import net.icelane.lolplayer.gui.components.frame.TitleFrameResizeHandler.Direction;
+import net.icelane.amplifire.Application;
+import net.icelane.amplifire.ui.components.frame.TitleFrameBorder;
+import net.icelane.amplifire.ui.components.frame.TitleFramePane;
+import net.icelane.amplifire.ui.components.frame.TitleFrameResizeHandler;
+import net.icelane.amplifire.ui.components.frame.TitleFrameResizeHandler.Direction;
 
 
 public class UIFrame extends JFrame{

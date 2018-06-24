@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.player.device;
+package net.icelane.amplifire.player.device;
 
 import java.io.BufferedInputStream;
 import java.nio.ByteBuffer;
@@ -19,20 +19,20 @@ import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.swing.JFrame;
 
-import net.icelane.lolplayer.Application;
-import net.icelane.lolplayer.player.analyzer.Analyzer;
-import net.icelane.lolplayer.player.analyzer.data.PCMData;
-import net.icelane.lolplayer.player.analyzer.device.AnalyzerSourceDevice;
-import net.icelane.lolplayer.player.codec.AudioProcessingLayer;
-
 import org.lwjgl.BufferUtils;
 
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
 
+import net.icelane.amplifire.Application;
+import net.icelane.amplifire.analyzer.Analyzer;
+import net.icelane.amplifire.analyzer.PCMData;
+import net.icelane.amplifire.analyzer.source.AnalyzerSourceDevice;
+import net.icelane.amplifire.player.codec.AudioProcessingLayer;
+
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * Java Sound Audio-Device Layer
  * 
@@ -378,7 +378,7 @@ private static ByteBuffer convertAudioBytes(byte[] audio_bytes, boolean two_byte
 		FloatControl control = getVolumeControl();
 		
 		if (control == null){
-		    Application.getApplication().getControl().raiseVolumeControlError();
+		    Application.get().control().raiseVolumeControlError();
 		    return;
 		}
 		

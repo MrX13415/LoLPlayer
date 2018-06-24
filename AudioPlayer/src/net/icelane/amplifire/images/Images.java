@@ -1,7 +1,7 @@
-package net.icelane.lolplayer.images;
+package net.icelane.amplifire.images;
 
-import net.icelane.lolplayer.util.imageloader.ImageData;
-import net.icelane.lolplayer.util.imageloader.ImageInfo;
+import net.icelane.amplifire.util.imageloader.ImageData;
+import net.icelane.amplifire.util.imageloader.ImageInfo;
 
 public class Images extends ImageData{
 	

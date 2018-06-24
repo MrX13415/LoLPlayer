@@ -1,15 +1,16 @@
-package net.icelane.lolplayer.database;
+package net.icelane.amplifire.database;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+
+import net.icelane.amplifire.database.sql.DataBase;
+import net.icelane.amplifire.player.AudioFile;
+
 import java.io.File;
 
-import net.icelane.lolplayer.database.sql.DataBase;
-import net.icelane.lolplayer.player.AudioFile;
-
 /**
- * LoLPlayer II - Audio-Player Project
+ * amplifier - Audio-Player Project
  * 
  * @author Oliver Daus / Luca Madonia
  * 

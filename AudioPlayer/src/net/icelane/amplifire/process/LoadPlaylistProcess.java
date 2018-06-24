@@ -1,16 +1,16 @@
-package net.icelane.lolplayer.process;
+package net.icelane.amplifire.process;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 
-import net.icelane.lolplayer.AppCore;
-import net.icelane.lolplayer.player.AudioFile;
-import net.icelane.lolplayer.process.api.Process;
+import net.icelane.amplifire.AppCore;
+import net.icelane.amplifire.player.AudioFile;
+import net.icelane.amplifire.process.api.Process;
 
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

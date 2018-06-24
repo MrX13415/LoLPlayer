@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.util.imageloader;
+package net.icelane.amplifire.util.imageloader;
 
 import java.lang.reflect.Field;
 

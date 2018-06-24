@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.database;
+package net.icelane.amplifire.database;
 
 import java.io.File;
 import java.io.IOException;

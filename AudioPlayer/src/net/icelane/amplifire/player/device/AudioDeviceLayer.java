@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.player.device;
+package net.icelane.amplifire.player.device;
 
 import java.util.Arrays;
 
@@ -13,14 +13,14 @@ import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.swing.JFrame;
 
-import net.icelane.lolplayer.Application;
-import net.icelane.lolplayer.player.analyzer.Analyzer;
-import net.icelane.lolplayer.player.analyzer.data.PCMData;
-import net.icelane.lolplayer.player.analyzer.device.AnalyzerSourceDevice;
-import net.icelane.lolplayer.player.codec.AudioProcessingLayer;
+import net.icelane.amplifire.Application;
+import net.icelane.amplifire.analyzer.Analyzer;
+import net.icelane.amplifire.analyzer.PCMData;
+import net.icelane.amplifire.analyzer.source.AnalyzerSourceDevice;
+import net.icelane.amplifire.player.codec.AudioProcessingLayer;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * Java Sound Audio-Device Layer
  * 
@@ -270,7 +270,7 @@ public class AudioDeviceLayer implements AudioDevice, AnalyzerSourceDevice{
 		FloatControl control = getVolumeControl();
 		
 		if (control == null){
-		    Application.getApplication().getControl().raiseVolumeControlError();
+		    Application.get().control().raiseVolumeControlError();
 		    return;
 		}
 		
@@ -312,7 +312,7 @@ public class AudioDeviceLayer implements AudioDevice, AnalyzerSourceDevice{
 				open(new AudioFormat(48000, 16, 2, true, false));
 				
 				for (int i = 0; i < 1; i++) {
-					byte[] b = monoToStereo(generateSineWave(432, 700));
+					byte[] b = monoToStereo(generateSineWave(432, 700, 0.2f));
 					try {
 						write(this, b, 0, b.length);
 					} catch (LineUnavailableException e1) {						
@@ -353,7 +353,7 @@ public class AudioDeviceLayer implements AudioDevice, AnalyzerSourceDevice{
 	 * @return A byte array of a sinus wave
 	 */
 	public static byte[] generateSineWave(int frequency) {
-		return generateSineWave(frequency, 1000);
+		return generateSineWave(frequency, 1000, 127f);
 	}
 	
 	/**
@@ -361,10 +361,11 @@ public class AudioDeviceLayer implements AudioDevice, AnalyzerSourceDevice{
 	 * to be played on an AudioDevice
 	 * @param frequency The frequency of the sinus wave
 	 * @param time The duration in milliseconds
+	 * @param volume The "height" of the amplitude. (0f - 1f)
 	 * @return A byte array of a sinus wave
 	 */
-	public static byte[] generateSineWave(int frequency, int time) {
-        return generateSineWave(48000, frequency, time);
+	public static byte[] generateSineWave(int frequency, int time, float volume) {
+        return generateSineWave(48000, frequency, time, volume);
     }
 	
 	/**
@@ -373,19 +374,19 @@ public class AudioDeviceLayer implements AudioDevice, AnalyzerSourceDevice{
 	 * @param sampleRate The sample rate in Hz (e.g 44100 for 44.1 KHz or 48000 for 48.0 KHz)
 	 * @param frequency The frequency of the sinus wave
 	 * @param time The duration in milliseconds
+	 * @param volume The "height" of the amplitude. (0f - 1f)
 	 * @return A byte array of a sinus wave
 	 */
-	public static byte[] generateSineWave(int sampleRate, int frequency, int time) {
+	public static byte[] generateSineWave(int sampleRate, int frequency, int time, float volume) {
 
-		//float t = (1f / (float)(frequency)) * 1000;
-		//System.out.println(t);
-        byte[] sin = new byte[(sampleRate / 1000) * time];
-        double samplingInterval = (double) (sampleRate / frequency);
-
-        for (int i = 0; i < (sin.length); i++) {
-            double angle = (2.0 * Math.PI * i) / samplingInterval;
-            sin[i] = (byte) (Math.sin(angle) * 15);
-        }   
+		int samples = ((time * sampleRate) / 1000); 
+		byte[] sin = new byte[samples];
+		double samplingInterval = (double)sampleRate / frequency; // period
+		
+		for (int i = 0; i < sin.length; i++) {
+			 double angle = (2d * Math.PI * i) / samplingInterval;
+			 sin[i] = (byte) ((volume * Math.sin(angle)) * 127f);
+		} 
         
         return sin;
     }

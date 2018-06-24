@@ -1,11 +1,9 @@
-package net.icelane.lolplayer.player.analyzer;
+package net.icelane.amplifire.analyzer;
 
 import javax.sound.sampled.AudioFormat;
 
-import net.icelane.lolplayer.player.analyzer.data.PCMData;
-
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

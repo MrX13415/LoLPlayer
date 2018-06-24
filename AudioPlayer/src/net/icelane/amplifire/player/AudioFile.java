@@ -1,13 +1,13 @@
-package net.icelane.lolplayer.player;
+package net.icelane.amplifire.player;
 
 import java.io.File;
 
-import net.icelane.lolplayer.player.codec.AudioProcessingLayer;
-import net.icelane.lolplayer.player.codec.AudioType;
 import de.vdheide.mp3.MP3File;
+import net.icelane.amplifire.player.codec.AudioProcessingLayer;
+import net.icelane.amplifire.player.codec.AudioType;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus / Luca Madonia
  * 

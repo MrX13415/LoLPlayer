@@ -1,17 +1,18 @@
-package net.icelane.lolplayer.player.analyzer.device;
+package net.icelane.amplifire.analyzer.source;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.DataLine.Info;
 import javax.swing.JFrame;
+
+import net.icelane.amplifire.analyzer.Analyzer;
+
 import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Port;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
-
-import net.icelane.lolplayer.player.analyzer.Analyzer;
 
 
 public class AudioCapture extends Thread implements AnalyzerSourceDevice{

@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.gui.console;
+package net.icelane.amplifire.ui.console;
 
 import java.io.IOException;
 import java.io.OutputStream;

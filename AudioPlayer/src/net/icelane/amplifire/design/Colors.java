@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.design;
+package net.icelane.amplifire.design;
 
 import java.awt.Color;
 import java.io.BufferedReader;
@@ -15,10 +15,10 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
-import net.icelane.lolplayer.Application;
-import net.icelane.lolplayer.gui.UserInterface;
-import net.icelane.lolplayer.gui.ui.UIFrame;
-import net.icelane.lolplayer.player.analyzer.AudioGraph;
+import net.icelane.amplifire.Application;
+import net.icelane.amplifire.analyzer.AudioGraph;
+import net.icelane.amplifire.ui.UserInterface;
+import net.icelane.amplifire.ui.ui.UIFrame;
 import net.mrx13415.searchcircle.imageutil.ImageModifier;
 import net.mrx13415.searchcircle.imageutil.color.HSB;
 
@@ -190,7 +190,7 @@ public class Colors {
 //				ui.getMenu().setBackground(Application.getColors().color_menu_background1);
 //				ui.getMenu().setForeground(Application.getColors().color_menu_forground1);
 		
-				ArrayList<AudioGraph> ags = ui.getPlayerControlInterface().getPlayerInterfaceGraph().getGraphs();
+				ArrayList<AudioGraph> ags = ui.getPlayerControlInterface().getGraphRenderer().getGraphs();
 
 				//TODOD: handle merged channels: option audigraph class?... 
 				for (int i = 0; i < ags.size(); i++) {

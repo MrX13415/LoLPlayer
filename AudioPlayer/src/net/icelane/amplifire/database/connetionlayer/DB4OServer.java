@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.database.connetionlayer;
+package net.icelane.amplifire.database.connetionlayer;
 
 //import com.db4o.ObjectServer;
 //import com.db4o.cs.Db4oClientServer;

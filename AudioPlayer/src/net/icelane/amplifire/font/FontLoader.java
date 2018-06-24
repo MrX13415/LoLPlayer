@@ -1,10 +1,10 @@
-package net.icelane.lolplayer.font;
+package net.icelane.amplifire.font;
 
 import java.awt.Font;
 import java.io.InputStream;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

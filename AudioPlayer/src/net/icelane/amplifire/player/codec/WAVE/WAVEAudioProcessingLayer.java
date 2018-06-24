@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.player.codec.WAVE;
+package net.icelane.amplifire.player.codec.WAVE;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -11,16 +11,16 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import net.icelane.lolplayer.player.codec.AudioProcessingLayer;
-import net.icelane.lolplayer.player.codec.AudioType;
-import net.icelane.lolplayer.player.device.AudioDeviceLayer;
-import net.icelane.lolplayer.player.listener.PlayerEvent;
-import net.icelane.lolplayer.player.listener.PlayerListener;
 import javazoom.jl.decoder.BitstreamException;
 import javazoom.jl.decoder.JavaLayerException;
+import net.icelane.amplifire.player.codec.AudioProcessingLayer;
+import net.icelane.amplifire.player.codec.AudioType;
+import net.icelane.amplifire.player.device.AudioDeviceLayer;
+import net.icelane.amplifire.player.listener.PlayerEvent;
+import net.icelane.amplifire.player.listener.PlayerListener;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  *  
  *  Audio processing layer for the WAVE audio file format
  * 

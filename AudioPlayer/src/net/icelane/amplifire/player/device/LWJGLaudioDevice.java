@@ -1,4 +1,4 @@
-package net.icelane.lolplayer.player.device;
+package net.icelane.amplifire.player.device;
 
 import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
@@ -11,12 +11,12 @@ import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
-import net.icelane.lolplayer.player.analyzer.Analyzer;
-
 import org.lwjgl.BufferUtils;
 
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
+
+import net.icelane.amplifire.analyzer.Analyzer;
 
 
 public class LWJGLaudioDevice implements AudioDevice {

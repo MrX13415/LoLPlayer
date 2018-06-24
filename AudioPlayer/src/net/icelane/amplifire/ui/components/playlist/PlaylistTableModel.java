@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.icelane.lolplayer.gui.components.playlist;
+package net.icelane.amplifire.ui.components.playlist;
 
 import java.awt.Color;
 import java.awt.GradientPaint;
@@ -13,11 +13,11 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import net.icelane.lolplayer.player.AudioFile;
-import net.icelane.lolplayer.player.AudioPlaylist;
+import net.icelane.amplifire.player.AudioFile;
+import net.icelane.amplifire.player.AudioPlaylist;
 
 /**
- *  LoLPlayer II - Audio-Player Project
+ *  amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 

@@ -1,11 +1,11 @@
-package net.icelane.lolplayer.process;
+package net.icelane.amplifire.process;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 
 /**
- * LoLPlayer II - Audio-Player Project
+ * amplifier - Audio-Player Project
  * 
  * @author Oliver Daus
  * 
