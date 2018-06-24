@@ -46,11 +46,13 @@ public class ColorDialog extends UIFrame implements ActionListener,
 //		super(parent);
 
 		rainbowEffect = new JCheckBox("Enable rainbow effect");
+		rainbowEffect.setOpaque(false);
 		rainbowEffect.setForeground(Color.white);
 		rainbowEffect.addActionListener(this);
 		rainbowEffect.setSelected(Application.getColors().isRainbowColor());
 
 		hreset = new JButton();
+		hreset.setOpaque(false);
 		hreset.setPreferredSize(new Dimension(25, 25));
 		hreset.addActionListener(new ActionListener() {
 
@@ -61,6 +63,7 @@ public class ColorDialog extends UIFrame implements ActionListener,
 		});
 
 		sreset = new JButton();
+		sreset.setOpaque(false);
 		sreset.setPreferredSize(new Dimension(25, 25));
 		sreset.addActionListener(new ActionListener() {
 
@@ -71,6 +74,7 @@ public class ColorDialog extends UIFrame implements ActionListener,
 		});
 		
 		breset = new JButton();
+		breset.setOpaque(false);
 		breset.setPreferredSize(new Dimension(25, 25));
 		breset.addActionListener(new ActionListener() {
 
@@ -81,14 +85,17 @@ public class ColorDialog extends UIFrame implements ActionListener,
 		});
 		
 		hue = new JSlider(0, 10000, (int) (Application.getColors().getRainbowHue() * 10000));
+		hue.setOpaque(false);
 		hue.setValue((int) (Application.getColors().getRainbowHue() * 10000));
 		hue.setEnabled(!rainbowEffect.isSelected());
 		hue.addChangeListener(this);
 
 		saturation = new JSlider(-10000, 10000, (int) (Application.getColors().getRainbowSaturation() * 10000));
+		saturation.setOpaque(false);
 		saturation.addChangeListener(this);
 
 		brightness = new JSlider(-10000, 10000, (int) (Application.getColors().getRainbowBrightness() * 10000));
+		brightness.setOpaque(false);
 		brightness.addChangeListener(this);
 
 		JLabel t1 = new JLabel("Hue: ");
