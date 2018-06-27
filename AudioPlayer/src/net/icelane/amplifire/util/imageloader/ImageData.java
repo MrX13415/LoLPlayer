@@ -1,6 +1,8 @@
 package net.icelane.amplifire.util.imageloader;
 
-import com.sun.glass.ui.Size;
+import java.awt.Dimension;
+
+
 
 public abstract class ImageData {
 
@@ -12,7 +14,7 @@ public abstract class ImageData {
 		return new ImageInfo(imagename, size);
 	}
 
-	public static ImageInfo set(String imagename, Size size){
+	public static ImageInfo set(String imagename, Dimension size){
 		return new ImageInfo(imagename, size);
 	}
 	

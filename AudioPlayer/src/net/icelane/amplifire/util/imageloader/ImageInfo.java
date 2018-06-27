@@ -1,13 +1,13 @@
 package net.icelane.amplifire.util.imageloader;
 
-import com.sun.glass.ui.Size;
+import java.awt.Dimension;
 
 public class ImageInfo {
 
 	public static final int SIZE_UNDEFINED = -1;
 
 	private String name;
-	private Size size;
+	private Dimension size;
 	
 	protected ImageInfo(String name) {
 		this(name, SIZE_UNDEFINED, SIZE_UNDEFINED);
@@ -18,10 +18,10 @@ public class ImageInfo {
 	}
 
 	protected ImageInfo(String name, int width, int height) {
-		this(name, new Size(width, height));
+		this(name, new Dimension(width, height));
 	}
 	
-	protected ImageInfo(String name, Size size) {
+	protected ImageInfo(String name, Dimension size) {
 		super();
 		this.name = name;
 		this.size = size;
@@ -43,7 +43,7 @@ public class ImageInfo {
 		return size.height;
 	}
 	
-	public Size getSize(){
+	public Dimension getSize(){
 		return size;
 	}
 	
