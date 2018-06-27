@@ -5,9 +5,12 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.util.logging.Logger;
 
 import javax.swing.JComponent;
+import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import net.icelane.amplifire.database.sql.LoLPlayerDB;
 import net.icelane.amplifire.design.Colors;
@@ -19,47 +22,153 @@ import net.icelane.amplifire.ui.AboutDialog;
 import net.icelane.amplifire.ui.console.JConsole;
 
 /**
- *  amplifier - Audio-Player Project
- * 
- * @author Oliver Daus
- * @version 0.1.9
- */ 
-public class Application {
+ * -- amplifire 
+ *
+ * <p>Basic application handling, like console agruments and logger.</p>
+ *
+ * @version 
+ * @author MrX13415
+ */
+public final class Application {
 
-	public static String App_Name = "amplifier";
-	public static String App_Version = "0.1.9";
-	public static String App_Name_Version = App_Name + " (" + App_Version + ")";	
-	public static String App_Author = "Oliver Daus";	
-	public static String App_License = "MIT License";
-    public static String App_License_Link = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-        
+	public static final String App_Name = "amplifier";
+	public static final String App_Version = "0.1.9";
+	public static final String App_Name_Version = String.format("%s (%s)", App_Name, App_Version);	
+	public static final String App_Author = "Oliver Daus";	
+	public static final String App_License = "MIT License";
+    public static final String App_License_Link = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+    
+    private static Logger logger; 
+    
+    private static String[] arguments;  
     private static boolean debug = false;
-	private static boolean waitForExit = false;
+	private static boolean exit = false;
 	
-    private static Application application;
-        
-	private LoLPlayerDB database;
+	private static JConsole console;
+	private static AppCore control;
 	
-    private AppCore control;
-    private JConsole console;
-    
     private static Colors colors = new Colors();
-            
-    
-	/**
-	 * @param args
-	 *            the command line arguments
-	 */
-	public static void main(String[] args) {
-		application = new Application();
-		application.initialize();
-		application.proccessCommands(args);
-		application.registerDEBUGclasses();
-		application.run();
-		
-//		loadClasses(net.icelane.lolplayer.gui.UserInterface.class);
-    }
+	private static LoLPlayerDB database;
+	     
 	
+    public static void launch(String[] args){
+    	arguments = args;
+    	
+    	logger = Logger.getLogger(Application.class.getName());    	  
+
+    	//TODO: console
+    	console = new JConsole();
+		console.setVisible(true);
+
+		logger.info(App_Name_Version);
+		
+		initialize();
+	}
+
+    private static void initialize() {
+		
+		proccessCommands(arguments);
+		
+		try {
+			System.out.print("Load Nimubs Look and Feel (L&F) ...\t");
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); //com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+			System.out.println("OK");
+		} catch (Exception ex) {
+			System.out.println("ERROR");
+			System.err.println("Error: " + ex);
+		}
+
+		//initDB();
+
+		FontLoader.loadFonts();
+
+		net.icelane.amplifire.util.imageloader.ImageLoader.loadImages(Images.class);
+		
+		ImageLoader.loadImageResourcesList();
+		ImageLoader.loadImages();
+
+		colors.importData();
+		
+		AboutDialog.loadAboutText();
+		                
+		try {
+			control = new AppCore();
+			colors.initRainbowColorThread();
+		} catch (Exception e) {
+			System.out.println("Unexpected Error");
+			e.printStackTrace();
+		}
+
+	}
+	
+	public static void proccessCommands(String[] args){
+		if (args.length <= 0) return;
+		
+		for (String cmdarg : args) {
+			String arg = cmdarg.toLowerCase();
+			
+			if (arg.equals("-?") || arg.equals("-h") || arg.equals("--help")){
+				System.out.println(getCmdHelp());
+				exit();
+			}else if (arg.equals("-d") || arg.equals("--debug")){
+				debug = true;
+				System.out.println("Debug mode ...\t\t\t\tENABLED");
+			}else{
+				System.out.println(getCmdUsage());
+				exit();
+			}
+		}
+	}
+	
+
+	public static void exit() {
+		if (exit) return;
+	
+		control.getAnalyzer().stopWait();
+
+		SavePlaylistProcess spdbp = null;
+		
+		try {
+			spdbp = control.savePlaylistToDataFile();
+		} catch (Exception e) {}
+		
+		final SavePlaylistProcess fspdbp = spdbp;
+		
+        new Thread(new Runnable() {
+			@Override
+			public void run() {
+				exit = true;
+				
+				colors.exportData();
+
+				System.out.println("Awaiting end of process to exit ...");
+		        while(fspdbp != null && !fspdbp.isReachedEnd()){
+		        	System.out.print("");
+		        }
+		        exit = false;
+		        
+		        System.out.println("Exit ...");
+		        System.exit(0);
+			}
+		}).start();
+	}
+	
+	public static String[] getArguments() {
+		return arguments;
+	}
+
+	public static boolean isDebug() {
+		return debug;
+	}
+
+	public static AppCore control() {
+		return control;
+	}
+
+	public static JConsole console() {
+		return console;
+	}
+
 	
 //	public static <T> void loadClasses(Class<T> _Class){
 //
@@ -137,17 +246,9 @@ public class Application {
 //		}
 //	}
 
-	public void initialize(){
-		try {
-			console = new JConsole();
-			console.setVisible(true);			
 
-		} catch (Exception e) {
-			System.out.println("ERROR: Can't setup console: " + e);
-		}
-
-		System.out.println(App_Name_Version);
-	}
+	
+	
 	
 	public static void drawReflectionEffect(JComponent c, Graphics g){
 		drawReflectionEffect(c, g, 0.7f);
@@ -166,24 +267,7 @@ public class Application {
         g2d.fillRect(0, 0, w, (h/100)*59);
 	}
 	
-	public void proccessCommands(String[] args){
-		if (args.length <= 0) return;
-		
-		for (String cmdarg : args) {
-			String arg = cmdarg.toLowerCase();
-			
-			if (arg.equals("-?") || arg.equals("-h") || arg.equals("--help")){
-				System.out.println(getCmdHelp());
-				exit();
-			}else if (arg.equals("-d") || arg.equals("--debug")){
-				debug = true;
-				System.out.println("Debug mode ...\t\t\t\tENABLED");
-			}else{
-				System.out.println(getCmdUsage());
-				exit();
-			}
-		}
-	}
+	
 	
 	public void registerDEBUGclasses(){
 //		ClassLoader loader = ClassLoader.getSystemClassLoader();		
@@ -223,106 +307,9 @@ public class Application {
 				"   -d,\t--debug\t\tEnable the debug mode\n" +
 				"\n";
 	}
-	
-	/**
-	 * Start a new Instance of the AudioPlayer ...
-	 */
-	public void run() {
-		
-//      UIManager.put("TabbedPane.selected", Color.GREEN);
-//		UIManager.put("MenuItem.selectionBackground", Color.GREEN);
-//		UIManager.put("MenuItem.selectionForeground", Color.BLUE);
-//		UIManager.put("Menu.selectionBackground", Color.GREEN);
-//		UIManager.put("Menu.selectionForeground", Color.BLUE);
-//		UIManager.put("MenuBar.selectionBackground", Color.GREEN);
-//		UIManager.put("MenuBar.selectionForeground", Color.BLUE);
-               
-		
-		try {
-			System.out.print("Load Nimubs Look and Feel (L&F) ...\t");
-			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel"); //com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-			System.out.println("OK");
-		} catch (Exception ex) {
-			System.out.println("ERROR");
-			System.err.println("Error: " + ex);
-		}
-
-		//initDB();
-
-		FontLoader.loadFonts();
-
-		net.icelane.amplifire.util.imageloader.ImageLoader.loadImages(Images.class);
-		
-		ImageLoader.loadImageResourcesList();
-		ImageLoader.loadImages();
-
-		colors.importData();
-		
-		AboutDialog.loadAboutText();
-		                
-		try {
-			control = new AppCore();
-			colors.initRainbowColorThread();
-		} catch (Exception e) {
-			System.out.println("Unexpected Error");
-			e.printStackTrace();
-		}
-
-	}
 
 	public static Colors getColors() {
 		return colors;
 	}
 
-	public static boolean isDebug() {
-		return debug;
-	}
-
-	public static void exit() {
-		if (waitForExit) return;
-	
-		get().control().getAnalyzer().stopWait();
-
-		SavePlaylistProcess spdbp = null;
-		
-		try {
-			spdbp = get().control.savePlaylistToDataFile();
-		} catch (Exception e) {}
-		
-		final SavePlaylistProcess fspdbp = spdbp;
-		
-        new Thread(new Runnable() {
-			@Override
-			public void run() {
-				waitForExit = true;
-				
-				colors.exportData();
-
-				System.out.println("Awaiting end of process to exit ...");
-		        while(fspdbp != null && !fspdbp.isReachedEnd()){
-		        	System.out.print("");
-		        }
-		        waitForExit = false;
-		        
-		        System.out.println("Exit ...");
-		        System.exit(0);
-			}
-		}).start();
-	}
-
-    public static Application get() {
-        return application;
-    }
-
-    public LoLPlayerDB getDatabase() {
-        return database;
-    }
-
-    public AppCore control() {
-        return control;
-    }
-
-	public JConsole getConsole() {
-		return console;
-	}   
 }

@@ -378,7 +378,7 @@ private static ByteBuffer convertAudioBytes(byte[] audio_bytes, boolean two_byte
 		FloatControl control = getVolumeControl();
 		
 		if (control == null){
-		    Application.get().control().raiseVolumeControlError();
+		    Application.control().raiseVolumeControlError();
 		    return;
 		}
 		

@@ -351,7 +351,8 @@ public class AppCore extends UserInterface implements PlayerListener {
 					double posperc = Math.round(100d / (double) lenght * (double) time * 10d) / 10d;
 					if (posperc > 20f){
 						try {
-							Application.get().getDatabase().updateFrequency(audioProcessingLayer.getAudioFile().getId());
+							//TODO: getDatabase
+//							Application.get().getDatabase().updateFrequency(audioProcessingLayer.getAudioFile().getId());
 						} catch (Exception e) {}					
 					}
 					
@@ -724,7 +725,7 @@ public class AppCore extends UserInterface implements PlayerListener {
 	}
 
 	public void onMenu_help_console() {
-		Application.get().getConsole().show();
+		Application.console().show();
 	}
 	
 	private JFileChooser initOpenDialog() {

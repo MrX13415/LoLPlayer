@@ -270,7 +270,7 @@ public class AudioDeviceLayer implements AudioDevice, AnalyzerSourceDevice{
 		FloatControl control = getVolumeControl();
 		
 		if (control == null){
-		    Application.get().control().raiseVolumeControlError();
+		    Application.control().raiseVolumeControlError();
 		    return;
 		}
 		
