@@ -26,6 +26,11 @@ import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.glfw.GLFW.glfwTerminate;
 import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
+import static org.lwjgl.opengl.GL11.GL_PROJECTION;
+import static org.lwjgl.opengl.GL11.glLoadIdentity;
+import static org.lwjgl.opengl.GL11.glMatrixMode;
+import static org.lwjgl.opengl.GL11.glOrtho;
+import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 import java.awt.Dimension;
@@ -81,7 +86,7 @@ public abstract class GLWRender extends GraphRender {
 		glfwDefaultWindowHints(); // optional, the current window hints are already the default
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
-
+		
 		System.out.println("[GLWRender]  -> Create Window ...");
 		// Create the window
 		window = glfwCreateWindow(this.size.width, this.size.height, this.title, NULL, NULL);
@@ -173,11 +178,21 @@ public abstract class GLWRender extends GraphRender {
 
 	public abstract void gl_shutdown();
 
-	public Dimension GetSize(){	
+	public Dimension GetSize(){
 		IntBuffer glww = BufferUtils.createIntBuffer(1);
 		IntBuffer glwh = BufferUtils.createIntBuffer(1);
 		glfwGetFramebufferSize(window, glww, glwh);
-		return new Dimension(glww.get(0), glwh.get(0));
+		Dimension currentSize = new Dimension(glww.get(0), glwh.get(0));
+		
+		if (currentSize.height != size.height || currentSize.width != size.width) {
+			glViewport(0, 0, currentSize.width, currentSize.height);
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+			glOrtho(0.0f, currentSize.width, currentSize.height, 0.0f, 0.0f, 1.0f);
+		}
+		
+		size = currentSize;
+		return size;
 	}
 	
 	public String GetTitle() {
